@@ -79,8 +79,8 @@ export async function ensureDatabase(): Promise<void> {
 async function initialize(): Promise<void> {
   const db = getDatabase();
   await db.batch(schemaStatements.map((statement) => db.prepare(statement)));
-  const count = await db.prepare("SELECT COUNT(*) AS count FROM seasons").first<{ count: number }>();
-  if (!count?.count) await seedDatabase(db);
+  const count = await db.prepare("SELECT COUNT(*) AS count FROM seasons").first<{ count: number | string }>();
+  if (Number(count?.count ?? 0) === 0) await seedDatabase(db);
   await ensureInitialOwner(db);
 }
 
