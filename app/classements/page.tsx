@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ContentNav } from "@/components/ContentNav";
+import { ChampionshipControlRoom, type ChampionshipRow } from "@/components/ChampionshipControlRoom";
 import { getPublicOverview } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
@@ -7,13 +6,17 @@ export const dynamic = "force-dynamic";
 export default async function RankingsPage({ searchParams }: { searchParams: Promise<{ vue?: string }> }) {
   const [{ vue }, data] = await Promise.all([searchParams, getPublicOverview()]);
   const individual = vue === "individuel";
-  const rows = individual ? data.participants : data.boats;
-  return <main className="content-page"><ContentNav /><div className="page-wrap">
-    <section className="page-hero"><div><h1>Le classement,<br /><span className="acid">sans zone grise.</span></h1><p>Une lecture consolidée de la saison par bateau et par marin. Chaque score conserve le barème qui l’a produit.</p></div><div className="hero-stat"><strong>{rows.length}</strong><span>{individual ? "participants classés" : "bateaux engagés"}</span></div></section>
-    <div className="section-head"><h2>{individual ? "Classement individuel" : "Classement des bateaux"}</h2><div><Link className={`button small ${!individual ? "primary" : ""}`} href="/classements?vue=bateaux">Bateaux</Link> <Link className={`button small ${individual ? "primary" : ""}`} href="/classements?vue=individuel">Individuel</Link></div></div>
-    <table className="data-table"><thead><tr><th>Position</th><th>{individual ? "Participant" : "Bateau"}</th><th>Courses</th><th>Points</th></tr></thead><tbody>{rows.map((row, index) => {
-      const slug = String(row.slug);
-      return <tr key={String(row.id)}><td className="position-cell" data-label="Position">{index + 1}</td><td data-label={individual ? "Participant" : "Bateau"}><Link className="entity-link" href={individual ? `/participants/${slug}` : `/bateaux/${slug}`}>{String(row.name)}</Link>{!individual && row.sail_number ? <div className="muted mono">{String(row.sail_number)}</div> : null}</td><td data-label="Courses" className="mono">{String(row.races)}</td><td data-label="Points" className="mono acid">{Number(row.points).toFixed(1)}</td></tr>;
-    })}</tbody></table>
-  </div></main>;
+  const rows: ChampionshipRow[] = individual
+    ? data.participants.map((source, index) => {
+        const id = String(source.id);
+        const slug = String(source.slug);
+        const assignment = data.race.leaderboard.flatMap((entry) => entry.crew.map((member) => ({ ...member, boatName: entry.boatName, boatSlug: entry.boatSlug, color: entry.color }))).find((member) => member.id === id);
+        return { id, name: String(source.name), slug, subtitle: `${String(source.nationality)} · ${assignment?.role ?? "Marin"}`, color: assignment?.color ?? "#d9ff00", points: Number(source.points), races: Number(source.races), position: index + 1, profileHref: `/participants/${slug}`, boatName: assignment?.boatName, boatHref: assignment ? `/bateaux/${assignment.boatSlug}` : undefined, role: assignment?.role };
+      })
+    : data.boats.map((source, index) => {
+        const slug = String(source.slug);
+        const entry = data.race.leaderboard.find((row) => row.boatSlug === slug);
+        return { id: String(source.id), name: String(source.name), slug, subtitle: `${String(source.model)} · ${String(source.sail_number)}`, color: String(source.color), points: Number(source.points), races: Number(source.races), position: index + 1, profileHref: `/bateaux/${slug}`, crew: entry?.crew.map((member) => ({ name: member.name, slug: member.slug, role: member.role })) };
+      });
+  return <ChampionshipControlRoom mode={individual ? "individual" : "boats"} rows={rows} raceSlug={data.race.slug} eventName={data.race.eventName} />;
 }

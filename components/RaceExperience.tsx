@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { CircleGauge, Flag, ListOrdered, Map, Sailboat, Settings, ShieldCheck, Trophy, Users } from "lucide-react";
+import { CircleGauge, Flag, ListOrdered, Map, Settings, ShieldCheck, Trophy, Users } from "lucide-react";
 import type { RaceView } from "@/lib/domain";
 import { RaceMap } from "./RaceMap";
 
@@ -14,15 +14,14 @@ function formatTime(seconds: number | null) {
   return [hours, minutes, secs].map((value) => String(value).padStart(2, "0")).join(":");
 }
 
-const nav = [
-  { href: "/", label: "Carte", icon: Map },
-  { href: "/classements", label: "Classements", icon: ListOrdered },
-  { href: "/classements?vue=bateaux", label: "Bateaux", icon: Sailboat },
-  { href: "/classements?vue=individuel", label: "Équipages", icon: Users },
-  { href: "/admin", label: "Admin", icon: Settings },
-];
-
-export function RaceExperience({ race }: { race: RaceView }) {
+export function RaceExperience({ race, context = "map" }: { race: RaceView; context?: "map" | "course" }) {
+  const nav = [
+    { href: "/", label: "Carte", icon: Map, id: "map" },
+    { href: `/courses/${race.slug}`, label: "Course", icon: Flag, id: "course" },
+    { href: "/classements", label: "Classements", icon: ListOrdered, id: "rankings" },
+    { href: "/classements?vue=individuel", label: "Marins", icon: Users, id: "sailors" },
+    { href: "/admin", label: "Admin", icon: Settings, id: "admin" },
+  ];
   const [selectedEntryId, setSelectedEntryId] = useState(race.leaderboard[1]?.entryId ?? race.leaderboard[0]?.entryId);
   const selected = useMemo(() => race.leaderboard.find((row) => row.entryId === selectedEntryId) ?? race.leaderboard[0], [race.leaderboard, selectedEntryId]);
   const leader = race.leaderboard[0];
@@ -33,7 +32,7 @@ export function RaceExperience({ race }: { race: RaceView }) {
       <aside className="side-nav" aria-label="Navigation principale">
         <Link className="side-brand" href="/" aria-label="Accueil SailBoard"><span className="brand"><span>SailBoard</span><span>Race</span></span></Link>
         <nav className="nav-stack">
-          {nav.map(({ href, label, icon: Icon }, index) => <Link key={label} href={href} aria-label={label} className={`nav-link ${index === 0 ? "active" : ""}`}><Icon aria-hidden /><span>{label}</span></Link>)}
+          {nav.map(({ href, label, icon: Icon, id }) => <Link key={label} href={href} aria-label={label} className={`nav-link ${context === id ? "active" : ""}`}><Icon aria-hidden /><span>{label}</span></Link>)}
         </nav>
         <div className="nav-season"><strong>{race.eventName}</strong><small>17 JUIL. 2026</small></div>
       </aside>
@@ -43,7 +42,7 @@ export function RaceExperience({ race }: { race: RaceView }) {
           <div className="status-block"><span className="status-dot" /><span>Course terminée · {race.name}</span></div>
           <div className="status-block"><Flag size={17} /><span>{race.distanceNm.toFixed(1)} NM · {race.laps} tour</span></div>
           <div className="top-actions">
-            <Link className="button primary" href={`/courses/${race.slug}`}><CircleGauge />Détail course</Link>
+            <Link className="button primary" href={context === "course" ? "/" : `/courses/${race.slug}`}><CircleGauge />{context === "course" ? "Retour carte" : "Détail course"}</Link>
             <Link className="button" href="/classements"><Trophy />Classements</Link>
           </div>
         </header>
