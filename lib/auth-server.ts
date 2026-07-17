@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import { betterAuth } from "better-auth";
+import { securePostgresPoolConfig } from "./postgres-config";
 
 const disabledDatabaseUrl = "postgresql://disabled:disabled@127.0.0.1:5432/disabled";
 const disabledSecret = "sailboard-auth-is-not-configured-0000000000000000";
@@ -19,7 +20,7 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
   secret: process.env.BETTER_AUTH_SECRET ?? disabledSecret,
   database: new Pool({
-    connectionString: process.env.DATABASE_URL ?? disabledDatabaseUrl,
+    ...securePostgresPoolConfig(process.env.DATABASE_URL ?? disabledDatabaseUrl),
     max: 3,
     allowExitOnIdle: true,
   }),

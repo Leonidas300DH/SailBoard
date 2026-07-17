@@ -28,6 +28,7 @@ test("utilise Google OAuth et une base PostgreSQL standard", async () => {
   const auth = await readFile(new URL("lib/auth-server.ts", root), "utf8");
   const database = await readFile(new URL("db/index.ts", root), "utf8");
   const databaseQueries = await readFile(new URL("lib/database.ts", root), "utf8");
+  const postgresConfig = await readFile(new URL("lib/postgres-config.ts", root), "utf8");
   assert.match(auth, /betterAuth/);
   assert.match(auth, /socialProviders/);
   assert.match(auth, /google/);
@@ -35,6 +36,7 @@ test("utilise Google OAuth et une base PostgreSQL standard", async () => {
   assert.match(database, /BEGIN/);
   assert.match(database, /ROLLBACK/);
   assert.match(databaseQueries, /Number\(count\?\.count \?\? 0\) === 0/);
+  assert.match(postgresConfig, /rejectUnauthorized: true/);
 });
 
 test("protège toutes les mutations d’administration côté serveur", async () => {

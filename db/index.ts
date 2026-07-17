@@ -1,5 +1,6 @@
 import { Pool, type PoolClient, type QueryResultRow } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { securePostgresPoolConfig } from "@/lib/postgres-config";
 import * as schema from "./schema";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
@@ -16,7 +17,7 @@ export function getPool() {
     throw new Error("DATABASE_NOT_CONFIGURED");
   }
   pool ??= new Pool({
-    connectionString: process.env.DATABASE_URL,
+    ...securePostgresPoolConfig(process.env.DATABASE_URL),
     max: 5,
     idleTimeoutMillis: 20_000,
     connectionTimeoutMillis: 10_000,
