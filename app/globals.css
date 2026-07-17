@@ -68,6 +68,7 @@ button { cursor: pointer; }
 .race-map .maplibregl-ctrl-attrib { background: rgba(0,12,20,.78); color: #bac9d0; }
 .race-map .maplibregl-ctrl-attrib a { color: #d9e6ea; }
 .map-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(0,16,27,.42), transparent 22%, transparent 70%, rgba(0,16,27,.2)); mix-blend-mode: multiply; }
+.global-map-shade { background: radial-gradient(circle at 62% 44%, transparent 0 16%, rgba(0,16,27,.08) 42%, rgba(0,16,27,.38) 100%); mix-blend-mode: normal; }
 .map-caption { position: absolute; top: 16px; left: 16px; z-index: 4; display: flex; gap: 8px; }
 .map-chip { background: rgba(0,16,27,.84); border: 1px solid var(--line-strong); padding: 10px 12px; font: 700 12px var(--font-race), sans-serif; text-transform: uppercase; backdrop-filter: blur(10px); }
 .label { display: block; margin-bottom: 5px; color: var(--muted); font: 600 10px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .08em; }
@@ -294,6 +295,7 @@ button { cursor: pointer; }
 
 .season-control-body { min-height: 0; padding: 16px; display: grid; grid-template-rows: minmax(430px,1fr) 250px; gap: 14px; }
 .season-map-hero { position: relative; min-height: 430px; overflow: hidden; border: 1px solid var(--line); }
+.global-map-canvas { position: absolute; inset: 0; overflow: hidden; }
 .season-command { position: absolute; z-index: 4; left: 22px; bottom: 22px; width: min(490px, calc(100% - 44px)); padding: 22px; background: rgba(0,16,26,.92); border-left: 3px solid var(--acid); backdrop-filter: blur(14px); }
 .season-command h2 { margin: 5px 0 0; font: 700 clamp(38px,5vw,64px)/.85 var(--font-race), sans-serif; text-transform: uppercase; }
 .season-command p { margin: 8px 0 15px; color: var(--muted); }
@@ -403,9 +405,10 @@ button { cursor: pointer; }
   .entity-place { grid-column: 2; grid-row: 1; text-align: right; }
   .entity-ledger-row > .mono { grid-column: 2; grid-row: 2; text-align: right; }
   .season-control-body { padding: 10px; display: block; }
-  .season-map-hero { min-height: 68vh; }
+  .season-map-hero { min-height: 0; overflow: visible; }
+  .global-map-canvas { position: relative; inset: auto; min-height: 52vh; border-bottom: 1px solid var(--line); }
   .season-count { top: 10px; right: 10px; min-width: 145px; }
-  .season-command { left: 10px; bottom: 10px; width: calc(100% - 20px); padding: 16px; }
+  .season-command { position: relative; left: auto; bottom: auto; width: 100%; padding: 18px; border-left-width: 3px; }
   .season-command h2 { font-size: 42px; }
   .season-lower-grid { margin-top: 10px; grid-template-columns: 1fr; }
   .season-event-row { grid-template-columns: 52px 1fr 16px; }

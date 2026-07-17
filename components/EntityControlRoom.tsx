@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Activity, ChevronRight, Flag, Gauge, Radio, ShieldCheck, Trophy, Users } from "lucide-react";
 import { PublicCockpitShell } from "./PublicCockpitShell";
-import { RaceMap } from "./RaceMap";
+import { EventLocatorMap } from "./EventLocatorMap";
 import type { RaceView } from "@/lib/domain";
 
 type HistoryRow = { raceName: string; raceSlug: string; eventName: string; date: string; position: number | null; points: number; status?: string; boatName?: string; boatSlug?: string; role?: string };
@@ -22,6 +22,7 @@ function RecordList({ rows, participant }: { rows: HistoryRow[]; participant?: b
 export function BoatControlRoom({ boat, history, race }: { boat: { name: string; slug: string; model: string; sailNumber: string; color: string }; history: HistoryRow[]; race: RaceView }) {
   const current = race.leaderboard.find((row) => row.boatSlug === boat.slug);
   const total = history.reduce((sum, row) => sum + row.points, 0);
+  const locatedRaces = [{ id: race.id, name: `${race.eventName} · ${race.name}`, locationName: race.locationName, coordinates: race.center, href: `/courses/${race.slug}`, status: race.status }];
   return <PublicCockpitShell active="rankings" raceSlug={race.slug} eventName={race.eventName} title={`Dossier bateau · ${boat.name}`} eyebrow="Flotte officielle · unité sportive">
     <div className="entity-control-body" style={{ "--competitor-color": boat.color } as React.CSSProperties}>
       <section className="entity-hero-grid">
@@ -32,7 +33,7 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
           <div className="entity-score"><span>Score championnat</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
           <div className="entity-badges"><span><ShieldCheck /> Résultats certifiés</span><span><Activity /> {history.length} manche disputée</span></div>
         </div>
-        <div className="entity-map-panel"><RaceMap center={race.center} geojson={race.courseGeoJson} /><div className="map-shade" /><div className="entity-map-label"><span>Dernier théâtre d’opérations</span><strong>{race.locationName}</strong><small>{race.eventName} · {race.name}</small></div></div>
+        <div className="entity-map-panel"><EventLocatorMap races={locatedRaces} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName} · {race.name}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Dernière manche</span><span className="mono">OFFICIEL</span></div>
           <div className="telemetry-position"><span>Position</span><strong>{current?.position ?? "—"}<sup>e</sup></strong></div>
@@ -51,6 +52,7 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
   const total = history.reduce((sum, row) => sum + row.points, 0);
   const latest = history[0];
   const currentEntry = race.leaderboard.find((entry) => entry.crew.some((member) => member.slug === participant.slug));
+  const locatedRaces = [{ id: race.id, name: `${race.eventName} · ${race.name}`, locationName: race.locationName, coordinates: race.center, href: `/courses/${race.slug}`, status: race.status }];
   return <PublicCockpitShell active="sailors" raceSlug={race.slug} eventName={race.eventName} title={`Dossier marin · ${participant.name}`} eyebrow="Performance individuelle · profil officiel">
     <div className="entity-control-body" style={{ "--competitor-color": currentEntry?.color ?? "var(--acid)" } as React.CSSProperties}>
       <section className="entity-hero-grid participant-grid">
@@ -61,7 +63,7 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
           <div className="entity-score"><span>Capital individuel</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
           <div className="entity-badges"><span><ShieldCheck /> Profil vérifié</span><span><Activity /> {history.length} manche disputée</span></div>
         </div>
-        <div className="entity-map-panel"><RaceMap center={race.center} geojson={race.courseGeoJson} /><div className="map-shade" /><div className="entity-map-label"><span>Dernière affectation</span><strong>{latest?.boatName ?? "—"}</strong><small>{latest?.role ?? "—"} · {race.eventName}</small></div></div>
+        <div className="entity-map-panel"><EventLocatorMap races={locatedRaces} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Attribution individuelle</span><span className="mono">RÈGLE · V1</span></div>
           <div className="telemetry-position"><span>Points de la manche</span><strong>{latest?.points.toFixed(1) ?? "0.0"}<sup>pts</sup></strong></div>
