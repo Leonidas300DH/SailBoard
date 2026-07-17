@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { RaceExperience } from "@/components/RaceExperience";
 import { getRaceBySlug } from "@/lib/database";
+import { getRaceWeatherSnapshot } from "@/lib/weather";
 
 export const dynamic = "force-dynamic";
 
@@ -12,5 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function RacePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return <RaceExperience race={await getRaceBySlug(slug)} context="course" />;
+  const race = await getRaceBySlug(slug);
+  const weather = await getRaceWeatherSnapshot(race);
+  return <RaceExperience race={race} weather={weather} context="course" />;
 }

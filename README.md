@@ -8,9 +8,16 @@ Application web responsive de gestion et de suivi des courses de voile. Le produ
 - PostgreSQL Neon Free, accessible avec le pilote PostgreSQL standard `pg` ;
 - Drizzle pour le schéma et les migrations versionnées ;
 - Better Auth auto-hébergé avec Google OAuth ;
-- MapLibre pour les parcours et la carte globale.
+- MapLibre pour les parcours, le calendrier territorial et les replays animés ;
+- Open-Meteo pour reconstituer sans clé les conditions météo et marines d’une course.
 
 Supabase, OpenAI Sites, Cloudflare D1 et Sign in with ChatGPT ne font pas partie de cette architecture.
+
+## Expérience publique
+
+L’accueil « Season Ocean » relie six régates sur une carte satellite de la Bretagne. La timeline distingue les courses passées et à venir, pilote le zoom cartographique et anime un aperçu du parcours sélectionné. La fiche course synchronise carte, flotte, classement, rail concurrent et scrubber temporel.
+
+Les conditions du jour sont demandées côté serveur à Open-Meteo puis mises en cache pendant 24 heures. Elles utilisent les modèles météo et marine disponibles pour la position et l’horaire de la course. Ce sont des données modélisées destinées à la lecture sportive et non à la navigation. Une valeur de démonstration explicite prend le relais si le fournisseur est indisponible.
 
 ## Développement local
 
