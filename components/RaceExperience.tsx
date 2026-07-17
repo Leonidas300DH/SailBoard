@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, CircleGauge, Flag, ListOrdered, Map, PanelRightClose, Settings, ShieldCheck, Trophy, Users } from "lucide-react";
+import { ArrowLeft, ChevronLeft, Flag, ListOrdered, Map, PanelRightClose, Settings, ShieldCheck, Users } from "lucide-react";
 import type { RaceView } from "@/lib/domain";
 import { RaceMap } from "./RaceMap";
 
@@ -46,20 +46,16 @@ export function RaceExperience({ race, context = "map" }: { race: RaceView; cont
       </aside>
 
       <section className="race-stage">
-        <header className="race-topbar">
-          <div className="status-block"><span className="status-dot" /><span>Course terminée · {race.name}</span></div>
-          <div className="status-block"><Flag size={17} /><span>{race.distanceNm.toFixed(1)} NM · {race.laps} tour</span></div>
-          <div className="top-actions">
-            <Link className="button primary" href={context === "course" ? "/" : `/courses/${race.slug}`}><CircleGauge />{context === "course" ? "Retour carte" : "Détail course"}</Link>
-            <Link className="button" href="/classements"><Trophy />Classements</Link>
-          </div>
-        </header>
-
         <div className={`race-main ${isRailExpanded ? "rail-expanded" : ""}`}>
           <div className="map-wrap">
             <RaceMap center={race.center} geojson={race.courseGeoJson} />
             <div className="map-shade" />
-            <div className="map-caption"><span className="map-chip">Parcours officiel v1</span><span className="map-chip">{race.locationName}</span></div>
+            <div className="map-caption" aria-label="Contexte de la course">
+              <span className="map-chip map-chip-status"><span className="status-dot" />Course terminée · {race.name}</span>
+              <span className="map-chip map-chip-metric"><Flag aria-hidden />{race.distanceNm.toFixed(1)} NM · {race.laps} tour</span>
+              <span className="map-chip map-chip-meta">{race.locationName} · Parcours v1</span>
+            </div>
+            <Link className="map-return" href="/"><ArrowLeft aria-hidden />Retour carte</Link>
           </div>
 
           <aside className={`leaderboard ${isRailExpanded ? "expanded" : ""}`}>
