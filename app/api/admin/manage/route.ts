@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getD1 } from "@/db";
+import { getDatabase } from "@/db";
 import { apiError, isoDate, requiredString } from "@/lib/api";
 import { requireAdmin } from "@/lib/auth";
 import { ensureDatabase, slugify, writeAudit } from "@/lib/database";
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     await ensureDatabase();
     const body = await request.json() as Record<string, unknown>;
     const action = requiredString(body.action, "Action");
-    const db = getD1();
+    const db = getDatabase();
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
 

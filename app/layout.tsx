@@ -20,6 +20,7 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.BETTER_AUTH_URL ?? "http://localhost:3000"),
   title: { default: "SailBoard — la course au point près", template: "%s — SailBoard" },
   description: "Courses, parcours, équipages et classements de voile réunis dans un cockpit de compétition.",
   icons: {

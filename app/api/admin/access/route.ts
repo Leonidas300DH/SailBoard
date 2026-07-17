@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getD1 } from "@/db";
+import { getDatabase } from "@/db";
 import { apiError } from "@/lib/api";
 import { getCurrentUser, requireOwner } from "@/lib/auth";
 import { ensureDatabase, writeAudit } from "@/lib/database";
@@ -10,7 +10,7 @@ export async function POST() {
     if (!user) throw new Error("Connexion requise");
     await ensureDatabase();
     const now = new Date().toISOString();
-    await getD1().prepare(`INSERT INTO admin_access_requests (id, email, display_name, status, created_at)
+    await getDatabase().prepare(`INSERT INTO admin_access_requests (id, email, display_name, status, created_at)
       SELECT ?, ?, ?, 'pending', ? WHERE NOT EXISTS (
         SELECT 1 FROM admin_access_requests WHERE lower(email) = lower(?) AND status = 'pending'
       )`).bind(crypto.randomUUID(), user.email.toLowerCase(), user.displayName, now, user.email).run();
@@ -23,7 +23,7 @@ export async function PATCH(request: Request) {
     const owner = await requireOwner();
     await ensureDatabase();
     const body = await request.json() as { action?: string; requestId?: string; adminId?: string };
-    const db = getD1();
+    const db = getDatabase();
     const now = new Date().toISOString();
     if (body.action === "approve" && body.requestId) {
       const access = await db.prepare("SELECT * FROM admin_access_requests WHERE id = ? AND status = 'pending'").bind(body.requestId).first<Record<string, unknown>>();

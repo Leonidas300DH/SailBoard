@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getD1 } from "@/db";
+import { getDatabase } from "@/db";
 import { apiError } from "@/lib/api";
 import { requireOwner } from "@/lib/auth";
 import { DEFAULT_SCORING, ensureDatabase, writeAudit } from "@/lib/database";
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const owner = await requireOwner();
     await ensureDatabase();
     const body = await request.json() as Record<string, unknown>;
-    const db = getD1();
+    const db = getDatabase();
     const source = body.sourceRuleId ? await db.prepare("SELECT * FROM scoring_rule_versions WHERE id = ?").bind(body.sourceRuleId).first<Record<string, unknown>>() : null;
     const sourceConfig = source ? JSON.parse(String(source.config_json)) as ScoringConfig : DEFAULT_SCORING;
     const positionPoints = Array.isArray(body.positionPoints) ? Object.fromEntries(body.positionPoints.map((value, index) => [String(index + 1), Number(value)])) : sourceConfig.positionPoints;

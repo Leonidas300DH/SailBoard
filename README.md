@@ -1,44 +1,55 @@
 # SailBoard
 
-Application publique et responsive de suivi des courses de voile, conçue pour OpenAI Sites et Cloudflare D1.
+Application web responsive de gestion et de suivi des courses de voile. Le produit public privilégie une navigation cartographique interactive ; l’administration couvre les saisons, courses, parcours, bateaux, équipages, résultats et barèmes versionnés.
 
-## Fonctionnalités V1
+## Socle technique
 
-- saisons, événements et manches ;
-- flotte, participants et équipages propres à chaque course ;
-- éditeur de parcours tactile sur fond aérien IGN avec versions publiées immuables ;
-- résultats, pénalités et points individuels ;
-- barèmes versionnés : positions, statuts, participation, départage et attribution individuelle ;
-- profils et classements publics par bateau ou participant ;
-- administration protégée par Sign in with ChatGPT, avec demandes d’accès, rôles et audit.
+- Next.js App Router et TypeScript, déployés sur Vercel ;
+- PostgreSQL Neon Free, accessible avec le pilote PostgreSQL standard `pg` ;
+- Drizzle pour le schéma et les migrations versionnées ;
+- Better Auth auto-hébergé avec Google OAuth ;
+- MapLibre pour les parcours et la carte globale.
 
-La V1 n’enregistre aucune position GPS en direct. Les parcours sont des GeoJSON ; le modèle peut être complété plus tard par des traces et événements de course.
+Supabase, OpenAI Sites, Cloudflare D1 et Sign in with ChatGPT ne font pas partie de cette architecture.
 
-## Développement
+## Développement local
 
 Prérequis : Node.js `>=22.13.0`.
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Le serveur local utilise le binding D1 `DB` déclaré dans `.openai/hosting.json` et crée des données de démonstration au premier démarrage. Hors production, `/admin` utilise l’identité locale `owner@sailboard.local`.
+Sans variables d’environnement, les écrans publics utilisent un jeu de démonstration et `/admin` emploie un owner local. En production, aucune identité de secours n’est activée.
 
-## Variables de production
+## Base de données et authentification
 
-```text
-INITIAL_ADMIN_EMAIL=adresse-du-proprietaire@example.com
-```
-
-Cette adresse devient l’owner initial. Tous les autres comptes ChatGPT connectés doivent demander un accès puis être acceptés par cet owner.
-
-## Commandes de contrôle
+Créer une base PostgreSQL Neon, renseigner `DATABASE_URL`, puis appliquer les deux migrations :
 
 ```bash
-npm run db:generate   # génère une migration Drizzle
-npm run lint          # lint TypeScript et React
-npm test              # build de production + tests métier et contrats de sécurité
+npm run db:migrate
+npm run auth:migrate
 ```
 
-Les mutations d’administration sont contrôlées côté serveur. La finalisation d’un classement utilise un batch D1 transactionnel et conserve la configuration de points dans chaque résultat.
+La première commande crée le domaine SailBoard. La seconde crée les tables Better Auth (`user`, `session`, `account`, `verification`) dans la même base PostgreSQL.
+
+Créer ensuite un client Google OAuth de type application web avec ces URI de redirection :
+
+```text
+http://localhost:3000/api/auth/callback/google
+https://votre-domaine.vercel.app/api/auth/callback/google
+```
+
+Les variables requises sont documentées dans `.env.example`. `INITIAL_ADMIN_EMAIL` désigne l’owner initial. Un autre utilisateur connecté peut demander un accès, mais ne possède aucun droit d’écriture tant que l’owner ne l’a pas accepté. Les rôles applicatifs restent stockés dans `admins` et toutes les mutations sensibles sont auditées.
+
+## Contrôles
+
+```bash
+npm run lint
+npm test
+npm run build
+```
+
+Les mutations d’administration vérifient l’identité et le rôle côté serveur. La finalisation d’un résultat et les instantanés de points utilisent une transaction PostgreSQL unique.

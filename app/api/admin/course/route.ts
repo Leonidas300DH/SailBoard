@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getD1 } from "@/db";
+import { getDatabase, type PreparedStatement } from "@/db";
 import { apiError } from "@/lib/api";
 import { requireAdmin } from "@/lib/auth";
 import { ensureDatabase, writeAudit } from "@/lib/database";
@@ -43,12 +43,12 @@ export async function POST(request: Request) {
     const status = body.status === "published" ? "published" : "draft";
     if (!raceId || !Number.isInteger(laps) || laps < 1 || laps > 20) throw new Error("Course ou nombre de tours invalide");
     const distanceNm = marks.slice(1).reduce((sum, mark, index) => sum + haversine(marks[index].coordinates[0], mark.coordinates[0]), 0) * laps;
-    const db = getD1(); const now = new Date().toISOString();
+    const db = getDatabase(); const now = new Date().toISOString();
     const latest = await db.prepare("SELECT * FROM course_versions WHERE race_id = ? ORDER BY version DESC LIMIT 1").bind(raceId).first<Record<string, unknown>>();
     const reuseDraft = latest?.status === "draft";
     const versionId = reuseDraft ? String(latest.id) : crypto.randomUUID();
     const version = reuseDraft ? Number(latest.version) : Number(latest?.version ?? 0) + 1;
-    const statements: D1PreparedStatement[] = [];
+    const statements: PreparedStatement[] = [];
     if (reuseDraft) {
       statements.push(db.prepare("UPDATE course_versions SET status = ?, geojson = ?, laps = ?, distance_nm = ?, published_at = ?, updated_at = ? WHERE id = ?").bind(status, JSON.stringify(toGeoJson(marks)), laps, distanceNm, status === "published" ? now : null, now, versionId));
       statements.push(db.prepare("DELETE FROM course_marks WHERE course_version_id = ?").bind(versionId));

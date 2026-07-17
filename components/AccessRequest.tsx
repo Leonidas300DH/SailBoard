@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { ChatGPTUser } from "@/app/chatgpt-auth";
+import type { AuthUser } from "@/lib/auth";
 
-export function AccessRequest({ user }: { user: ChatGPTUser }) {
+export function AccessRequest({ user }: { user: AuthUser }) {
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   async function submit() {
     setState("sending");

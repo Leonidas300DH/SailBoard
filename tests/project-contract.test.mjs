@@ -4,24 +4,35 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("configure une application Sites D1 sans stockage de fichiers", async () => {
-  const hosting = JSON.parse(await readFile(new URL(".openai/hosting.json", root), "utf8"));
-  assert.equal(hosting.d1, "DB");
-  assert.equal(hosting.r2, null);
+test("configure une application Next.js Vercel sans dépendance Sites", async () => {
   const packageJson = await readFile(new URL("package.json", root), "utf8");
-  assert.doesNotMatch(packageJson, /react-loading-skeleton/);
-  await assert.rejects(readdir(new URL("app/_sites-preview/", root)));
+  assert.match(packageJson, /"dev": "next dev"/);
+  assert.match(packageJson, /better-auth/);
+  assert.match(packageJson, /"pg"/);
+  assert.doesNotMatch(packageJson, /vinext|wrangler|cloudflare/);
+  await assert.rejects(readFile(new URL(".openai/hosting.json", root), "utf8"));
 });
 
 test("couvre le modèle relationnel V1 et les instantanés de points", async () => {
-  const migration = (await readdir(new URL("drizzle/", root))).find((file) => file.endsWith(".sql"));
+  const migration = (await readdir(new URL("drizzle-postgres/", root))).find((file) => file.endsWith(".sql"));
   assert.ok(migration);
-  const sql = await readFile(new URL(`drizzle/${migration}`, root), "utf8");
+  const sql = await readFile(new URL(`drizzle-postgres/${migration}`, root), "utf8");
   for (const table of ["admins", "admin_access_requests", "audit_logs", "seasons", "events", "races", "course_versions", "course_marks", "boats", "participants", "race_entries", "crew_assignments", "scoring_rule_versions", "results", "individual_awards"]) {
-    assert.ok(sql.includes(`CREATE TABLE \`${table}\``), `migration contains ${table}`);
+    assert.ok(sql.includes(`CREATE TABLE \"${table}\"`), `migration contains ${table}`);
   }
   assert.match(sql, /scoring_snapshot_json/);
   assert.match(sql, /archived_at/);
+});
+
+test("utilise Google OAuth et une base PostgreSQL standard", async () => {
+  const auth = await readFile(new URL("lib/auth-server.ts", root), "utf8");
+  const database = await readFile(new URL("db/index.ts", root), "utf8");
+  assert.match(auth, /betterAuth/);
+  assert.match(auth, /socialProviders/);
+  assert.match(auth, /google/);
+  assert.match(database, /new Pool/);
+  assert.match(database, /BEGIN/);
+  assert.match(database, /ROLLBACK/);
 });
 
 test("protège toutes les mutations d’administration côté serveur", async () => {

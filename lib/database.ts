@@ -1,5 +1,4 @@
-import { env } from "cloudflare:workers";
-import { getD1 } from "@/db";
+import { getDatabase, isDatabaseConfigured, type DatabaseClient, type PreparedStatement } from "@/db";
 import type { CourseMark, RaceView, ScoringConfig } from "./domain";
 
 const NOW = "2026-07-17T12:00:00.000Z";
@@ -69,8 +68,7 @@ const schemaStatements = [
 ];
 
 function runtimeValue(key: string): string | undefined {
-  const workerEnv = env as unknown as Record<string, string | undefined>;
-  return workerEnv[key] ?? (typeof process !== "undefined" ? process.env[key] : undefined);
+  return typeof process !== "undefined" ? process.env[key] : undefined;
 }
 
 export async function ensureDatabase(): Promise<void> {
@@ -79,14 +77,14 @@ export async function ensureDatabase(): Promise<void> {
 }
 
 async function initialize(): Promise<void> {
-  const db = getD1();
+  const db = getDatabase();
   await db.batch(schemaStatements.map((statement) => db.prepare(statement)));
   const count = await db.prepare("SELECT COUNT(*) AS count FROM seasons").first<{ count: number }>();
   if (!count?.count) await seedDatabase(db);
   await ensureInitialOwner(db);
 }
 
-async function ensureInitialOwner(db: D1Database) {
+async function ensureInitialOwner(db: DatabaseClient) {
   const email = runtimeValue("INITIAL_ADMIN_EMAIL")?.trim().toLowerCase();
   if (!email) return;
   await db.prepare(`INSERT INTO admins (id, email, display_name, role, status, created_at, updated_at)
@@ -95,7 +93,7 @@ async function ensureInitialOwner(db: D1Database) {
     .bind(`admin-${slugify(email)}`, email, "Propriétaire SailBoard", NOW, NOW).run();
 }
 
-async function seedDatabase(db: D1Database) {
+async function seedDatabase(db: DatabaseClient) {
   const geojson = JSON.stringify(courseGeoJson(DEFAULT_MARKS));
   const boats = [
     ["boat-kaz", "Kaz a Barh", "kaz-a-barh", "FRA 701", "J/80", "#f4f4ef"],
@@ -117,7 +115,7 @@ async function seedDatabase(db: D1Database) {
   const elapsed = [6678, 6753, 6826, 6912, 7005, 7088];
   const points = [18, 15, 12, 10, 8, 6];
 
-  const statements: D1PreparedStatement[] = [
+  const statements: PreparedStatement[] = [
     db.prepare("INSERT INTO seasons VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)").bind("season-2026", "Championnat 2026", "championnat-2026", 2026, "active", "2026-03-01", "2026-10-31", NOW, NOW),
     db.prepare("INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)").bind("event-golfe", "season-2026", "Trophée du Golfe", "trophee-du-golfe", "Golfe du Morbihan", 47.559, -2.835, "2026-07-17", "2026-07-19", NOW, NOW),
     db.prepare("INSERT INTO scoring_rule_versions VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)").bind("rule-2026-v1", "Barème championnat 2026", 1, "published", JSON.stringify(DEFAULT_SCORING), NOW, NOW, NOW),
@@ -159,8 +157,13 @@ async function seedDatabase(db: D1Database) {
 }
 
 export async function getRaceBySlug(slug?: string): Promise<RaceView> {
+  if (!isDatabaseConfigured()) {
+    const { demoRace } = await import("./demo-data");
+    if (slug && slug !== demoRace.slug) throw new Error("Course introuvable");
+    return demoRace;
+  }
   await ensureDatabase();
-  const db = getD1();
+  const db = getDatabase();
   const race = await db.prepare(`SELECT r.*, e.name AS event_name, e.slug AS event_slug, e.location_name,
     e.center_lat, e.center_lng, s.name AS season_name, s.slug AS season_slug,
     cv.geojson, cv.distance_nm, cv.laps
@@ -204,8 +207,9 @@ export async function getRaceBySlug(slug?: string): Promise<RaceView> {
 }
 
 export async function getPublicOverview() {
+  if (!isDatabaseConfigured()) return (await import("./demo-data")).demoOverview();
   const race = await getRaceBySlug();
-  const db = getD1();
+  const db = getDatabase();
   const boats = await db.prepare(`SELECT b.id, b.name, b.slug, b.sail_number, b.model, b.color, COUNT(re.id) AS races,
     COALESCE(SUM(rs.boat_points), 0) AS points FROM boats b LEFT JOIN race_entries re ON re.boat_id = b.id
     LEFT JOIN results rs ON rs.entry_id = re.id WHERE b.archived_at IS NULL GROUP BY b.id ORDER BY points DESC LIMIT 20`).all<Record<string, unknown>>();
@@ -216,8 +220,9 @@ export async function getPublicOverview() {
 }
 
 export async function getBoatProfile(slug: string) {
+  if (!isDatabaseConfigured()) return (await import("./demo-data")).demoBoatProfile(slug);
   await ensureDatabase();
-  const db = getD1();
+  const db = getDatabase();
   const boat = await db.prepare("SELECT * FROM boats WHERE slug = ? AND archived_at IS NULL").bind(slug).first<Record<string, unknown>>();
   if (!boat) return null;
   const history = await db.prepare(`SELECT r.name AS race_name, r.slug AS race_slug, e.name AS event_name, r.scheduled_at,
@@ -228,8 +233,9 @@ export async function getBoatProfile(slug: string) {
 }
 
 export async function getParticipantProfile(slug: string) {
+  if (!isDatabaseConfigured()) return (await import("./demo-data")).demoParticipantProfile(slug);
   await ensureDatabase();
-  const db = getD1();
+  const db = getDatabase();
   const participant = await db.prepare("SELECT * FROM participants WHERE slug = ? AND archived_at IS NULL").bind(slug).first<Record<string, unknown>>();
   if (!participant || !participant.public_visible) return null;
   const history = await db.prepare(`SELECT r.name AS race_name, r.slug AS race_slug, e.name AS event_name, r.scheduled_at,
@@ -242,8 +248,9 @@ export async function getParticipantProfile(slug: string) {
 }
 
 export async function getAdminSnapshot() {
+  if (!isDatabaseConfigured()) return (await import("./demo-data")).demoAdminSnapshot();
   const overview = await getPublicOverview();
-  const db = getD1();
+  const db = getDatabase();
   const [seasonsResult, eventsResult, racesResult, rulesResult, requestsResult, adminsResult] = await Promise.all([
     db.prepare("SELECT * FROM seasons WHERE archived_at IS NULL ORDER BY year DESC").all(),
     db.prepare("SELECT * FROM events WHERE archived_at IS NULL ORDER BY starts_on DESC").all(),
@@ -264,7 +271,7 @@ export async function getAdminSnapshot() {
 }
 
 export async function writeAudit(actorEmail: string, action: string, entityType: string, entityId: string, changes: unknown) {
-  const db = getD1();
+  const db = getDatabase();
   await db.prepare("INSERT INTO audit_logs VALUES (?, ?, ?, ?, ?, ?, ?)")
     .bind(crypto.randomUUID(), actorEmail, action, entityType, entityId, JSON.stringify(changes), new Date().toISOString()).run();
 }
