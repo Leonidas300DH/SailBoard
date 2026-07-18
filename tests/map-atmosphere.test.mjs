@@ -57,8 +57,8 @@ test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () =>
   assert.match(mapBootstrap, /pitch: initial\.pitch \?\? 0/);
   assert.match(mapBootstrap, /maxZoom: initial\.maxZoom \?\? MAX_INTERACTIVE_ZOOM/);
   assert.match(mapStyle, /TERRAIN_SOURCE_ID/);
-  assert.match(terrain, /maxzoom: 15/);
-  assert.match(terrain, /elevation-tiles-prod\/terrarium/);
+  assert.match(terrain, /maxzoom: 16/);
+  assert.match(terrain, /tiles\.mapterhorn\.com/);
   assert.match(terrain, /MAX_INTERACTIVE_ZOOM = 14/);
   assert.match(terrain, /MAX_TERRAIN_ZOOM = 12\.25/);
   assert.match(adaptiveTerrain, /map\.getZoom\(\) > MAX_TERRAIN_ZOOM/);

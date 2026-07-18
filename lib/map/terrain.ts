@@ -9,13 +9,13 @@ export const MAX_TERRAIN_ZOOM = 12.25;
 
 export const TERRAIN_SOURCE: RasterDEMSourceSpecification = {
   type: "raster-dem",
-  // The AWS/Mapzen Terrarium set includes zero-elevation ocean tiles. A DEM
-  // that only covers land leaves holes in MapLibre's terrain mesh at the coast.
-  tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
-  tileSize: 256,
-  maxzoom: 15,
+  // Native 512px Terrarium tiles avoid mixed-resolution blocks when MapLibre
+  // drapes the IGN orthophoto over an inclined coastal terrain mesh.
+  tiles: ["https://tiles.mapterhorn.com/{z}/{x}/{y}.webp"],
+  tileSize: 512,
+  maxzoom: 16,
   encoding: "terrarium",
-  attribution: "Terrain: <a href='https://registry.opendata.aws/terrain-tiles/'>AWS Open Data / Mapzen</a>",
+  attribution: "<a href='https://mapterhorn.com/attribution'>© Mapterhorn</a>",
 };
 
 const STAGE_EXAGGERATION: Record<string, number> = {
