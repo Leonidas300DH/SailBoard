@@ -75,12 +75,11 @@
 .intel-score strong { color: var(--competitor-color); font-size: 36px; line-height: .9; }
 .intel-score small { align-self: end; margin: 0 0 4px; color: var(--muted); font: 700 9px var(--font-race), sans-serif; }
 .intel-metrics { display: grid; grid-template-columns: repeat(2,1fr); border-bottom: 1px solid var(--line); }
-.intel-metrics > div { padding: 10px 16px; border-right: 1px solid var(--line); }
+.intel-metrics > div { min-height: 42px; display: grid; grid-template-columns: 16px minmax(0,1fr) auto; align-items: center; gap: 7px; padding: 6px 12px; border-right: 1px solid var(--line); }
 .intel-metrics > div:last-child { border-right: 0; }
-.intel-metrics svg { width: 15px; color: var(--competitor-color); }
-.intel-metrics span, .intel-metrics strong { display: block; }
-.intel-metrics span { margin-top: 4px; color: var(--muted); font: 700 8px var(--font-race), sans-serif; text-transform: uppercase; }
-.intel-metrics strong { margin-top: 2px; font: 700 15px var(--font-race), sans-serif; text-transform: uppercase; }
+.intel-metrics svg { width: 14px; height: 14px; color: var(--competitor-color); }
+.intel-metrics span { min-width: 0; overflow: hidden; color: var(--muted); font: 700 8px var(--font-race), sans-serif; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.intel-metrics strong { font: 700 14px var(--font-race), sans-serif; text-transform: uppercase; white-space: nowrap; }
 .intel-crew { padding: 16px 18px; }
 .intel-section-title { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; color: var(--muted); font: 700 9px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .08em; }
 .intel-section-title svg { width: 14px; color: var(--competitor-color); }
