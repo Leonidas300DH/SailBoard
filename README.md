@@ -65,3 +65,4 @@ Les mutations d’administration vérifient l’identité et le rôle côté ser
 
 - [`docs/replay-data-model.md`](docs/replay-data-model.md) décrit les données nécessaires aux trois niveaux de replay, de la simulation à la trace GPS.
 - [`docs/reference-season-circuit.md`](docs/reference-season-circuit.md) conserve la référence du calendrier et les décisions de traduction visuelle SailBoard.
+- [`docs/reference-wdt-2026-individual-standings.md`](docs/reference-wdt-2026-individual-standings.md) documente l’instantané MVP du classement individuel après quatre courses et ses anomalies de source.

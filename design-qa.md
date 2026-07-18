@@ -44,3 +44,66 @@ La source est une référence d’architecture de l’information, pas une cible
 - `npm run build` : réussi
 
 final result: passed
+
+---
+
+# Design QA — classement individuel WDT 2026
+
+## Périmètre
+
+- Source visuelle : `docs/reference-wdt-2026-individual-standings.png`
+- Implémentation desktop : `docs/qa/wdt-individual-standings-desktop.png` — 1440 × 1024
+- Implémentation mobile : `docs/qa/wdt-individual-standings-mobile.png` — 390 × 844
+- État mobile détaillé : `docs/qa/wdt-individual-standings-mobile-detail.png` — 390 × 844
+- Route : `/classements?vue=individuel`
+
+La source est ici une vérité de contenu et de hiérarchie, pas une demande de reproduction de l'affiche WDT. L'interface reprend les rangs, noms, points, quatre courses et le total annoncé de 43 classés dans le langage compétition déjà établi de SailBoard.
+
+## Comparaison visuelle finale
+
+| Surface | Référence | Implémentation SailBoard | Verdict |
+|---|---|---|---|
+| Typographie | Sans-serif d'affiche, titre massif, rangs jaunes | Famille condensée SailBoard pour le scan sportif, monospace tabulaire pour les points | Conforme à l'intention produit |
+| Espacement et rythme | Deux tableaux imprimés très denses | Liste unique continue, KPIs compacts et rail de détail fixe sur desktop | Amélioré pour l'interaction |
+| Couleurs et tokens | Bleu WDT, blanc, jaune | Bleu nuit maritime, blanc, jaune acide et accents de rang cohérents avec SailBoard | Adaptation de marque assumée |
+| Images et actifs | Logos WDT et Diam 24OD intégrés à l'affiche | Aucun logo tiers reconstruit ; la capture source est conservée dans la documentation | Conforme au périmètre |
+| Copie et données | 43 classés annoncés, 42 lignes nominatives visibles | 43 classés annoncés, 42 scores nominatifs, 232 points et quatre courses explicités | Fidèle et transparent |
+| Responsive | Affiche portrait statique | Liste tactile, navigation persistante et tiroir de détail refermable | Amélioré |
+
+## Interactions et accessibilité testées
+
+- Filtre par nom : la saisie `Darnaude` réduit le plateau à deux entrées et synchronise le détail.
+- Sélection d'un concurrent : le clic sur BOUVIER Vincent ouvre son détail avec son rang et ses 16 points.
+- État vide : une recherche sans correspondance affiche un message actionnable.
+- Mobile : le détail s'ouvre dans un tiroir au-dessus de la navigation persistante et se ferme avec un bouton nommé `Fermer le détail`.
+- Desktop et mobile : aucun débordement horizontal (`scrollWidth === innerWidth`).
+- Console : aucun avertissement ni erreur sur le scénario final.
+
+## Historique des itérations QA
+
+### Passage 1 — bloqué
+
+- [P1] Le détail sélectionné se trouvait après la liste complète sur mobile et n'était pas réellement accessible dans le parcours principal.
+- [P2] À 390 px, le titre, les deux actions du bandeau et le nom du leader entraient en collision ou étaient tronqués.
+
+### Corrections
+
+- Ajout d'un tiroir mobile dédié, ouvert uniquement après sélection, scrollable et refermable.
+- Passage du bandeau mobile sur deux rangées : titre complet puis deux actions de largeur égale.
+- Ajustement optique du nom du leader dans la grille KPI.
+- Correction de la sélection filtrée et ajout d'un état vide explicite.
+
+### Passage 2 — validé
+
+- La capture `wdt-individual-standings-mobile.png` montre le titre complet, les actions lisibles, les KPIs sans collision et la liste utilisable.
+- La capture ciblée `wdt-individual-standings-mobile-detail.png` montre le tiroir de BOUVIER Vincent, son bouton de fermeture, les métriques et la provenance des données.
+- La capture desktop conserve la densité, le rail contextuel et la lecture simultanée rang / concurrent / score.
+- Aucun P0, P1 ou P2 restant. Aucun recadrage ciblé supplémentaire n'est nécessaire : la capture mobile de détail constitue la preuve focalisée sur l'interaction la plus dense.
+
+## Contrôles techniques
+
+- `npm run lint` : réussi
+- `npm test` : 8 tests réussis
+- `npm run build` : réussi
+
+final result: passed
