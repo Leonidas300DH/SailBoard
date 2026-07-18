@@ -5,11 +5,13 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 
 test("sépare le HUD local du classement complet dans le rail", async () => {
-  const [nav, shell, hud, styles] = await Promise.all([
+  const [nav, shell, season, hud, styles, seasonStyles] = await Promise.all([
     readFile(new URL("components/shell/ChampionshipNav.tsx", root), "utf8"),
     readFile(new URL("components/shell/AppShell.tsx", root), "utf8"),
+    readFile(new URL("components/season/SeasonControlRoom.tsx", root), "utf8"),
     readFile(new URL("components/shell/NavProfileHud.tsx", root), "utf8"),
     readFile(new URL("app/styles/shell.css", root), "utf8"),
+    readFile(new URL("app/styles/season.css", root), "utf8"),
   ]);
 
   assert.match(nav, /<button key=\{`\$\{type\}-\$\{row\.name\}`\}/);
@@ -31,4 +33,7 @@ test("sépare le HUD local du classement complet dans le rail", async () => {
   assert.match(styles, /\.nav-profile-hud \{[^}]*position: fixed;[^}]*width: min\(330px/);
   assert.match(styles, /\.nav-profile-hud-identity \{[^}]*min-height: 48px/);
   assert.match(styles, /\.nav-profile-hud-stages \{[^}]*min-height: 36px/);
+  assert.match(season, /season-ocean-shell--race-selected/);
+  assert.match(seasonStyles, /\.season-ocean-shell--race-selected \.nav-profile-hud,/);
+  assert.match(seasonStyles, /\.public-shell:has\(\.race-hud--persistent\) \.nav-profile-hud \{ left: 552px; \}/);
 });

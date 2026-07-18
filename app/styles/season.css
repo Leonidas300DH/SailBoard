@@ -76,6 +76,18 @@
 .race-hud-actions { display: flex; align-items: center; gap: 9px; padding: 11px 14px 13px; border-top: 1px solid var(--line); }
 .race-hud-open { flex: 1; min-height: 40px; }
 .race-hud-open svg { width: 15px; }
+.race-hud--persistent { position: fixed; z-index: 45; left: 196px; top: 88px; }
+
+/* Keep the navigation dossier beside the selected-stage dossier. Both HUDs
+   remain readable and independently actionable on desktop. */
+@media (min-width: 1051px) {
+  .season-ocean-shell--race-selected .nav-profile-hud,
+  .public-shell:has(.race-hud--persistent) .nav-profile-hud { left: 552px; }
+}
+
+@media (min-width: 761px) and (max-width: 1050px) {
+  .race-hud--persistent { left: 102px; }
+}
 
 @media (max-width: 760px) {
   .season-ocean-shell { min-height: 0; height: calc(100vh - var(--mobile-nav-height) - env(safe-area-inset-bottom)); height: calc(100dvh - var(--mobile-nav-height) - env(safe-area-inset-bottom)); overflow: hidden; padding-bottom: 0; }
@@ -87,6 +99,7 @@
   .season-primary-action svg { margin: 0; }
   .wind-field { inset: 62px 0 190px; }
   .race-hud { left: 0; right: 0; top: auto; bottom: 0; width: 100%; border-right: 0; border-bottom: 0; animation-name: hudInUp; }
+  .race-hud--persistent { left: 8px; right: 8px; bottom: calc(var(--mobile-nav-height) + var(--mobile-timeline-height) + env(safe-area-inset-bottom) + 8px); width: auto; max-height: calc(100dvh - var(--mobile-nav-height) - var(--mobile-timeline-height) - env(safe-area-inset-bottom) - 16px); overflow: auto; border-right: 1px solid rgba(139, 193, 211, .34); border-bottom: 1px solid rgba(139, 193, 211, .34); }
 }
 
 .race-dossier-live { color: var(--danger); font-weight: 700; text-transform: uppercase; }

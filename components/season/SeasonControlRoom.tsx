@@ -47,7 +47,7 @@ export function SeasonControlRoom({
 
   return <AppShell
     active="season"
-    shellClassName="season-ocean-shell"
+    shellClassName={`season-ocean-shell${selectedRace ? " season-ocean-shell--race-selected" : ""}`}
     navClassName="season-ocean-nav"
     showPersistentTimeline={false}
   >

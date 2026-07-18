@@ -20,13 +20,15 @@ export function RaceHud({
   podium = [],
   weather,
   isToday = false,
+  variant = "map",
   onClose,
 }: {
   race: SeasonRace;
   index: number;
   podium?: StagePodiumEntry[];
-  weather: RaceWeatherSnapshot | null;
+  weather?: RaceWeatherSnapshot | null;
   isToday?: boolean;
+  variant?: "map" | "persistent";
   onClose: () => void;
 }) {
   const status = isToday
@@ -35,7 +37,7 @@ export function RaceHud({
       ? `Vainqueur · ${race.winner}`
       : race.status === "upcoming" ? "Engagements ouverts" : race.result ?? "Résultats validés";
 
-  return <section className="race-hud" aria-live="polite">
+  return <section className={`race-hud${variant === "persistent" ? " race-hud--persistent" : ""}`} aria-live="polite">
     <header className="race-hud-head">
       <i className="race-hud-hex"><CountUpNumber value={index + 1} duration={480} delay={240} /></i>
       <div className="race-hud-id">
@@ -67,7 +69,7 @@ export function RaceHud({
       </div>
     ) : null}
 
-    {weather ? (
+    {weather === undefined ? null : weather ? (
       <div className="race-hud-weather" aria-label="Conditions météo du jour de l’étape">
         <span tabIndex={0} data-tooltip="Vent moyen : vitesse en nœuds et direction en degrés." aria-label={`Vent moyen : ${weather.windKnots.toFixed(1)} nœuds, direction ${Math.round(weather.windDirection)} degrés.`}><Wind aria-hidden /><strong className="mono"><CountUpNumber value={weather.windKnots} decimals={1} delay={820} /> ND · <CountUpNumber value={Math.round(weather.windDirection)} delay={860} />°</strong></span>
         <span tabIndex={0} data-tooltip="Rafales : vitesse maximale du vent, en nœuds." aria-label={`Rafales : ${Math.round(weather.gustKnots)} nœuds.`}><Gauge aria-hidden /><strong className="mono"><CountUpNumber value={Math.round(weather.gustKnots)} delay={900} /> ND</strong></span>
