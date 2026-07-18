@@ -5,6 +5,7 @@ import { Anchor, ChevronRight, CloudOff, Gauge, Pause, Play, Thermometer, Waves,
 import type { SeasonRace } from "@/lib/season-data";
 import type { StagePodiumEntry } from "@/lib/wdt-profiles";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
+import { DecodeText } from "../map/DecodeText";
 
 const RELIABILITY_LABELS: Record<RaceWeatherSnapshot["reliability"], string> = {
   archive: "Archive ERA5",
@@ -46,8 +47,8 @@ export function RaceHud({
     <header className="race-hud-head">
       <i className="race-hud-hex">{index + 1}</i>
       <div className="race-hud-id">
-        <span>Étape {index + 1} · {race.dateLabel} 2026</span>
-        <strong>{race.name}</strong>
+        <span><DecodeText text={`Étape ${index + 1} · ${race.dateLabel} 2026`} speed={10} /></span>
+        <strong><DecodeText text={race.name} /></strong>
         <small>
           {race.locationName} · {isToday ? <em className="race-dossier-live">{status}</em> : status}
           {race.route ? null : " · Tracé non publié"}

@@ -77,6 +77,7 @@ export function SeasonControlRoom({
 
         {selectedRace ? (
           <RaceHud
+            key={selectedRace.id}
             race={selectedRace}
             index={selectedIndex}
             podium={stagePodiums[selectedRace.id] ?? []}
