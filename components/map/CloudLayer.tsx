@@ -30,7 +30,8 @@ function smoothstep(edge0: number, edge1: number, value: number) {
  */
 export function atmosphereVisibilityAtZoom(zoom: number) {
   const detailProgress = smoothstep(6.4, 10.8, zoom);
-  return 0.06 + (1 - detailProgress) * 0.94;
+  const minimumVisibility = 0.04;
+  return minimumVisibility + (1 - detailProgress) * (1 - minimumVisibility);
 }
 
 function seededRandom(seed: number) {
