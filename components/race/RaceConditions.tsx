@@ -5,16 +5,16 @@ import type { RaceWeatherSnapshot } from "@/lib/weather";
 
 export function RaceConditions({ weather, pending = false }: { weather: RaceWeatherSnapshot; pending?: boolean }) {
   if (pending) {
-    return <section className="race-conditions-overlay race-conditions-overlay--pending" aria-label="Conditions météo de la course">
+    return <section className="race-conditions-overlay race-conditions-overlay--pending" aria-label="Conditions météo de l’étape">
       <div>
         <span>Conditions du jour</span>
         <strong>À venir</strong>
-        <small>Prévisions réelles publiées à J-15 · archive après la course</small>
+        <small>Prévisions réelles publiées à J-15 · archive après l’étape</small>
       </div>
       <div><CloudOff /><span>Modèles</span><strong className="mono">HORS PORTÉE</strong></div>
     </section>;
   }
-  return <section className="race-conditions-overlay" aria-label="Conditions météo de la course">
+  return <section className="race-conditions-overlay" aria-label="Conditions météo de l’étape">
     <div>
       <span>Conditions du jour</span>
       <strong>{weather.observedAt}</strong>

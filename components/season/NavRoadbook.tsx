@@ -45,7 +45,7 @@ export function NavRoadbook({
             <strong>{race.shortName}</strong>
             <small className="mono">{race.dateLabel}</small>
           </span>
-          <em className={`nav-stage-state ${race.status}`}>{race.status === "upcoming" ? "À venir" : "Arrivée"}</em>
+          <em className={`nav-stage-state ${race.status}`}>{race.status === "upcoming" ? "À venir" : "Terminée"}</em>
         </button>
       ))}
     </div>

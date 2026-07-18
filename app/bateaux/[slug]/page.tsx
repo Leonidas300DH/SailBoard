@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function BoatPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  // WDT teams come from the official workbook; database boats keep priority.
+  // Les équipages WDT viennent du classeur officiel ; les données PostgreSQL restent prioritaires.
   let data: Awaited<ReturnType<typeof getBoatProfile>> = null;
   try {
     data = await getBoatProfile(slug);

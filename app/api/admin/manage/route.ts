@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       await db.prepare("INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)").bind(id, seasonId, name, `${slugify(name)}-${id.slice(0, 6)}`, locationName, lat, lng, startsOn, startsOn, now, now).run();
       await writeAudit(admin.email, action, "event", id, { seasonId, name, locationName, startsOn });
     } else if (action === "createRace") {
-      const eventId = requiredString(body.eventId, "Événement");
+      const eventId = requiredString(body.eventId, "Étape");
       const name = requiredString(body.name, "Nom");
       const scheduledAt = isoDate(body.scheduledAt, "Départ");
       const ruleId = requiredString(body.scoringRuleVersionId, "Barème");

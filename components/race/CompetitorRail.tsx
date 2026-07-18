@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, PanelRightClose } from "lucide-react";
+import { PanelRightClose } from "lucide-react";
 import type { LeaderboardRow } from "@/lib/domain";
 
 function formatTime(seconds: number | null) {
@@ -32,7 +32,7 @@ export function CompetitorRail({
     style={{ "--boat-color": selected.color } as React.CSSProperties}
   >
     <div className="rail-detail-head">
-      <span>Dossier concurrent</span>
+      <span>Dossier équipage</span>
       <button type="button" onClick={onClose} aria-label="Replier les détails"><PanelRightClose /></button>
     </div>
     <div className="rail-boat-identity">
@@ -46,10 +46,10 @@ export function CompetitorRail({
     <div className="rail-metrics">
       <div><span>Temps</span><strong className="mono">{formatTime(selected.elapsedSeconds)}</strong></div>
       <div><span>Écart 1er</span><strong className="mono">{gap ? `+${formatTime(gap)}` : "—"}</strong></div>
-      <div><span>Points bateau</span><strong className="mono">{selected.points.toFixed(1)}</strong></div>
+      <div><span>Points WDT</span><strong className="mono">{selected.points.toFixed(1)}</strong></div>
     </div>
     <div className="rail-crew-points">
-      <span className="rail-section-label">Attribution individuelle</span>
+      <span className="rail-section-label">Points des navigateurs</span>
       {selected.crew.map((member) => (
         <Link key={member.id} href={`/participants/${member.slug}`}>
           <span>
@@ -60,9 +60,6 @@ export function CompetitorRail({
         </Link>
       ))}
     </div>
-    <Link className="rail-profile-link" href={`/bateaux/${selected.boatSlug}`}>
-      Ouvrir la fiche bateau <ChevronLeft />
-    </Link>
   </section>;
 }
 

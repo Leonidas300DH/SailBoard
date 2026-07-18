@@ -43,7 +43,7 @@ function latestRace(history: WdtHistoryRow[]): RaceView {
   return seasonRacePreview(seasonRace);
 }
 
-/** Team sheet built from the official WDT 2026 workbook. */
+/** Fiche équipage construite depuis le classeur officiel WDT 2026. */
 export function wdtTeamProfile(slug: string) {
   const index = wdt2026TeamSnapshot.rows.findIndex((row) => snapshotSlug(row.name) === slug);
   if (index < 0) return null;
@@ -62,15 +62,15 @@ export function wdtTeamProfile(slug: string) {
   };
 }
 
-/** Individual sheet built from the official WDT 2026 workbook. */
+/** Fiche navigateur construite depuis le classeur officiel WDT 2026. */
 export function wdtParticipantProfile(slug: string) {
   const row = wdt2026IndividualSnapshot.rows.find((entry) => snapshotSlug(entry.name) === slug);
   if (!row) return null;
   const history = stageHistory(row.eventScores).map((entry) => ({
     ...entry,
-    boatName: "Équipage WDT",
+    boatName: "Équipage non renseigné",
     boatSlug: undefined,
-    role: "Navigateur classé",
+    role: "Navigateur",
   }));
   return {
     participant: { name: row.name, slug, nationality: "FRA" },

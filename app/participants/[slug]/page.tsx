@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function ParticipantPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  // WDT racers come from the official workbook; database profiles keep priority.
+  // Les navigateurs WDT viennent du classeur officiel ; les données PostgreSQL restent prioritaires.
   let data: Awaited<ReturnType<typeof getParticipantProfile>> = null;
   try {
     data = await getParticipantProfile(slug);

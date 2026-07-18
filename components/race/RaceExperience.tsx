@@ -65,7 +65,7 @@ export function RaceExperience({
           <CloudLayer windDirection={weather.windDirection} windKnots={weather.windKnots} />
           <div className="map-shade" aria-hidden />
           <WindParticles windDirection={weather.windDirection} windKnots={weather.windKnots} />
-          <div className="map-caption" aria-label="Contexte de la course">
+          <div className="map-caption" aria-label="Contexte de l’étape">
             <span className="map-chip map-chip-status"><Radio aria-hidden />{hasRoute ? "Parcours animé · Simulation" : "Tracé non publié"}</span>
             {weatherPending ? null : (
               <span className="map-chip map-chip-metric"><Wind aria-hidden />{weather.windKnots.toFixed(1)} ND · {Math.round(weather.windDirection)}° {weather.windLabel}</span>
@@ -124,13 +124,13 @@ export function RaceExperience({
           <div className="timeline-total">
             <span className="label">Classement d’étape</span>
             <strong>{race.leaderboard.length} équipages</strong>
-            <small>Places intégrées au classement général</small>
+            <small>Points intégrés au classement général</small>
           </div>
         ) : (
           <div className="timeline-total">
-            <span className="label">{isUpcoming ? "Départ" : "Course disputée"}</span>
+            <span className="label">{isUpcoming ? "Début de l’étape" : "Étape disputée"}</span>
             <strong className="race-footer-date">{raceDateLabel}</strong>
-            <small>{race.distanceNm > 0 ? `${race.distanceNm.toFixed(1)} NM · ` : ""}{hasRoute ? "tracé indicatif" : "zone de course"}</small>
+            <small>{race.distanceNm > 0 ? `${race.distanceNm.toFixed(1)} NM · ` : ""}{hasRoute ? "tracé indicatif" : "plan d’eau"}</small>
           </div>
         )}
       </footer>

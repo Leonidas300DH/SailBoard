@@ -26,8 +26,8 @@ export function LeaderboardPanel({
         <strong>{upcoming ? "Engagements ouverts" : "Résultats en attente"}</strong>
         <p>
           {upcoming
-            ? "La flotte et le classement apparaîtront ici une fois les inscriptions closes et la course disputée."
-            : "La direction de course n’a pas encore publié le classement de cette manche."}
+            ? "Les équipages et le classement apparaîtront ici une fois les inscriptions closes et l’étape disputée."
+            : "La direction de course n’a pas encore publié le classement de cette étape."}
         </p>
       </div>
       <div className="leader-foot">
@@ -42,7 +42,7 @@ export function LeaderboardPanel({
       <span>Classement</span>
       <span className="mono acid">{leaderboard.length} / {leaderboard.length}</span>
     </div>
-    <div className="rank-head"><span>Pos</span><span>Bateau / équipage</span><span>Points</span><span /></div>
+    <div className="rank-head"><span>Pos</span><span>Équipage</span><span>Points WDT</span><span /></div>
     <div className="rank-list">
       {leaderboard.map((row) => (
         <button
