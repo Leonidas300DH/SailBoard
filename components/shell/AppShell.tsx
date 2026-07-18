@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Flag, Trophy } from "lucide-react";
 import type { PublicSection } from "@/lib/navigation";
 import { ChampionshipNav } from "./ChampionshipNav";
+import { NavProfileHud, type NavProfileSelection } from "./NavProfileHud";
 
 export function AppShell({
   active,
@@ -22,14 +23,17 @@ export function AppShell({
   navExtras?: Partial<Record<PublicSection, ReactNode>>;
   children: ReactNode;
 }) {
+  const [profileHud, setProfileHud] = useState<NavProfileSelection | null>(null);
+
   return <main className={`public-shell${shellClassName ? ` ${shellClassName}` : ""}`}>
     <aside className={`side-nav${navClassName ? ` ${navClassName}` : ""}`} aria-label="Navigation principale">
       <Link className="side-brand" href="/" aria-label="Accueil SailBoard">
         <span className="brand"><span>SailBoard</span><span>Race</span></span>
       </Link>
-      <ChampionshipNav key={active} active={active} extras={navExtras} />
+      <ChampionshipNav key={active} active={active} extras={navExtras} onProfileSelect={setProfileHud} />
       {navFooter}
     </aside>
+    {profileHud ? <NavProfileHud selection={profileHud} onClose={() => setProfileHud(null)} onSelect={setProfileHud} /> : null}
     {children}
   </main>;
 }

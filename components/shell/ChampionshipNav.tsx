@@ -6,33 +6,13 @@ import { useState, type ReactNode } from "react";
 import { SEASON_RACES } from "@/lib/season-data";
 import type { PublicSection } from "@/lib/navigation";
 import { snapshotSlug, wdt2026IndividualSnapshot, wdt2026TeamSnapshot } from "@/lib/wdt-2026";
+import { participantDisplayName, teamDisplayName, type NavProfileSelection } from "./NavProfileHud";
 
 type NavExtras = Partial<Record<PublicSection, ReactNode>>;
 
 const TEAM_PODIUM = wdt2026TeamSnapshot.rows.slice(0, 3);
 const SAILOR_PODIUM = wdt2026IndividualSnapshot.rows.slice(0, 3);
 const NEXT_RACE = SEASON_RACES.find((race) => race.status === "upcoming") ?? SEASON_RACES.at(-1);
-const LOWERCASE_WORDS = new Set(["de", "du", "des", "la", "le", "les"]);
-
-function titleCase(value: string) {
-  if (value === "CENTRE DE MEDIATION") return "Centre de Médiation";
-  return value
-    .toLocaleLowerCase("fr-FR")
-    .split(" ")
-    .map((word, index) => {
-      if (index > 0 && LOWERCASE_WORDS.has(word)) return word;
-      return word.replace(/^\p{L}/u, (letter) => letter.toLocaleUpperCase("fr-FR"));
-    })
-    .join(" ");
-}
-
-function participantDisplayName(value: string) {
-  const words = value.trim().split(/\s+/);
-  const givenNameIndex = words.findIndex((word) => word !== word.toLocaleUpperCase("fr-FR"));
-  if (givenNameIndex <= 0) return titleCase(value);
-  return titleCase([...words.slice(givenNameIndex), ...words.slice(0, givenNameIndex)].join(" "));
-}
-
 function nextRaceDate(date: string) {
   return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short" })
     .format(new Date(`${date}T12:00:00`))
@@ -57,28 +37,27 @@ function PodiumPreview({
   id,
   type,
   rows,
+  onSelect,
 }: {
   id: string;
   type: "teams" | "sailors";
   rows: Array<{ rank: number; name: string; points: number }>;
+  onSelect: (selection: NavProfileSelection) => void;
 }) {
   const rankingHref = type === "teams" ? "/classements?vue=bateaux" : "/classements?vue=individuel";
   return <div id={id} className="nav-context nav-context--podium">
     <span className="nav-context-guide" aria-hidden />
     <div className="nav-podium-list">
       {rows.map((row, index) => {
-        const displayName = type === "teams" ? titleCase(row.name) : participantDisplayName(row.name);
-        const profileHref = type === "teams"
-          ? `/classements?vue=bateaux&selection=${snapshotSlug(row.name)}`
-          : `/classements?vue=individuel&selection=${snapshotSlug(row.name)}`;
-        return <Link key={`${type}-${row.name}`} className="nav-podium-row" href={profileHref} title={displayName}>
+        const displayName = type === "teams" ? teamDisplayName(row.name) : participantDisplayName(row.name);
+        return <button key={`${type}-${row.name}`} type="button" className="nav-podium-row" onClick={() => onSelect({ type, slug: snapshotSlug(row.name) })} title={`Ouvrir le HUD de ${displayName}`}>
           <span className="nav-podium-rank">
             {index === 0 ? <Check aria-hidden /> : null}
             <span>{row.rank}</span>
           </span>
           <span className="nav-podium-name">{displayName}</span>
           <span className="nav-podium-points mono">{row.points}</span>
-        </Link>;
+        </button>;
       })}
       <Link className="nav-context-all" href={rankingHref}>
         <span>Classement</span><ArrowRight aria-hidden />
@@ -87,7 +66,15 @@ function PodiumPreview({
   </div>;
 }
 
-export function ChampionshipNav({ active, extras }: { active: PublicSection; extras?: NavExtras }) {
+export function ChampionshipNav({
+  active,
+  extras,
+  onProfileSelect,
+}: {
+  active: PublicSection;
+  extras?: NavExtras;
+  onProfileSelect: (selection: NavProfileSelection) => void;
+}) {
   const seasonActive = active === "season" || active === "course";
   const [seasonOpen, setSeasonOpen] = useState(seasonActive);
   const [teamsOpen, setTeamsOpen] = useState(active !== "sailors");
@@ -130,7 +117,7 @@ export function ChampionshipNav({ active, extras }: { active: PublicSection; ext
           </Link>
           <DisclosureButton open={teamsOpen} controls="nav-team-podium" label="le podium des équipages" onClick={() => setTeamsOpen((value) => !value)} />
         </div>
-        {teamsOpen ? <PodiumPreview id="nav-team-podium" type="teams" rows={TEAM_PODIUM} /> : null}
+        {teamsOpen ? <PodiumPreview id="nav-team-podium" type="teams" rows={TEAM_PODIUM} onSelect={onProfileSelect} /> : null}
         {extras?.rankings ?? null}
       </div>
 
@@ -141,7 +128,7 @@ export function ChampionshipNav({ active, extras }: { active: PublicSection; ext
           </Link>
           <DisclosureButton open={sailorsOpen} controls="nav-sailor-podium" label="le podium des navigateurs" onClick={() => setSailorsOpen((value) => !value)} />
         </div>
-        {sailorsOpen ? <PodiumPreview id="nav-sailor-podium" type="sailors" rows={SAILOR_PODIUM} /> : null}
+        {sailorsOpen ? <PodiumPreview id="nav-sailor-podium" type="sailors" rows={SAILOR_PODIUM} onSelect={onProfileSelect} /> : null}
         {extras?.sailors ?? null}
       </div>
     </div>

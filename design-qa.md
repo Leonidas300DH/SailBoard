@@ -1,68 +1,50 @@
-# Design QA — HUD équipage et navigateur
+# Design QA — HUD contextuel depuis le rail
 
 ## Périmètre
 
-- État rejeté : `docs/audit/11-sailor-profile-full-width-rejected.png` — une fiche dédiée pleine largeur, encore envahissante malgré sa réduction en hauteur.
-- Référence de densité : `/var/folders/vc/3dmscl8d4rd_t9gqggky7m9r0000gn/T/codex-clipboard-2206ca26-7be9-4436-b7c3-79d6186663a1.png` — dossier équipage dans le rail de course.
-- Implémentation finale desktop : `docs/audit/14-team-ranking-hud-final.png` et `docs/audit/15-sailor-ranking-hud-final.png` — viewport 1280 × 720.
-- Implémentation finale mobile : `docs/audit/16-sailor-ranking-hud-mobile-final.png` — viewport 390 × 844.
-- Parcours vérifié : Centre de Médiation → Cahierc Pierre → Centre de Médiation, dans le même système de HUD.
+- État rejeté : `docs/audit/nav-profile-hud/02-wrong-full-ranking.png` — cliquer un nom du podium quittait la saison pour ouvrir le classement complet et son grand panneau latéral.
+- Vérités visuelles utilisateur : `/var/folders/vc/3dmscl8d4rd_t9gqggky7m9r0000gn/T/codex-clipboard-fe27055d-5942-4ecb-b6ff-1b7f65033b3c.png` et `/var/folders/vc/3dmscl8d4rd_t9gqggky7m9r0000gn/T/codex-clipboard-8861e061-5bb2-414f-9f04-3231b6497636.png`.
+- Implémentation finale : `docs/audit/nav-profile-hud/03-sailor-hud-local.png` et `docs/audit/nav-profile-hud/04-team-hud-local.png` — viewport 1280 × 720.
+- Parcours vérifié : ligne « Vincent Bouvier » du rail → HUD navigateur → « Opteamwork » → HUD équipage → fermeture.
 
 ## Comparaison finale
 
 | Surface | État défaillant | Implémentation finale | Verdict |
 |---|---|---|---|
-| Typographie | Nom géant et répété dans une fiche dédiée | Identité sur une ligne dans un rail de 330–430 px ; score ramené à 28 px | Corrigé |
-| Espacement et rythme | Pleine page puis bande pleine largeur avec beaucoup de vide | HUD de 419 px utiles pour un navigateur et 499 px pour un équipage sur mobile ; aucun écran profil | Corrigé |
-| Couleurs et tokens | Palette SailBoard cohérente mais surface trop massive | Couleur de rang et tokens SailBoard conservés dans le rail | Conforme |
-| Images et actifs | Carte sans fonction sur les profils | Aucun média ajouté ; la carte reste réservée aux courses | Corrigé |
-| Copie et données | Rang, score et nombre d’étapes répétés dans plusieurs blocs | Un score, l’équipage ou l’affectation, puis les quatre étapes effectivement courues | Corrigé |
-| Interaction | Le clic quittait le contexte pour une page profil | Deep-link vers le classement, HUD repliable, navigation équipage ↔ navigateur et anciennes URL redirigées | Validé |
-| Responsive | Fiche fullscreen et zones vides | Overlay de 390 px sans débordement horizontal ; contenu sous-jacent reste visible | Validé |
+| Navigation | Une ligne de podium était un lien vers `/classements?...&selection=...` | Une ligne de podium est un bouton local ; l’URL et la page courante restent inchangées | Corrigé |
+| Hiérarchie | Le clic sur une personne et le clic sur « Navigateurs » produisaient la même page complète | Les titres « Équipages » et « Navigateurs » gardent le classement complet ; les noms ouvrent seulement un HUD | Validé |
+| Encombrement | Panneau d’environ 720 px de haut, avec de grands vides | HUD navigateur 330 × 175 px ; HUD équipage 330 × 220 px, soit environ 70 à 76 % de hauteur en moins | Corrigé |
+| Contenu | Résumé étalé, répétitions et grands blocs | Rang, nom, total, relation métier et quatre scores d’étape ; aucun bloc décoratif | Corrigé |
+| Interaction | Changement de contexte et retour nécessaire | Bascule directe navigateur ↔ équipage, fermeture par croix ou Échap | Validé |
+| Couleurs et tokens | Palette SailBoard cohérente mais surface massive | Même palette, couleur de rang conservée, surface opaque et compacte type HUD de course | Conforme |
 
 ## Historique QA
 
 ### Passage 1 — bloqué
 
-- [P1] La fiche équipage coupe le nom dans une grille en trois colonnes et donne la priorité à la carte.
-- [P1] La fiche navigateur reproduit la même structure, coupe le nom et crée une grande zone cartographique vide.
-- [P2] Des mesures de temps absentes occupent de l’espace sous forme de tirets.
-- [P2] Le rail ne reflète pas le contexte de la destination ouverte.
+- [P1] Le clic sur une ligne du podium ouvre la page complète de classement.
+- [P1] Le premier HUD est rendu dans le `side-nav`, dont l’overflow masque tout ce qui dépasse du rail.
+- [P2] Le premier format compact mesure encore 370 × 213 px pour un navigateur et 370 × 270 px pour un équipage.
 
-### Première correction — rejetée après mise en production
+### Corrections
 
-- Identité et télémétrie placées en tête ; carte en bande panoramique en dessous.
-- Score, rang, équipage et attribution rapprochés de leur contexte métier.
-- Mesures conditionnelles et navigation latérale contextuelle.
-- Malgré la disparition des coupes, la zone profil + carte mesure encore 541 px et reste majoritairement vide.
+- Les lignes de podium sont devenues des boutons sans changement d’URL ; seuls les libellés de section restent des liens vers les classements complets.
+- L’état de sélection et le HUD ont été remontés dans `AppShell`, hors de l’élément `aside`, afin d’éviter toute coupe par le rail.
+- Largeur réduite à 330 px ; en-tête, identité, lignes d’équipage et scores d’étape resserrés sans supprimer de donnée utile.
+- Les relations dans le HUD restent cliquables : Opteamwork ouvre son équipage ; chaque membre rouvre son HUD navigateur.
 
-### Passage 2 — bloqué
+### Passage final — validé
 
-- [P2] Le rôle « Navigateur » chevauchait les points sur desktop et créait un débordement horizontal sur mobile.
-
-### Deuxième correction — rejetée
-
-- Modificateur de grille dédié à l’historique navigateur.
-- Carte entièrement supprimée des fiches équipage et navigateur.
-- Identité, score, rang, attribution et membres regroupés dans une bande de 176 px.
-- La zone haute passe de 541 à 176 px, soit une réduction mesurée de 67 %.
-- Le contenu reste cependant présenté comme un hero pleine largeur et duplique le nom déjà présent dans le bandeau.
-
-### Troisième correction — HUD validé
-
-- Suppression du composant `EntityControlRoom` et de toutes les pages profil visuelles.
-- Les anciennes routes `/bateaux/[slug]` et `/participants/[slug]` redirigent vers le classement avec le HUD sélectionné.
-- Le rail n’existe que lorsqu’une sélection est ouverte ; sa fermeture redonne toute la largeur au classement (`1070 px` mesurés).
-- Suppression des métriques « meilleure étape » et « étapes » qui répétaient le résumé du championnat.
-- Le HUD affiche seulement identité, total, équipage ou affectation et quatre étapes courues ; les deux étapes futures sont absentes.
-- Les trois navigateurs de Centre de Médiation sont directement cliquables ; Cahierc Pierre renvoie vers Centre de Médiation.
-- À 390 × 844, aucun débordement horizontal : `scrollWidth === innerWidth === 390`.
-- Aucun avertissement ni erreur applicative relevé pendant les parcours desktop et mobile.
+- Clic sur Vincent Bouvier : URL inchangée, HUD `330 × 175 px`.
+- Bascule vers Opteamwork : URL inchangée, HUD `330 × 220 px` avec ses trois navigateurs.
+- Fermeture : le HUD disparaît sans modifier la page sous-jacente.
+- Clic sur le titre « Navigateurs » : classement individuel complet affiché.
+- Aucun avertissement ni erreur applicative pendant le parcours.
 
 ## Contrôles techniques
 
 - `npm run lint` : réussi.
-- `npm test` : 14 tests réussis.
+- `npm test` : 15 tests réussis.
 - `npm run build` : réussi.
 
 final result: passed

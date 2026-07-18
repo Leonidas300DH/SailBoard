@@ -28,6 +28,7 @@ button { cursor: pointer; }
 .control-kpis, .rank-control-grid, .control-search, .standings-score,
 .admin-panel, .metric-strip, .notice, .empty-state, .assignment-link, .access-gate > div,
 .race-hud, .race-conditions-overlay, .entity-map-label, .intel-close, .race-hud-close,
-.rail-detail-head button, .mark-actions button, .course-search form, .course-tools {
+.rail-detail-head button, .mark-actions button, .course-search form, .course-tools,
+.nav-profile-hud, .nav-profile-hud-head button {
   border-radius: var(--radius);
 }
