@@ -18,6 +18,9 @@ test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () =>
   assert.match(cloudLayer, /map\?\.getBearing\(\)/);
   assert.match(cloudLayer, /map\?\.project\(ATLANTIC_ANCHOR\)/);
   assert.match(cloudLayer, /horizonCompression/);
+  assert.match(cloudLayer, /atmosphereVisibilityAtZoom/);
+  assert.match(cloudLayer, /smoothstep\(6\.4, 10\.8, zoom\)/);
+  assert.match(cloudLayer, /baseAlpha \* zoomVisibility \* sheet\.alpha/);
   assert.match(cloudLayer, /prefersReducedMotion/);
   assert.doesNotMatch(cloudLayer, /Math\.random/);
 

@@ -1,10 +1,12 @@
-.public-shell { min-height: 100vh; display: grid; grid-template-columns: 148px minmax(0,1fr); }
-.side-nav { position: sticky; top: 0; height: 100vh; z-index: 30; display: flex; flex-direction: column; background: rgba(0, 16, 27, .97); border-right: 1px solid var(--line); }
+.public-shell { min-height: 100vh; display: grid; grid-template-columns: 176px minmax(0, 1fr); }
+.side-nav { position: sticky; top: 0; height: 100vh; z-index: 30; display: flex; flex-direction: column; overflow: hidden; background: rgba(0, 16, 27, .97); border-right: 1px solid var(--line); }
 .side-brand { min-height: 92px; display: flex; align-items: center; padding: 16px 14px; border-bottom: 1px solid var(--line); }
 .nav-stack { display: grid; padding: 8px 0; }
-.nav-link { min-height: 56px; padding: 0 15px; display: flex; align-items: center; gap: 10px; color: #d9e2e5; border-left: 2px solid transparent; font: 700 12px/1 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .04em; transition: .2s ease; }
+.nav-link { min-height: 56px; min-width: 0; padding: 0 12px; display: flex; align-items: center; gap: 10px; color: #d9e2e5; border-left: 2px solid transparent; font: 700 12px/1 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .03em; transition: .2s ease; }
+.nav-link span, .nav-sublink span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-group-title > span { min-width: 0; white-space: normal; }
 .nav-link:hover, .nav-link.active { background: rgba(216,255,0,.07); color: var(--acid); border-left-color: var(--acid); }
-.nav-link svg { width: 20px; height: 20px; stroke-width: 1.7; }
+.nav-link svg { flex: 0 0 auto; width: 20px; height: 20px; stroke-width: 1.7; }
 .nav-season { margin-top: auto; padding: 18px; border-top: 1px solid var(--line); }
 .nav-season strong { display: block; overflow: hidden; text-overflow: ellipsis; font: 700 14px/1.15 var(--font-race), sans-serif; text-transform: uppercase; }
 .nav-season small { display: block; color: var(--acid); margin-top: 8px; font: 700 11px var(--font-geist-mono), monospace; }
@@ -47,11 +49,11 @@
 
 
 /* Grouped nav section — a quiet title with indented sub-entries. */
-.nav-group-title { min-height: 46px; display: flex; align-items: center; gap: 10px; padding: 8px 15px 2px; color: #d9e2e5; border-left: 2px solid transparent; font: 700 12px/1 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+.nav-group-title { min-height: 44px; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 10px 2px 12px; color: #d9e2e5; border-left: 2px solid transparent; font: 700 11px/1.2 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .02em; }
 .nav-group-title.active { color: var(--acid); }
-.nav-group-title svg { width: 20px; height: 20px; stroke-width: 1.7; }
+.nav-group-title svg { flex: 0 0 auto; width: 20px; height: 20px; stroke-width: 1.7; }
 .nav-sublinks { display: grid; padding-bottom: 8px; }
-.nav-sublink { min-height: 36px; display: flex; align-items: center; gap: 9px; padding: 0 15px 0 45px; color: #aebfc7; border-left: 2px solid transparent; font: 600 11px/1 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .04em; transition: .2s ease; }
-.nav-sublink svg { width: 15px; height: 15px; stroke-width: 1.8; }
+.nav-sublink { min-height: 36px; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 40px; color: #aebfc7; border-left: 2px solid transparent; font: 600 10px/1 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .02em; transition: .2s ease; }
+.nav-sublink svg { flex: 0 0 auto; width: 15px; height: 15px; stroke-width: 1.8; }
 .nav-sublink:hover { color: var(--text); }
 .nav-sublink.active { color: var(--acid); border-left-color: var(--acid); background: rgba(232, 255, 41, .06); }

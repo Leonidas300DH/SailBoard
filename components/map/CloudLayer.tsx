@@ -23,6 +23,16 @@ function smoothstep(edge0: number, edge1: number, value: number) {
   return t * t * (3 - 2 * t);
 }
 
+/**
+ * The atmosphere belongs to the wide-area circuit view. It fades almost
+ * completely once the camera moves into race-scale detail so coastline,
+ * marks and labels become progressively clearer as the user zooms in.
+ */
+export function atmosphereVisibilityAtZoom(zoom: number) {
+  const detailProgress = smoothstep(6.4, 10.8, zoom);
+  return 0.06 + (1 - detailProgress) * 0.94;
+}
+
 function seededRandom(seed: number) {
   let state = seed >>> 0;
   return () => {
@@ -169,10 +179,12 @@ export function CloudLayer({
 
     const drawSheet = (sheet: CloudSheet, baseAlpha: number) => {
       const pitch = map?.getPitch() ?? 0;
+      const zoom = map?.getZoom() ?? 7;
       const pitchRadians = pitch * Math.PI / 180;
       const bearingRadians = (map?.getBearing() ?? 0) * Math.PI / 180;
       const anchor = map?.project(ATLANTIC_ANCHOR) ?? { x: 0, y: 0 };
-      const zoomScale = Math.min(1.5, Math.max(0.82, 2 ** (((map?.getZoom() ?? 7) - 7) * 0.055)));
+      const zoomScale = Math.min(1.5, Math.max(0.82, 2 ** ((zoom - 7) * 0.055)));
+      const zoomVisibility = atmosphereVisibilityAtZoom(zoom);
       const size = TILE * sheet.scale * zoomScale;
       const horizonCompression = Math.max(0.55, 1 - pitch / 108);
       const altitudeLift = -Math.sin(pitchRadians) * sheet.altitude * Math.min(height * 0.18, 150);
@@ -185,7 +197,7 @@ export function CloudLayer({
       context.rotate(-bearingRadians);
       context.scale(1, horizonCompression);
       context.translate(-width / 2, -height / 2);
-      context.globalAlpha = baseAlpha * sheet.alpha * (1 + Math.sin(pitchRadians) * 0.2);
+      context.globalAlpha = baseAlpha * zoomVisibility * sheet.alpha * (1 + Math.sin(pitchRadians) * 0.2);
       context.shadowColor = `rgba(185, 215, 230, ${0.1 + sheet.altitude * 0.08})`;
       context.shadowBlur = 10 + sheet.altitude * 12;
       context.shadowOffsetY = 8 + sheet.altitude * 12;
@@ -204,7 +216,7 @@ export function CloudLayer({
       const { knots } = windRef.current;
       // Present enough to read as weather, restrained enough to keep labels
       // and satellite detail legible even where several decks overlap.
-      const baseAlpha = 0.14 + Math.min(knots, 30) / 30 * 0.1;
+      const baseAlpha = 0.09 + Math.min(knots, 30) / 30 * 0.06;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
       context.globalCompositeOperation = "screen";
