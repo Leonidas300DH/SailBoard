@@ -47,6 +47,69 @@ final result: passed
 
 ---
 
+# Design QA — rail compact des classements
+
+## Périmètre
+
+- Source visuelle : `docs/reference-rankings-rail-before.png` et recadrage `docs/reference-rankings-calculation-card-before.png`.
+- Implémentation desktop : `docs/qa/rankings-compact-boats.jpg` — 1440 × 1011, classement des équipages, premier rang sélectionné.
+- Implémentation navigateurs : `docs/qa/rankings-compact-individuals.jpg` — 1440 × 1011, premier navigateur sélectionné.
+- Implémentation tablette : `docs/qa/rankings-compact-tablet.jpg` — 900 × 900.
+- Implémentation mobile détaillée : `docs/qa/rankings-compact-mobile-detail.jpg` — 390 × 844.
+- Route : `/classements`, variantes `vue=bateaux` et `vue=individuel`.
+
+La source représente l'état à corriger. La cible conserve le langage SailBoard mais réduit le poids du rail, respecte la casse des noms de personnes et retire les informations redondantes.
+
+## Comparaison visuelle finale
+
+| Surface | État initial | Implémentation finale | Verdict |
+|---|---|---|---|
+| Typographie | Nom et score du rail surdimensionnés ; prénom forcé en capitales | Nom ramené à 22–30 px, total à 36 px, casse individuelle conservée (`CHAMPANHAC Benoît`) | Corrigé |
+| Espacement et grille | Rail jusqu'à 38 % de la zone utile ; blocs verticaux très hauts | Rail borné à 330–430 px ; score sur une ligne ; métriques sur deux colonnes | Corrigé |
+| Contenu | Statut « provisoire » répété et carte « Calcul officiel » sans action | Statut exprimé une seule fois dans l'en-tête ; carte supprimée ; détail par étape prioritaire | Corrigé |
+| Tablette | Six colonnes d'étapes débordaient de la liste | Les quatre étapes courues restent visibles dans la matrice ; les deux étapes futures restent disponibles dans le rail | Corrigé |
+| Mobile | Détail très vertical mais utilisable | Total, métriques et six étapes tiennent dans un tiroir lisible et refermable | Validé |
+| Couleurs et actifs | Charte SailBoard bleu nuit / jaune acide | Tokens, icônes Lucide et états de rang conservés sans nouvel actif décoratif | Conforme |
+
+## Comparaison et historique QA
+
+### Passage 1 — bloqué
+
+- [P1] Le rail occupait une part excessive de la largeur et créait trois niveaux de titre concurrents.
+- [P2] Le total dominait visuellement le nom et le détail par étape.
+- [P2] La carte « Calcul officiel » répétait les KPIs sans apporter d'action ni d'information décisive.
+- [P2] À 900 px, les colonnes des étapes futures poussaient le total hors de la zone visible.
+- [P2] La transformation CSS en capitales détruisait la casse correcte des prénoms.
+
+### Corrections
+
+- Rail ramené à `clamp(330px, 28vw, 430px)` et à 320 px sous 1050 px.
+- Total réorganisé en ligne compacte et réduit à 36 px.
+- Suppression du statut dupliqué et de la carte de calcul.
+- Matrice tablette limitée visuellement aux étapes courues, sans retirer les étapes futures du détail.
+- Casse source conservée pour les noms des navigateurs dans le KPI, la liste et le rail.
+
+### Passage 2 — validé
+
+- La comparaison plein écran confirme que la liste récupère l'espace libéré et que le rail forme un résumé secondaire cohérent.
+- La comparaison ciblée de la zone droite confirme la disparition complète de la carte de calcul et la priorité donnée aux six étapes.
+- Les captures tablette et mobile ne montrent ni collision, ni contrôle masqué, ni score envahissant.
+- Les vues équipes et navigateurs ont été testées, ainsi que l'ouverture du détail mobile.
+- Aucun avertissement ni erreur console pendant les scénarios finaux.
+
+## Contrôles
+
+- Typographie : hiérarchie et casse validées sur équipes et navigateurs.
+- Espacement : desktop, tablette 900 px et mobile 390 px validés.
+- Couleurs : tokens existants conservés.
+- Images : aucune image requise sur cette vue ; aucun substitut ou actif factice ajouté.
+- Copie : bloc non pertinent supprimé, libellés métier restants inchangés.
+- Interaction : recherche, sélection de ligne et fermeture du détail mobile conservées.
+
+final result: passed
+
+---
+
 # Design QA — classement individuel WDT 2026
 
 ## Périmètre

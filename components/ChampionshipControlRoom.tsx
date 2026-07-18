@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Gauge, Search, ShieldCheck, Sparkles, Trophy, Users, X } from "lucide-react";
+import { ChevronRight, Gauge, Search, Sparkles, Trophy, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ControlShell } from "./shell/AppShell";
 
@@ -52,7 +52,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
   }, [selected, snapshotMeta]);
 
   return <ControlShell active={mode === "individual" ? "sailors" : "rankings"} raceSlug={raceSlug} eventName={eventName} title={snapshotMeta?.title ?? (mode === "individual" ? "Classement des navigateurs" : "Classement des équipages")} eyebrow={snapshotMeta?.eyebrow ?? "Championnat 2026 · contrôle officiel"}>
-    <div className="control-body">
+    <div className={`control-body control-body--${mode}`}>
       <section className="control-kpis" aria-label="Résumé du championnat">
         <div><span>Leader provisoire</span><strong>{rows[0]?.name ?? "—"}</strong><small>{rows[0] ? formatPoints(rows[0].points) : "0"} points</small></div>
         <div><span>Plateau</span><strong className="mono">{String(snapshotMeta?.totalClassified ?? rows.length).padStart(2, "0")}</strong><small>{mode === "individual" ? "navigateurs classés" : "équipages classés"}</small></div>
@@ -60,7 +60,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
         <div><span>{snapshotMeta ? "Étapes courues" : "Dernière manche"}</span><strong className="mono">{snapshotMeta ? `${String(snapshotMeta.completedRaces).padStart(2, "0")} / ${String(snapshotMeta.totalRaces).padStart(2, "0")}` : "06 / 06"}</strong><small>{snapshotMeta?.sourceLabel ?? eventName}</small></div>
       </section>
 
-      <div className="rank-control-grid">
+      <div className={`rank-control-grid rank-control-grid--${mode}`}>
         <section className="control-list-panel">
           <div className="control-panel-head">
             <div className="view-switch" aria-label="Changer de classement">
@@ -71,7 +71,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
           </div>
           <div
             className="standings-head standings-grid"
-            style={{ "--stage-count": events.length } as React.CSSProperties}
+            style={{ "--stage-count": events.length, "--completed-stage-count": events.filter((event) => event.status === "completed").length } as React.CSSProperties}
           >
             <span>Pos.</span>
             <span>{mode === "individual" ? "Navigateur" : "Équipage"}</span>
@@ -90,12 +90,12 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
                 type="button"
                 onClick={() => { setSelectedId(row.id); setIsIntelOpen(true); }}
                 className={`standings-row standings-grid ${selected?.id === row.id ? "selected" : ""}`}
-                style={{ "--competitor-color": row.color, "--stage-count": events.length } as React.CSSProperties}
+                style={{ "--competitor-color": row.color, "--stage-count": events.length, "--completed-stage-count": events.filter((event) => event.status === "completed").length } as React.CSSProperties}
               >
                 <span className="standings-pos"><span className="mono">{row.position}</span></span>
                 <span className="standings-name"><strong>{row.name}</strong></span>
                 {events.map((event, index) => (
-                  <span key={event.id} className={`standings-score mono ${row.eventScores?.[index] == null ? "pending" : ""}`}>
+                  <span key={event.id} className={`standings-score mono ${event.status} ${row.eventScores?.[index] == null ? "pending" : ""}`}>
                     {row.eventScores?.[index] ?? "·"}
                   </span>
                 ))}
@@ -112,10 +112,8 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
           <div className="intel-metrics">
             <div><Gauge /><span>Meilleure étape</span><strong>{bestStage ?? "—"}</strong></div>
             <div><Trophy /><span>{snapshotMeta ? "Étapes" : "Manches"}</span><strong>{snapshotMeta ? `${snapshotMeta.completedRaces}/${snapshotMeta.totalRaces}` : selected.races ?? "—"}</strong></div>
-            <div><ShieldCheck /><span>Statut</span><strong>{snapshotMeta ? "Provisoire" : "Validé"}</strong></div>
           </div>
           {snapshotMeta && selected.eventScores ? <div className="intel-breakdown"><div className="intel-section-title"><Trophy />Détail par étape</div>{snapshotMeta.events.map((event, index) => <div className="intel-event-score" key={event.id}><span><i>{index + 1}</i><span><strong>{event.shortName}</strong><small>{event.status === "completed" ? "Points publiés" : "À venir"}</small></span></span><strong className={`mono ${selected.eventScores?.[index] == null ? "pending" : ""}`}>{selected.eventScores?.[index] ?? "—"}</strong></div>)}</div> : mode === "boats" ? <div className="intel-crew"><div className="intel-section-title"><Users />Équipage de l’étape</div>{selected.crew?.map((member) => <Link key={member.slug} href={`/participants/${member.slug}`}><span>{member.name}</span><small>{member.role}</small><ChevronRight /></Link>)}</div> : <div className="intel-crew"><div className="intel-section-title"><Sparkles />Affectation de l’étape</div><Link href={selected.boatHref ?? "#"}><span>{selected.boatName ?? "Équipage non renseigné"}</span><small>{selected.role ?? "Rôle non renseigné"}</small><ChevronRight /></Link></div>}
-          {snapshotMeta ? <div className="intel-import-source"><div className="intel-section-title"><Sparkles />Calcul officiel</div><strong>{snapshotMeta.scoringLabel}</strong><small>{snapshotMeta.sourceLabel}</small><p>Les deux dernières étapes restent volontairement vides jusqu’à publication de leurs résultats.</p></div> : null}
         </aside> : null}
       </div>
     </div>

@@ -13,7 +13,12 @@
   .leaderboard { grid-template-columns: 280px minmax(240px,1fr); }
   .control-topbar { padding-left: 16px; }
   .control-status { display: none; }
-  .rank-control-grid { grid-template-columns: minmax(450px,1fr) 330px; }
+  .rank-control-grid { grid-template-columns: minmax(450px,1fr) 320px; }
+  .control-kpis strong { font-size: 20px; white-space: normal; }
+  .control-kpis > div:first-child strong { font-size: 18px; }
+  .control-kpis small { font-size: 9px; }
+  .standings-grid { grid-template-columns: 44px minmax(145px,1fr) repeat(var(--completed-stage-count,4),minmax(38px,48px)) 56px; gap: 6px; }
+  .standings-stage-label.upcoming, .standings-score.upcoming { display: none; }
   .entity-hero-grid { grid-template-columns: 300px minmax(330px,1fr); }
   .entity-telemetry { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1.25fr; border-top: 1px solid var(--line); }
   .entity-telemetry .intel-overline, .entity-telemetry .intel-primary-link { grid-column: 1 / -1; }
@@ -97,4 +102,3 @@
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
-
