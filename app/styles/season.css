@@ -114,3 +114,8 @@
   .race-dossier-title { font-size: 16px; }
   .race-dossier-weather { width: 100%; padding-left: 0; border-left: 0; overflow-x: auto; }
 }
+
+.race-dossier-title svg { width: 15px; height: 15px; margin-left: 5px; vertical-align: -2px; color: var(--muted); transition: .2s ease; }
+.race-dossier-title:hover { color: var(--race); }
+.race-dossier-title:hover svg { color: var(--race); transform: translateX(2px); }
+.race-dossier-live { color: var(--danger); font-weight: 700; text-transform: uppercase; }

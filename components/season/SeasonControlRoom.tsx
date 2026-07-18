@@ -88,7 +88,7 @@ export function SeasonControlRoom({
         <SeasonTopBar
           circuitOpen={isCircuitOpen}
           onToggleCircuit={() => setIsCircuitOpen((value) => !value)}
-          exploreHref={selectedRace.href ?? `/courses/${race.slug}`}
+          exploreHref={`/courses/${selectedRace.slug}`}
         />
 
         <CircuitRail
@@ -103,6 +103,7 @@ export function SeasonControlRoom({
           race={selectedRace}
           weather={selectedWeather}
           isPlaying={isPlaying}
+          isToday={new Date(`${selectedRace.date}T00:00:00`).toDateString() === now.toDateString()}
           onTogglePlay={() => setIsPlaying((value) => !value)}
         />
       </div>

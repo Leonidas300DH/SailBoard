@@ -7,13 +7,36 @@ export function LeaderboardPanel({
   leaderboard,
   selectedEntryId,
   isRailExpanded,
+  upcoming = false,
   onOpen,
 }: {
   leaderboard: LeaderboardRow[];
   selectedEntryId?: string;
   isRailExpanded: boolean;
+  upcoming?: boolean;
   onOpen: (entryId: string) => void;
 }) {
+  if (leaderboard.length === 0) {
+    return <div className="leaderboard-core">
+      <div className="panel-title">
+        <span>Classement</span>
+        <span className="mono muted">— / —</span>
+      </div>
+      <div className="leaderboard-empty">
+        <strong>{upcoming ? "Engagements ouverts" : "Résultats en attente"}</strong>
+        <p>
+          {upcoming
+            ? "La flotte et le classement apparaîtront ici une fois les inscriptions closes et la course disputée."
+            : "La direction de course n’a pas encore publié le classement de cette manche."}
+        </p>
+      </div>
+      <div className="leader-foot">
+        <strong><ShieldCheck size={15} /> Données officielles uniquement</strong>
+        <span>Saisies et validées par la direction de course</span>
+      </div>
+    </div>;
+  }
+
   return <div className="leaderboard-core">
     <div className="panel-title">
       <span>Classement</span>

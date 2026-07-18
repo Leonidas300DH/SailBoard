@@ -98,3 +98,9 @@
   .race-conditions-overlay { grid-template-columns: minmax(180px,1.2fr) repeat(2,minmax(100px,.7fr)); }
   .race-conditions-overlay > div:last-child { display: none; }
 }
+
+.leaderboard-empty { padding: 26px 18px; }
+.leaderboard-empty strong { display: block; font: 700 16px var(--font-race), sans-serif; text-transform: uppercase; }
+.leaderboard-empty p { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.race-footer-date { font-size: 17px !important; }
+.race-conditions-overlay--pending { grid-template-columns: minmax(210px, 1.6fr) minmax(130px, 1fr); }

@@ -1,6 +1,7 @@
 "use client";
 
-import { Anchor, CloudOff, Gauge, Pause, Play, Thermometer, Waves, Wind } from "lucide-react";
+import Link from "next/link";
+import { Anchor, ChevronRight, CloudOff, Gauge, Pause, Play, Thermometer, Waves, Wind } from "lucide-react";
 import type { SeasonRace } from "@/lib/season-data";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
 
@@ -18,16 +19,20 @@ export function RaceDossier({
   race,
   weather,
   isPlaying,
+  isToday = false,
   onTogglePlay,
 }: {
   race: SeasonRace;
   weather: RaceWeatherSnapshot | null;
   isPlaying: boolean;
+  isToday?: boolean;
   onTogglePlay: () => void;
 }) {
-  const status = race.winner
-    ? `Vainqueur · ${race.winner}`
-    : race.status === "upcoming" ? "Engagements ouverts" : "Résultats validés";
+  const status = isToday
+    ? "Jour de course"
+    : race.winner
+      ? `Vainqueur · ${race.winner}`
+      : race.status === "upcoming" ? "Engagements ouverts" : "Résultats validés";
 
   return <section className="race-dossier" aria-live="polite">
     <button
@@ -39,8 +44,15 @@ export function RaceDossier({
       {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
     </button>
     <div className="race-dossier-id">
-      <strong className="race-dossier-title">{race.name}</strong>
-      <small>{race.dateLabel} 2026 · {race.locationName} · <span className="mono">{race.distanceNm.toFixed(1)} NM</span> · {status}</small>
+      <Link className="race-dossier-title" href={`/courses/${race.slug}`} title={`Ouvrir ${race.name}`}>
+        {race.name}
+        <ChevronRight aria-hidden />
+      </Link>
+      <small>
+        {race.dateLabel} 2026 · {race.locationName} · <span className="mono">{race.distanceNm.toFixed(1)} NM</span> · {isToday
+          ? <span className="race-dossier-live">{status}</span>
+          : status}
+      </small>
     </div>
     {weather ? (
       <div className="race-dossier-weather" aria-label="Conditions météo du jour de la course">

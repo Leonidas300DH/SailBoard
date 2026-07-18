@@ -9,11 +9,12 @@ export type SeasonRace = {
   monthLabel: string;
   locationName: string;
   coordinates: [number, number];
+  /** Public course page under /courses/[slug]. */
+  slug: string;
   status: SeasonRaceStatus;
   winner?: string;
   result?: string;
   distanceNm: number;
-  href?: string;
   route: GeoJSON.Feature<GeoJSON.LineString>;
 };
 
@@ -42,6 +43,7 @@ function routeAround(
 export const SEASON_RACES: SeasonRace[] = [
   {
     id: "spi-ouest",
+    slug: "spi-ouest-france",
     name: "Spi Ouest-France",
     shortName: "Spi Ouest",
     date: "2026-04-05",
@@ -57,6 +59,7 @@ export const SEASON_RACES: SeasonRace[] = [
   },
   {
     id: "douarnenez",
+    slug: "grand-prix-de-douarnenez",
     name: "Grand Prix de Douarnenez",
     shortName: "Douarnenez",
     date: "2026-05-23",
@@ -72,6 +75,7 @@ export const SEASON_RACES: SeasonRace[] = [
   },
   {
     id: "trophee-golfe",
+    slug: "trophee-du-golfe-manche-6",
     name: "Trophée du Golfe",
     shortName: "Trophée du Golfe",
     date: "2026-07-17",
@@ -83,7 +87,6 @@ export const SEASON_RACES: SeasonRace[] = [
     winner: "Kaz a Barh",
     result: "Résultats validés",
     distanceNm: 8.4,
-    href: "/courses/trophee-du-golfe-manche-6",
     route: {
       type: "Feature",
       properties: { id: "trophee-golfe", kind: "season-route" },
@@ -101,6 +104,7 @@ export const SEASON_RACES: SeasonRace[] = [
   },
   {
     id: "glenan",
+    slug: "tour-des-glenan",
     name: "Tour des Glénan",
     shortName: "Les Glénan",
     date: "2026-08-15",
@@ -115,6 +119,7 @@ export const SEASON_RACES: SeasonRace[] = [
   },
   {
     id: "classic-channel",
+    slug: "classic-channel",
     name: "Classic Channel",
     shortName: "Classic Channel",
     date: "2026-09-12",
@@ -129,6 +134,7 @@ export const SEASON_RACES: SeasonRace[] = [
   },
   {
     id: "saint-malo",
+    slug: "finale-de-saint-malo",
     name: "Finale de Saint-Malo",
     shortName: "Saint-Malo",
     date: "2026-10-03",
@@ -143,3 +149,7 @@ export const SEASON_RACES: SeasonRace[] = [
   },
 ];
 
+
+export function seasonRaceBySlug(slug: string): SeasonRace | undefined {
+  return SEASON_RACES.find((race) => race.slug === slug);
+}

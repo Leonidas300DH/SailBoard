@@ -24,7 +24,7 @@ function RecordList({ rows, participant }: { rows: HistoryRow[]; participant?: b
 export function BoatControlRoom({ boat, history, race }: { boat: { name: string; slug: string; model: string; sailNumber: string; color: string }; history: HistoryRow[]; race: RaceView }) {
   const current = race.leaderboard.find((row) => row.boatSlug === boat.slug);
   const total = history.reduce((sum, row) => sum + row.points, 0);
-  const locatedRaces = [SEASON_RACES[2]];
+  const disputed = SEASON_RACES.find((item) => item.name === race.eventName) ?? SEASON_RACES[2];
   return <ControlShell active="rankings" raceSlug={race.slug} eventName={race.eventName} title={`Dossier bateau · ${boat.name}`} eyebrow="Flotte officielle · unité sportive">
     <div className="entity-control-body" style={{ "--competitor-color": boat.color } as React.CSSProperties}>
       <section className="entity-hero-grid">
@@ -35,7 +35,7 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
           <div className="entity-score"><span>Score championnat</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
           <div className="entity-badges"><span><ShieldCheck /> Résultats certifiés</span><span><Activity /> {history.length} manche disputée</span></div>
         </div>
-        <div className="entity-map-panel"><SeasonMap races={locatedRaces} selectedRace={locatedRaces[0]} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName} · {race.name}</small></div></div>
+        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName} · {race.name}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Dernière manche</span><span className="mono">OFFICIEL</span></div>
           <div className="telemetry-position"><span>Position</span><strong>{current?.position ?? "—"}<sup>e</sup></strong></div>
@@ -54,7 +54,7 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
   const total = history.reduce((sum, row) => sum + row.points, 0);
   const latest = history[0];
   const currentEntry = race.leaderboard.find((entry) => entry.crew.some((member) => member.slug === participant.slug));
-  const locatedRaces = [SEASON_RACES[2]];
+  const disputed = SEASON_RACES.find((item) => item.name === race.eventName) ?? SEASON_RACES[2];
   return <ControlShell active="sailors" raceSlug={race.slug} eventName={race.eventName} title={`Dossier marin · ${participant.name}`} eyebrow="Performance individuelle · profil officiel">
     <div className="entity-control-body" style={{ "--competitor-color": currentEntry?.color ?? "var(--acid)" } as React.CSSProperties}>
       <section className="entity-hero-grid participant-grid">
@@ -65,7 +65,7 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
           <div className="entity-score"><span>Capital individuel</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
           <div className="entity-badges"><span><ShieldCheck /> Profil vérifié</span><span><Activity /> {history.length} manche disputée</span></div>
         </div>
-        <div className="entity-map-panel"><SeasonMap races={locatedRaces} selectedRace={locatedRaces[0]} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
+        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Attribution individuelle</span><span className="mono">RÈGLE · V1</span></div>
           <div className="telemetry-position"><span>Points de la manche</span><strong>{latest?.points.toFixed(1) ?? "0.0"}<sup>pts</sup></strong></div>
