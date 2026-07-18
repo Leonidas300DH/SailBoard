@@ -56,6 +56,7 @@
 .control-body--individual .control-kpis > div:first-child strong,
 .rank-control-grid--individual .standings-name strong,
 .rank-control-grid--individual .intel-title h2 { text-transform: none; }
+.rank-control-grid--individual .intel-title h2 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(17px,1.45vw,21px); letter-spacing: -.015em; }
 .standings-score { min-height: 26px; display: grid; place-items: center; color: #cfdce1; background: rgba(148, 196, 214, .05); border: 1px solid rgba(148, 196, 214, .09); font-size: 11px; }
 .standings-score.pending { color: #55707c; background: transparent; border-style: dashed; }
 .standings-total { color: var(--competitor-color); text-align: right; font-size: 14px; font-weight: 800; }

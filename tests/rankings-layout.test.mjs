@@ -18,5 +18,6 @@ test("garde le rail de classement compact et respecte la casse des navigateurs",
   assert.doesNotMatch(controlRoom, /ShieldCheck/);
   assert.match(styles, /clamp\(330px,28vw,430px\)/);
   assert.match(styles, /rank-control-grid--individual \.standings-name strong/);
+  assert.match(styles, /rank-control-grid--individual \.intel-title h2 \{[^}]*white-space: nowrap/);
   assert.match(styles, /\.intel-score \{[^}]*grid-template-columns: 1fr auto auto/);
 });
