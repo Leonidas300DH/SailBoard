@@ -5,9 +5,10 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 
 test("affiche les équipages connus et masque les chronos absents", async () => {
-  const [wdt, seasonView, rail, styles] = await Promise.all([
+  const [wdt, seasonView, experience, rail, styles] = await Promise.all([
     readFile(new URL("lib/wdt-2026.ts", root), "utf8"),
     readFile(new URL("lib/season-view.ts", root), "utf8"),
+    readFile(new URL("components/race/RaceExperience.tsx", root), "utf8"),
     readFile(new URL("components/race/CompetitorRail.tsx", root), "utf8"),
     readFile(new URL("app/styles/race.css", root), "utf8"),
   ]);
@@ -20,5 +21,7 @@ test("affiche les équipages connus et masque les chronos absents", async () => 
   assert.match(rail, /Équipage de l’étape/);
   assert.match(rail, /Composition non publiée/);
   assert.doesNotMatch(rail, /rail-crew-summary/);
+  assert.match(experience, /race-footer--has-play/);
   assert.match(styles, /\.rail-crew-points strong \{[^}]*white-space: nowrap/);
+  assert.match(styles, /\.race-footer--has-play \.timeline-total \{ grid-column: 2; \}/);
 });

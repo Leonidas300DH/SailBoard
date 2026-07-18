@@ -88,7 +88,7 @@ export function RaceExperience({
         </aside>
       </div>
 
-      <footer className="race-footer">
+      <footer className={`race-footer ${hasRoute ? "race-footer--has-play" : ""}`}>
         {hasRoute ? (
           <button
             type="button"
