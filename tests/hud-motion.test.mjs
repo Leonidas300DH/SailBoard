@@ -34,6 +34,7 @@ test("anime tous les HUD desktop avec un verre sombre et des données progressiv
 
   assert.match(seasonCss, /\.race-hud \{[^}]*backdrop-filter: blur\(22px\) saturate\(128%\)[^}]*animation: hudAssemble/s);
   assert.match(seasonCss, /\.race-hud \{[^}]*width: min\(340px, calc\(100% - 40px\)\)/s);
+  assert.match(seasonCss, /\.race-hud-id strong \{[^}]*-webkit-line-clamp: 3;/s);
   assert.match(seasonCss, /\.race-hud-weather \{[^}]*grid-template-columns: repeat\(3, max-content\)/s);
   assert.match(seasonCss, /\.race-hud-weather svg \{[^}]*color: var\(--hud\)/s);
   assert.match(seasonCss, /\.race-hud-weather > span\[data-tooltip\]::after/);

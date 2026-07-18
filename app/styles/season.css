@@ -44,7 +44,7 @@
 @keyframes hudNodeLock { 0% { opacity: 0; transform: scale(.45) rotate(-18deg); filter: brightness(2.2); } 65% { opacity: 1; transform: scale(1.12); } 100% { opacity: 1; transform: none; filter: none; } }
 .race-hud-id { min-width: 0; }
 .race-hud-id > span { display: block; color: var(--muted); font: 600 8px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .09em; }
-.race-hud-id strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-top: 3px; overflow: hidden; white-space: normal; font: 700 17px/1.12 var(--font-race), sans-serif; font-style: italic; text-transform: uppercase; min-height: 19px; }
+.race-hud-id strong { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; margin-top: 3px; overflow: hidden; white-space: normal; font: 700 17px/1.12 var(--font-race), sans-serif; font-style: italic; text-transform: uppercase; min-height: 19px; }
 .race-hud-id small { display: block; margin-top: 4px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
 .race-hud-close { width: 40px; height: 40px; display: grid; place-items: center; color: var(--muted); background: transparent; border: 1px solid var(--line); transition: .2s ease; }
 .race-hud-close:hover { color: var(--text); border-color: var(--line-strong); }

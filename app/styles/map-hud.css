@@ -35,7 +35,7 @@
 .race-marker:hover span, .race-marker.selected span { opacity: 1; }
 .race-marker.selected { z-index: 3; }
 .race-marker.selected i, .race-marker.selected[data-status="completed"] i { transform: scale(1.35); color: #fff; background: var(--danger); box-shadow: 0 0 0 2px rgba(1, 10, 16, .9), 0 0 0 5px rgba(255,30,30,.35), 0 0 18px rgba(255,30,30,.6); }
-.race-marker.selected span strong { color: var(--danger); -webkit-text-stroke: .6px rgba(255,255,255,.98); paint-order: stroke fill; text-shadow: 0 1px 4px rgba(1, 10, 16, .95), 0 0 12px rgba(1, 10, 16, .85); }
+.race-marker.selected span strong { color: var(--danger); -webkit-text-stroke: 1px rgba(255,255,255,.98); paint-order: stroke fill; text-shadow: 0 1px 4px rgba(1, 10, 16, .95), 0 0 12px rgba(1, 10, 16, .85); }
 
 @media (min-width: 761px) {
   .race-marker span { opacity: 1; }
