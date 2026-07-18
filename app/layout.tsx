@@ -24,19 +24,19 @@ const jost = Jost({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.BETTER_AUTH_URL ?? "http://localhost:3000"),
-  title: { default: "SailBoard — la course au point près", template: "%s — SailBoard" },
+  title: { default: "SailBoard — le World Diam Tour au point près", template: "%s — SailBoard" },
   description: "Courses, parcours, équipages et classements de voile réunis dans un cockpit de compétition.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
   },
   openGraph: {
-    title: "SailBoard — la course au point près",
-    description: "Suivez les courses, les bateaux et les équipages depuis un cockpit de compétition.",
+    title: "SailBoard — le World Diam Tour au point près",
+    description: "Suivez les étapes, les équipages et les navigateurs depuis un cockpit de compétition.",
     type: "website",
     images: [{ url: "/og.png", width: 1731, height: 909, alt: "SailBoard — Race, Crew, Results" }],
   },
-  twitter: { card: "summary_large_image", title: "SailBoard — la course au point près", description: "Courses, parcours, équipages et classements de voile.", images: ["/og.png"] },
+  twitter: { card: "summary_large_image", title: "SailBoard — le World Diam Tour au point près", description: "Étapes, parcours, équipages, navigateurs et classements.", images: ["/og.png"] },
 };
 
 export default function RootLayout({

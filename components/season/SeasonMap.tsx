@@ -193,7 +193,7 @@ export function SeasonMap({
   }, [flyToBounds, flyToTarget, mapRef, races, selectedRace]);
 
   return <div className="season-map-frame">
-    <div ref={containerRef} className="race-map season-ocean-map" aria-label="Carte tactique des courses de la saison" />
+    <div ref={containerRef} className="race-map season-ocean-map" aria-label="Carte des étapes de la saison" />
     <MapHud
       mapRef={mapRef}
       isReady={isReady}

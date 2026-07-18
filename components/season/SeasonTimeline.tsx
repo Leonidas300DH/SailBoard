@@ -93,7 +93,7 @@ export function SeasonTimeline({
     }
   };
 
-  return <section className="season-timeline" aria-label="Calendrier des courses 2026">
+  return <section className="season-timeline" aria-label="Calendrier des étapes 2026">
     <div className="timeline-rail" ref={railRef} onKeyDown={handleKeyDown}>
       <div className="timeline-canvas">
         <div className="timeline-axis" aria-hidden>

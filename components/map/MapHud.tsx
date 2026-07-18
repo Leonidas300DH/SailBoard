@@ -116,7 +116,7 @@ export function MapHud({
       ) : null}
     </div>
     {onRecenter ? (
-      <button type="button" className="hud-recenter" onClick={onRecenter} aria-label="Recentrer la carte sur la course">
+      <button type="button" className="hud-recenter" onClick={onRecenter} aria-label="Recentrer la carte">
         <Crosshair aria-hidden />
         <span>Recentrer</span>
       </button>

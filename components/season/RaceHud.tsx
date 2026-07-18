@@ -34,7 +34,7 @@ export function RaceHud({
   onClose: () => void;
 }) {
   const status = isToday
-    ? "Jour de course"
+    ? "Jour d’étape"
     : race.winner
       ? `Vainqueur · ${race.winner}`
       : race.status === "upcoming" ? "Engagements ouverts" : race.result ?? "Résultats validés";
@@ -54,7 +54,7 @@ export function RaceHud({
     </header>
 
     {weather ? (
-      <div className="race-hud-weather" aria-label="Conditions météo du jour de la course">
+      <div className="race-hud-weather" aria-label="Conditions météo du jour de l’étape">
         <span title="Vent"><Wind aria-hidden /><strong className="mono">{weather.windKnots.toFixed(1)} ND · {Math.round(weather.windDirection)}°</strong></span>
         <span title="Rafales"><Gauge aria-hidden /><strong className="mono">{Math.round(weather.gustKnots)} ND</strong></span>
         <span title="Mer"><Waves aria-hidden /><strong className="mono">{weather.waveHeight.toFixed(1)} M</strong></span>
@@ -82,7 +82,7 @@ export function RaceHud({
         </button>
       ) : null}
       <Link className="button primary race-hud-open" href={`/courses/${race.slug}`}>
-        Explorer la course
+        Explorer l’étape
         <ChevronRight aria-hidden />
       </Link>
     </footer>

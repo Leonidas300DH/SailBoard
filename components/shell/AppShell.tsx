@@ -72,7 +72,7 @@ export function ControlShell({
           <strong className="mono">DATA · V1</strong>
         </div>
         <div className="top-actions">
-          <Link className="button primary" href={`/courses/${raceSlug}`}><Flag />Voir la course</Link>
+          <Link className="button primary" href={`/courses/${raceSlug}`}><Flag />Voir l’étape</Link>
           <Link className="button" href="/classements"><Trophy />Championnat</Link>
         </div>
       </header>

@@ -9,13 +9,12 @@ export type NavItem = {
   icon: LucideIcon;
 };
 
-// "Courses" has no nav entry: the season IS the entry point and each race is
-// reached from it (timeline, dossier, roadbook) or from the standings.
+// Les étapes sont accessibles depuis la saison (timeline et roadbook) ou les classements.
 export function publicNav(): NavItem[] {
   return [
     { id: "season", href: "/", label: "Saison", icon: Map },
-    { id: "rankings", href: "/classements", label: "Bateaux", icon: Sailboat },
-    { id: "sailors", href: "/classements?vue=individuel", label: "Marins", icon: Users },
+    { id: "rankings", href: "/classements", label: "Équipages", icon: Sailboat },
+    { id: "sailors", href: "/classements?vue=individuel", label: "Navigateurs", icon: Users },
     { id: "admin", href: "/admin", label: "Admin", icon: Settings },
   ];
 }
