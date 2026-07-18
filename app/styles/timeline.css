@@ -25,13 +25,19 @@
 .timeline-node:focus-visible { outline: none; }
 .timeline-node:focus-visible .timeline-node-marker { box-shadow: 0 0 0 2px var(--bg-deep), 0 0 0 4px var(--danger); }
 
+@media (min-width: 761px) and (max-width: 1050px) {
+  .timeline-canvas { min-width: 920px; }
+}
+
 @media (max-width: 760px) {
-  .season-timeline { height: 104px; }
-  .timeline-canvas { min-width: 720px; margin: 0 18px; }
-  .timeline-axis span { top: 8px; }
-  .timeline-line { top: 44px; }
-  .timeline-node { top: 32px; }
-  .timeline-today { top: 23px; bottom: 8px; }
+  .season-timeline { height: var(--mobile-timeline-height); }
+  .timeline-canvas { min-width: 820px; margin: 0 18px; }
+  .timeline-axis span { top: 6px; }
+  .timeline-line { top: 37px; }
+  .timeline-node { top: 25px; row-gap: 5px; }
+  .timeline-node-copy strong { font-size: 10px; }
+  .timeline-node-copy small { margin-top: 2px; font-size: 7px; }
+  .timeline-today { top: 19px; bottom: 6px; }
 }
 
 

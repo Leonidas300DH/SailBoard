@@ -40,11 +40,6 @@ export function RaceExperience({
   const openRail = (entryId: string) => {
     setSelectedEntryId(entryId);
     setIsRailExpanded(true);
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      window.setTimeout(() => {
-        document.getElementById("selected-boat-rail")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
   };
 
   return <AppShell

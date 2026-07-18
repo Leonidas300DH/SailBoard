@@ -29,6 +29,10 @@
   /* One tactical radius across chrome surfaces. */
   --radius: 3px;
 
+  /* Shared mobile chrome geometry. Keep every fixed HUD above both rails. */
+  --mobile-nav-height: 60px;
+  --mobile-timeline-height: 88px;
+
   /* Tactical map furniture */
   --grid-line: rgba(0, 156, 222, 0.14);
 }

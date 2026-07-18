@@ -61,11 +61,12 @@
 .race-hud-open svg { width: 15px; }
 
 @media (max-width: 760px) {
-  .season-ocean-shell { height: calc(100vh - 68px - env(safe-area-inset-bottom)); height: calc(100dvh - 68px - env(safe-area-inset-bottom)); overflow: hidden; padding-bottom: 0; }
-  .season-ocean-stage { min-height: 0; height: 100%; grid-template-rows: minmax(0, 1fr) 104px; }
+  .season-ocean-shell { min-height: 0; height: calc(100vh - var(--mobile-nav-height) - env(safe-area-inset-bottom)); height: calc(100dvh - var(--mobile-nav-height) - env(safe-area-inset-bottom)); overflow: hidden; padding-bottom: 0; }
+  .season-ocean-shell > .app-shell-content { height: 100%; min-height: 0; }
+  .season-ocean-stage { min-height: 0; height: 100%; grid-template-rows: minmax(0, 1fr) var(--mobile-timeline-height); }
   .season-ocean-nav   .season-ocean-top { min-height: 50px; gap: 7px; padding: 0 10px 0 12px; }
   .season-top-id { font-size: 8px; letter-spacing: .06em; }
-      .season-primary-action { min-width: 0; min-height: 44px; padding: 0 11px; font-size: 0; }
+  .season-primary-action { min-width: 0; min-height: 44px; padding: 0 11px; font-size: 0; }
   .season-primary-action svg { margin: 0; }
   .wind-field { inset: 62px 0 190px; }
   .race-hud { left: 0; right: 0; top: auto; bottom: 0; width: 100%; border-right: 0; border-bottom: 0; animation-name: hudInUp; }

@@ -153,7 +153,7 @@ export async function getWeatherAt(coordinates: [number, number], scheduledAt: s
     if (lowIndex >= 0) tideLabel = `BM ${marine.hourly.time[lowIndex]?.slice(11, 16) ?? ""}`.trim();
   }
 
-  const sourceParts = [reliability === "archive" ? "Open-Meteo · archive ERA5" : "Open-Meteo · ECMWF IFS"];
+  const sourceParts = [reliability === "archive" ? "Open-Meteo" : "Open-Meteo · ECMWF IFS"];
   sourceParts.push(marineReliable ? "Météo-France MFWAM" : "mer reconstituée");
 
   return {
