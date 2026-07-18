@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { GeoJSONSource, Map as MaplibreMap, Marker } from "maplibre-gl";
 import type { SeasonRace } from "@/lib/season-data";
 import { bearingAt } from "@/lib/map/geo";
 import { attachGraticule } from "@/lib/map/graticule";
+import { buildCurvedChronology, chronologyFeatures } from "@/lib/map/season-chronology";
 import { useMapLibre } from "../map/useMapLibre";
 import { useCameraDirector } from "../map/useCameraDirector";
 import { useRouteAnimation } from "../map/useRouteAnimation";
+import { useSeasonChronologyAnimation } from "../map/useSeasonChronologyAnimation";
 import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
 
@@ -40,23 +42,52 @@ export function SeasonMap({
   }, [onSelect, races]);
 
   const markersRef = useRef(new Map<string, Marker>());
+  const chronologyLegs = useMemo(
+    () => buildCurvedChronology(races.map((race) => race.coordinates)),
+    [races],
+  );
 
   const handleLoad = useCallback((map: MaplibreMap) => {
     const allRaces = racesRef.current;
-    const chronology: GeoJSON.Feature<GeoJSON.LineString> = {
-      type: "Feature",
-      properties: {},
-      geometry: { type: "LineString", coordinates: allRaces.map((race) => race.coordinates) },
-    };
+    const curvedLegs = buildCurvedChronology(allRaces.map((race) => race.coordinates));
+    const chronology = chronologyFeatures(curvedLegs);
 
     attachGraticule(map);
 
     map.addSource("season-chronology", { type: "geojson", data: chronology });
     map.addLayer({
+      id: "season-chronology-depth",
+      type: "line",
+      source: "season-chronology",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: { "line-color": INK, "line-width": 2.8, "line-opacity": 0.24, "line-translate": [0, 1] },
+    });
+    map.addLayer({
+      id: "season-chronology-glow",
+      type: "line",
+      source: "season-chronology",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: { "line-color": "#6bb9d5", "line-width": 2.4, "line-opacity": 0.08, "line-blur": 2.5 },
+    });
+    map.addLayer({
       id: "season-chronology",
       type: "line",
       source: "season-chronology",
-      paint: { "line-color": "#9fb8c5", "line-width": 1.2, "line-opacity": 0.36, "line-dasharray": [2, 3] },
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: { "line-color": "#83b9cc", "line-width": 1.15, "line-opacity": 0.52 },
+    });
+
+    map.addSource("season-flow", { type: "geojson", lineMetrics: true, data: emptyCollection() });
+    map.addLayer({
+      id: "season-flow-glint",
+      type: "line",
+      source: "season-flow",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-width": 2.5,
+        "line-blur": 1.2,
+        "line-gradient": ["interpolate", ["linear"], ["line-progress"], 0, "rgba(72,185,230,0)", 1, "rgba(72,185,230,0)"],
+      },
     });
 
     // Full route, faint and dashed — the animated comet draws on top of it.
@@ -133,6 +164,8 @@ export function SeasonMap({
     onLoad: handleLoad,
   });
   const { flyToTarget, flyToBounds } = useCameraDirector(mapRef, isReady);
+
+  useSeasonChronologyAnimation({ mapRef, isReady, legs: chronologyLegs });
 
   // Selection: swap route geometry, restyle markers, direct the camera.
   // Races without an officially traced course show no line at all — the

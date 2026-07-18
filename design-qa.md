@@ -58,6 +58,71 @@ final result: passed
 
 ---
 
+# Design QA — navigation enrichie du championnat
+
+## Périmètre
+
+- Vérité visuelle source : `/var/folders/vc/3dmscl8d4rd_t9gqggky7m9r0000gn/T/codex-clipboard-4acecf62-2cff-4e5a-b8d5-2e4a08212d5d.png` — option explicitement sélectionnée par l’utilisateur.
+- Implémentation desktop : `docs/qa/sidebar-championship-desktop.jpg` — 1440 × 1011, accueil de saison, trois sections dépliées.
+- Implémentation tablette : `docs/qa/sidebar-championship-tablet.jpg` — 900 × 1011, rail compact.
+- Implémentation mobile : `docs/qa/sidebar-championship-mobile.jpg` — 390 × 844, navigation basse persistante.
+- Recadrage desktop : `docs/qa/sidebar-championship-rail.jpg` — 176 × 1010.
+- Comparaison ciblée source / implémentation : `docs/qa/sidebar-championship-comparison.jpg` — 695 × 1010.
+- Route vérifiée : `http://localhost:4173/`.
+- État : Saison active ; prochaine course, podium équipages et podium navigateurs dépliés.
+
+Le visuel source est une cible de structure et de hiérarchie produite sur un rail isolé plus large. L’implémentation conserve le rail produit à 176 px afin de ne modifier ni la carte héro ni la timeline horizontale, conformément à la demande.
+
+## Comparaison finale
+
+| Surface | Source | Implémentation finale | Verdict |
+|---|---|---|---|
+| Typographie | Titres condensés, noms sur une ligne, points discrets | Familles SailBoard existantes ; `Trophée YCCA` et les six noms tiennent sur une ligne sans troncature | Conforme |
+| Espacement et rythme | Trois informations rattachées directement à leur entrée de navigation | Même arbre : prochaine course sous Saison, podiums sous Équipages et Navigateurs ; Admin ancré en bas | Conforme, adapté au rail 176 px |
+| Couleurs et tokens | Bleu nuit, jaune actif, cyan classement | Tokens `--race`, `--past-race`, `--text` et séparateurs existants réutilisés | Conforme |
+| Images et actifs | Aucun actif raster métier ; pictogrammes de navigation | Icônes Lucide déjà utilisées par SailBoard ; aucune image factice, aucun SVG artisanal | Conforme |
+| Copie et contenu | Trophée YCCA, Arzon, podiums WDT | Données réelles des instantanés WDT 2026 et de `SEASON_RACES` ; accents et ordre prénom/nom corrigés à l’affichage | Conforme |
+| Interaction | Sections dépliables et lignes cliquables suggérées | Trois disclosures accessibles, course cliquable, six profils cliquables et deux liens vers le classement complet | Validé |
+| Responsive | Source desktop uniquement | Contenu contextuel masqué dans le rail 82 px tablette ; quatre destinations équitablement réparties dans la barre mobile | Validé |
+
+## Historique QA
+
+### Passage 1 — bloqué
+
+- [P2] Le premier rendu desktop tronquait `Trophée YCCA`, `Centre de Médiation`, `Benoît Champanhac` et `Xavier Pierre Dubos`.
+- [P2] À 390 px, les icônes Équipages et Navigateurs se chevauchaient car leurs conteneurs enrichis conservaient leur largeur intrinsèque.
+- [P2] Sur écran haut, le classement finissait trop tôt et recréait un espace mort excessif avant Admin.
+
+### Corrections
+
+- Réallocation de la grille interne des lignes pour donner 95 px aux noms et conserver les points tabulaires.
+- Passage des wrappers enrichis en `display: contents` sur mobile et base flex nulle pour quatre cibles de 97,5 px.
+- Rythme vertical adaptatif au-dessus de 900 px : prochaine course, titres et lignes de podium gagnent de l’air sans faire défiler un laptop plus court.
+- Admin reste ancré en bas pour former une destination utilitaire distincte et supprimer le vide terminal du rail d’origine.
+
+### Passage final — validé
+
+- La comparaison côte à côte confirme la même hiérarchie, les mêmes trois groupes, les guides verticaux, les accents jaune/cyan et la priorité donnée aux noms.
+- Les sept libellés sensibles ont `scrollWidth <= clientWidth` à 1440 px.
+- Le bouton Équipages replie et redéplie son podium avec `aria-expanded` et un libellé accessible mis à jour.
+- Le clic sur Centre de Médiation ouvre bien `/bateaux/centre-de-mediation`.
+- À 900 px, le rail mesure 82 px, masque les aperçus et ne crée aucun débordement horizontal.
+- À 390 px, la barre reste fixée en bas ; Saison, Équipages, Navigateurs et Admin occupent chacun 97,5 px.
+- Aucune erreur ni aucun avertissement de console pendant le scénario final.
+
+## Contrôles techniques
+
+- `npm run lint` : réussi.
+- `npm test` : 14 tests réussis.
+- `npm run build` : réussi.
+- Capture navigateur desktop, tablette et mobile : réussie.
+- Comparaison plein écran : `docs/qa/sidebar-championship-desktop.jpg` face à la source.
+- Comparaison focalisée : `docs/qa/sidebar-championship-comparison.jpg` ; aucun autre recadrage n’est nécessaire car le composant entier y reste lisible.
+
+final result: passed
+
+---
+
 # Design QA — roadbook de saison SailBoard
 
 ## Périmètre

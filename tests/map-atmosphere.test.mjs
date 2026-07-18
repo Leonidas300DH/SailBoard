@@ -5,9 +5,11 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 
 test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () => {
-  const [cloudLayer, seasonMap, courseMap, cameraDirector, mapBootstrap] = await Promise.all([
+  const [cloudLayer, seasonMap, chronology, chronologyAnimation, courseMap, cameraDirector, mapBootstrap] = await Promise.all([
     readFile(new URL("components/map/CloudLayer.tsx", root), "utf8"),
     readFile(new URL("components/season/SeasonMap.tsx", root), "utf8"),
+    readFile(new URL("lib/map/season-chronology.ts", root), "utf8"),
+    readFile(new URL("components/map/useSeasonChronologyAnimation.ts", root), "utf8"),
     readFile(new URL("components/race/CourseMap.tsx", root), "utf8"),
     readFile(new URL("components/map/useCameraDirector.ts", root), "utf8"),
     readFile(new URL("components/map/useMapLibre.ts", root), "utf8"),
@@ -27,6 +29,18 @@ test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () =>
   assert.match(seasonMap, /maxPitch: 65/);
   assert.match(seasonMap, /pitch: isCompact \? 26 : 34/);
   assert.match(seasonMap, /pitch: 52/);
+  assert.match(seasonMap, /season-chronology-depth/);
+  assert.match(seasonMap, /season-flow-glint/);
+  assert.match(seasonMap, /"line-width": 1\.15/);
+  assert.doesNotMatch(seasonMap, /season-chronology-direction/);
+  assert.doesNotMatch(seasonMap, /season-flow-particles/);
+  assert.match(chronology, /buildCurvedChronology/);
+  assert.match(chronology, /inverse \* inverse/);
+  assert.match(chronologyAnimation, /chronologyGlintExpression/);
+  assert.match(chronologyAnimation, /legDurationMs = 9_000/);
+  assert.match(chronologyAnimation, /legTime \/ 0\.9/);
+  assert.match(chronologyAnimation, /startedAt \?\?= now/);
+  assert.match(chronologyAnimation, /prefersReducedMotion/);
   assert.match(courseMap, /pitch: 48/);
   assert.match(courseMap, /pitch: 42/);
   assert.match(courseMap, /if \(!routeBounds\)/);

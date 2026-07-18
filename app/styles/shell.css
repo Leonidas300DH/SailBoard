@@ -1,7 +1,8 @@
 .public-shell { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: 176px minmax(0, 1fr); }
 .side-nav { position: sticky; top: 0; height: 100vh; height: 100dvh; z-index: 30; display: flex; flex-direction: column; overflow: hidden; background: rgba(0, 16, 27, .97); border-right: 1px solid var(--line); }
 .side-brand { min-height: 92px; display: flex; align-items: center; padding: 16px 14px; border-bottom: 1px solid var(--line); }
-.nav-stack { display: grid; padding: 8px 0; }
+.nav-stack { min-height: 0; flex: 1 1 auto; display: flex; flex-direction: column; padding: 8px 0 18px; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
+.nav-stack::-webkit-scrollbar { display: none; }
 .nav-link { min-height: 56px; min-width: 0; padding: 0 12px; display: flex; align-items: center; gap: 10px; color: #d9e2e5; border-left: 2px solid transparent; font: 700 12px/1 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .03em; transition: .2s ease; }
 .nav-link span, .nav-sublink span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nav-group-title > span { min-width: 0; white-space: normal; }
@@ -59,5 +60,61 @@
 .nav-sublink svg { flex: 0 0 auto; width: 15px; height: 15px; stroke-width: 1.8; }
 .nav-sublink:hover { color: var(--text); }
 .nav-sublink.active { color: var(--acid); border-left-color: var(--acid); background: rgba(232, 255, 41, .06); }
+
+/* Championship-aware navigation. Context stays attached to the route that
+   owns it: next race under Season, each podium under its ranking view. */
+.nav-rich-section { min-width: 0; }
+.nav-rich-row { min-width: 0; display: flex; align-items: stretch; }
+.nav-rich-row > .nav-link, .nav-rich-row > .nav-sublink { flex: 1 1 auto; padding-right: 2px; }
+.nav-rich-row--sub > .nav-sublink { min-height: 42px; padding-left: 31px; color: #d9e2e5; font-weight: 700; }
+.nav-rich-row--sub > .nav-sublink svg { width: 18px; height: 18px; }
+.nav-disclosure { flex: 0 0 38px; min-width: 38px; min-height: 42px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--muted); transition: color .18s ease, background .18s ease; }
+.nav-disclosure:hover, .nav-disclosure:focus-visible { color: var(--race); background: rgba(232,255,41,.045); }
+.nav-disclosure svg { width: 15px; height: 15px; stroke-width: 2; transform: rotate(-90deg); transition: transform .22s ease; }
+.nav-disclosure svg.open { transform: rotate(0); }
+
+.nav-context { position: relative; min-width: 0; margin-left: 14px; padding-left: 18px; }
+.nav-context-guide { position: absolute; inset: 0 auto 0 0; width: 1px; background: rgba(196,228,240,.32); }
+.nav-context--race { padding-top: 2px; padding-bottom: 9px; }
+.nav-next-race { min-width: 0; min-height: 76px; display: grid; grid-template-columns: 20px minmax(0,1fr) 14px; align-items: center; gap: 6px; padding: 8px 6px 8px 4px; color: var(--text); transition: background .18s ease, color .18s ease; }
+.nav-next-race:hover, .nav-next-race:focus-visible { background: rgba(232,255,41,.055); }
+.nav-next-race > svg:first-child { width: 19px; color: var(--race); stroke-width: 1.8; }
+.nav-next-race > svg:last-child { width: 17px; color: var(--race); transition: transform .18s ease; }
+.nav-next-race:hover > svg:last-child { transform: translateX(2px); }
+.nav-next-copy { min-width: 0; display: grid; gap: 3px; }
+.nav-next-copy small { color: var(--race); font: 700 8px/1.1 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .045em; }
+.nav-next-copy strong { overflow: hidden; color: var(--text); font: 700 11px/1.1 var(--font-race), sans-serif; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.nav-next-copy > span { overflow: hidden; color: var(--muted); font: 600 9px/1.1 var(--font-race), sans-serif; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+
+.nav-ranking-tree { padding-top: 2px; }
+.nav-ranking-tree > .nav-group-title { min-height: 52px; padding-top: 8px; padding-bottom: 8px; color: var(--text); text-decoration: none; }
+.nav-group-chevron { width: 14px !important; height: 14px !important; margin-left: auto; color: var(--muted); }
+.nav-rich-section--ranking { position: relative; }
+.nav-context--podium { padding-top: 4px; padding-bottom: 8px; }
+.nav-podium-list { min-width: 0; display: grid; }
+.nav-podium-row { min-width: 0; min-height: 31px; display: grid; grid-template-columns: 23px minmax(0,1fr) 16px; align-items: center; gap: 2px; padding: 0 5px 0 0; color: var(--text); border-bottom: 1px solid transparent; transition: background .18s ease, border-color .18s ease; }
+.nav-podium-row:hover, .nav-podium-row:focus-visible { background: rgba(0,156,222,.065); border-bottom-color: rgba(53,184,255,.42); }
+.nav-podium-rank { display: flex; align-items: center; gap: 1px; color: var(--past-race); font: 700 12px/1 var(--font-geist-mono), monospace; }
+.nav-podium-rank svg { width: 9px; height: 9px; margin-left: -4px; color: var(--race); stroke-width: 3; }
+.nav-podium-name { min-width: 0; overflow: hidden; color: #dbe6ea; font: 600 9px/1 var(--font-race), sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.nav-podium-points { color: #a8bac2; font-size: 9px; text-align: right; }
+.nav-context-all { width: fit-content; min-height: 30px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px 0 2px; color: var(--past-race); font: 700 9px/1 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .035em; }
+.nav-context-all svg { width: 13px; height: 13px; transition: transform .18s ease; }
+.nav-context-all:hover svg { transform: translateX(2px); }
+
+.nav-admin-slot { margin-top: auto; border-top: 1px solid var(--line); }
+.nav-admin-slot .nav-link { min-height: 58px; }
+.nav-admin-chevron { width: 14px !important; height: 14px !important; margin-left: auto; color: var(--muted); }
+
+/* Tall race-control screens get the airiness of the selected concept without
+   bloating shorter laptop layouts or making the rail scroll. */
+@media (min-width: 1051px) and (min-height: 900px) {
+  .nav-next-race { min-height: 90px; }
+  .nav-ranking-tree > .nav-group-title { min-height: 60px; }
+  .nav-rich-row--sub > .nav-sublink, .nav-rich-row--sub > .nav-disclosure { min-height: 52px; }
+  .nav-context--podium { padding-top: 7px; padding-bottom: 12px; }
+  .nav-podium-row { min-height: 36px; }
+  .nav-context-all { min-height: 35px; }
+}
 
 .nav-stage.next:not(.selected) .nav-stage-hex { animation: nextGlow 1.9s ease-in-out infinite; }
