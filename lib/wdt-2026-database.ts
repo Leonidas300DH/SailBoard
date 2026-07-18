@@ -113,7 +113,7 @@ async function readDatabaseSnapshots(): Promise<Wdt2026Snapshots> {
     team: {
       ...common,
       id: "wdt-2026-database-teams",
-      title: "Classement général",
+      title: "Classement des équipages",
       declaredClassifiedCount: teamRows.length,
       scoreDirection: "low",
       rows: teamRows,
@@ -121,7 +121,7 @@ async function readDatabaseSnapshots(): Promise<Wdt2026Snapshots> {
     individual: {
       ...common,
       id: "wdt-2026-database-individual",
-      title: "Classement individuel",
+      title: "Classement des navigateurs",
       declaredClassifiedCount: individualRows.length,
       scoreDirection: "high",
       rows: individualRows,

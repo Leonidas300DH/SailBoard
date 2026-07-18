@@ -51,7 +51,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
     return snapshotMeta?.scoreDirection === "low" ? Math.min(...scores) : Math.max(...scores);
   }, [selected, snapshotMeta]);
 
-  return <ControlShell active={mode === "individual" ? "sailors" : "rankings"} raceSlug={raceSlug} eventName={eventName} title={snapshotMeta?.title ?? (mode === "individual" ? "Classement des marins" : "Classement des bateaux")} eyebrow={snapshotMeta?.eyebrow ?? "Championnat 2026 · contrôle officiel"}>
+  return <ControlShell active={mode === "individual" ? "sailors" : "rankings"} raceSlug={raceSlug} eventName={eventName} title={snapshotMeta?.title ?? (mode === "individual" ? "Classement des navigateurs" : "Classement des équipages")} eyebrow={snapshotMeta?.eyebrow ?? "Championnat 2026 · contrôle officiel"}>
     <div className="control-body">
       <section className="control-kpis" aria-label="Résumé du championnat">
         <div><span>Leader provisoire</span><strong>{rows[0]?.name ?? "—"}</strong><small>{rows[0] ? formatPoints(rows[0].points) : "0"} points</small></div>
@@ -64,8 +64,8 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
         <section className="control-list-panel">
           <div className="control-panel-head">
             <div className="view-switch" aria-label="Changer de classement">
-              <Link className={mode === "boats" ? "active" : ""} href="/classements?vue=bateaux">Bateaux</Link>
-              <Link className={mode === "individual" ? "active" : ""} href="/classements?vue=individuel">Individuel</Link>
+              <Link className={mode === "boats" ? "active" : ""} href="/classements?vue=bateaux">Équipages</Link>
+              <Link className={mode === "individual" ? "active" : ""} href="/classements?vue=individuel">Navigateurs</Link>
             </div>
             <label className="control-search"><Search aria-hidden /><span className="sr-only">Filtrer</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={mode === "individual" ? "Rechercher un navigateur" : "Rechercher un équipage"} /></label>
           </div>
@@ -74,7 +74,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
             style={{ "--stage-count": events.length } as React.CSSProperties}
           >
             <span>Pos.</span>
-            <span>Concurrent</span>
+            <span>{mode === "individual" ? "Navigateur" : "Équipage"}</span>
             {events.map((event, index) => (
               <abbr key={event.id} title={event.name} className={`standings-stage-label ${event.status}`}>
                 É{index + 1}
@@ -114,9 +114,9 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
             <div><Trophy /><span>{snapshotMeta ? "Étapes" : "Manches"}</span><strong>{snapshotMeta ? `${snapshotMeta.completedRaces}/${snapshotMeta.totalRaces}` : selected.races ?? "—"}</strong></div>
             <div><ShieldCheck /><span>Statut</span><strong>{snapshotMeta ? "Provisoire" : "Validé"}</strong></div>
           </div>
-          {snapshotMeta && selected.eventScores ? <div className="intel-breakdown"><div className="intel-section-title"><Trophy />Détail par étape</div>{snapshotMeta.events.map((event, index) => <div className="intel-event-score" key={event.id}><span><i>{index + 1}</i><span><strong>{event.shortName}</strong><small>{event.status === "completed" ? "Résultat intégré" : "À venir"}</small></span></span><strong className={`mono ${selected.eventScores?.[index] == null ? "pending" : ""}`}>{selected.eventScores?.[index] ?? "—"}</strong></div>)}</div> : mode === "boats" ? <div className="intel-crew"><div className="intel-section-title"><Users />Équipage de la manche</div>{selected.crew?.map((member) => <Link key={member.slug} href={`/participants/${member.slug}`}><span>{member.name}</span><small>{member.role}</small><ChevronRight /></Link>)}</div> : <div className="intel-crew"><div className="intel-section-title"><Sparkles />Affectation de la manche</div><Link href={selected.boatHref ?? "#"}><span>{selected.boatName ?? "Bateau non affecté"}</span><small>{selected.role ?? "Rôle non renseigné"}</small><ChevronRight /></Link></div>}
+          {snapshotMeta && selected.eventScores ? <div className="intel-breakdown"><div className="intel-section-title"><Trophy />Détail par étape</div>{snapshotMeta.events.map((event, index) => <div className="intel-event-score" key={event.id}><span><i>{index + 1}</i><span><strong>{event.shortName}</strong><small>{event.status === "completed" ? "Points publiés" : "À venir"}</small></span></span><strong className={`mono ${selected.eventScores?.[index] == null ? "pending" : ""}`}>{selected.eventScores?.[index] ?? "—"}</strong></div>)}</div> : mode === "boats" ? <div className="intel-crew"><div className="intel-section-title"><Users />Équipage de l’étape</div>{selected.crew?.map((member) => <Link key={member.slug} href={`/participants/${member.slug}`}><span>{member.name}</span><small>{member.role}</small><ChevronRight /></Link>)}</div> : <div className="intel-crew"><div className="intel-section-title"><Sparkles />Affectation de l’étape</div><Link href={selected.boatHref ?? "#"}><span>{selected.boatName ?? "Équipage non renseigné"}</span><small>{selected.role ?? "Rôle non renseigné"}</small><ChevronRight /></Link></div>}
           {snapshotMeta ? <div className="intel-import-source"><div className="intel-section-title"><Sparkles />Calcul officiel</div><strong>{snapshotMeta.scoringLabel}</strong><small>{snapshotMeta.sourceLabel}</small><p>Les deux dernières étapes restent volontairement vides jusqu’à publication de leurs résultats.</p></div> : null}
-          {selected.profileHref ? <Link className="intel-primary-link" href={selected.profileHref}>Ouvrir le dossier complet <ChevronRight /></Link> : null}
+          {selected.profileHref ? <Link className="intel-primary-link" href={selected.profileHref}>Ouvrir la fiche {mode === "individual" ? "du navigateur" : "de l’équipage"} <ChevronRight /></Link> : null}
         </aside> : null}
       </div>
     </div>

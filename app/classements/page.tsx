@@ -15,7 +15,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
       id: `wdt-2026-${individual ? "individual" : "team"}-${index + 1}-${slug}`,
       name: source.name,
       slug,
-      subtitle: individual ? "Cumul individuel · score le plus élevé" : "Somme des places · score le plus bas",
+      subtitle: individual ? "Classement des navigateurs · score le plus élevé" : "Classement des équipages · score le plus bas",
       color: standingColor(source.rank),
       points: source.points,
       position: source.rank,
@@ -37,7 +37,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
       totalRaces: snapshot.totalRaces,
       totalClassified: snapshot.declaredClassifiedCount,
       scoreDirection: snapshot.scoreDirection,
-      scoringLabel: individual ? "Somme des points de chaque étape" : "Somme des places de chaque étape",
+      scoringLabel: "Somme des points de chaque étape",
       events: WDT_2026_EVENTS,
     }}
   />;
