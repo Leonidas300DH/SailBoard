@@ -33,11 +33,11 @@ La version SailBoard utilise :
 
 - la carte satellite comme territoire réel ;
 - une liaison chronologique précise entre les étapes ;
-- un rail de circuit dépliable avec six étapes numérotées ;
+- une timeline permanente avec six étapes numérotées ;
 - des états passé, sélectionné et à venir ;
-- une interaction commune entre la carte, le rail, la météo et la timeline ;
-- une animation du parcours sélectionné ;
-- une feuille plein écran sur mobile ;
+- une interaction commune entre la carte, la météo et la timeline ;
+- une liaison animée entre les lieux du championnat, sans inventer le parcours d’une course ;
+- une timeline compacte conservée sur mobile ;
 - le langage visuel existant : noir Atlantique, blanc, jaune acide et typographie compétition.
 
-Le rail n’est pas une seconde navigation. Il sert uniquement à lire et parcourir le championnat comme un itinéraire sportif.
+La timeline est la navigation temporelle commune de SailBoard. Elle sert à lire et parcourir le championnat comme un itinéraire sportif, sur tous les écrans publics.

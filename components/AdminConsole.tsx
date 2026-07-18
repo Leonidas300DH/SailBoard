@@ -3,11 +3,10 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Anchor, ClipboardCheck, Gauge, KeyRound, LayoutDashboard, ListChecks, MapPinned, Plus, Sailboat, Save, Settings2, ShieldCheck, Users } from "lucide-react";
+import { Anchor, ClipboardCheck, Gauge, KeyRound, LayoutDashboard, ListChecks, Plus, Sailboat, Save, Settings2, ShieldCheck, Users } from "lucide-react";
 import type { AdminIdentity } from "@/lib/auth";
 import type { RaceView, ResultStatus, ScoringConfig } from "@/lib/domain";
 import { scoreBoat } from "@/lib/scoring.mjs";
-import { CourseEditor } from "./CourseEditor";
 
 type Snapshot = {
   race: RaceView;
@@ -21,13 +20,12 @@ type Snapshot = {
   admins: Record<string, unknown>[];
 };
 
-type Tab = "dashboard" | "organisation" | "fleet" | "course" | "results" | "rules" | "access";
+type Tab = "dashboard" | "organisation" | "fleet" | "results" | "rules" | "access";
 
 const tabs: Array<{ id: Tab; label: string; icon: typeof LayoutDashboard }> = [
   { id: "dashboard", label: "Vue d’ensemble", icon: LayoutDashboard },
   { id: "organisation", label: "Saisons, étapes & manches", icon: ListChecks },
   { id: "fleet", label: "Équipages & navigateurs", icon: Sailboat },
-  { id: "course", label: "Parcours", icon: MapPinned },
   { id: "results", label: "Résultats", icon: ClipboardCheck },
   { id: "rules", label: "Barèmes", icon: Settings2 },
   { id: "access", label: "Accès", icon: KeyRound },
@@ -66,7 +64,6 @@ export function AdminConsole({ admin, snapshot }: { admin: AdminIdentity; snapsh
       {tab === "dashboard" ? <Dashboard snapshot={snapshot} setTab={setTab} /> : null}
       {tab === "organisation" ? <Organisation snapshot={snapshot} send={send} busy={busy} /> : null}
       {tab === "fleet" ? <Fleet snapshot={snapshot} send={send} busy={busy} /> : null}
-      {tab === "course" ? <CourseEditor race={snapshot.race} onSaved={() => router.refresh()} /> : null}
       {tab === "results" ? <ResultsEditor race={snapshot.race} config={scoringConfig} send={send} busy={busy} /> : null}
       {tab === "rules" ? <RulesEditor rule={publishedRule} admin={admin} send={send} busy={busy} /> : null}
       {tab === "access" ? <AccessPanel snapshot={snapshot} admin={admin} send={send} busy={busy} /> : null}
@@ -77,7 +74,7 @@ export function AdminConsole({ admin, snapshot }: { admin: AdminIdentity; snapsh
 function Dashboard({ snapshot, setTab }: { snapshot: Snapshot; setTab: (tab: Tab) => void }) {
   const pending = snapshot.accessRequests.filter((item) => item.status === "pending").length;
   return <><div className="metric-strip"><div className="metric-block"><strong>{snapshot.seasons.length}</strong><span>Saison active</span></div><div className="metric-block"><strong>{snapshot.boats.length}</strong><span>Équipages</span></div><div className="metric-block"><strong>{snapshot.participants.length}</strong><span>Navigateurs</span></div><div className="metric-block"><strong className={pending ? "acid" : ""}>{pending}</strong><span>Demandes d’accès</span></div></div>
-    <div className="section-head"><h2>À traiter</h2></div><div className="admin-grid"><article className="admin-panel"><div className="admin-panel-head"><h2>Dernière manche</h2><span className="status-tag">Validée</span></div><div className="admin-panel-body"><strong className="race-font" style={{ fontSize: 26 }}>{snapshot.race.eventName} · {snapshot.race.name}</strong><p className="muted">{snapshot.race.leaderboard.length} équipages classés · {snapshot.race.distanceNm.toFixed(1)} milles nautiques</p><div className="action-row"><button className="button small" onClick={() => setTab("results")}>Ouvrir les résultats</button><button className="button small" onClick={() => setTab("course")}>Voir le parcours</button></div></div></article>
+    <div className="section-head"><h2>À traiter</h2></div><div className="admin-grid"><article className="admin-panel"><div className="admin-panel-head"><h2>Dernière manche</h2><span className="status-tag">Validée</span></div><div className="admin-panel-body"><strong className="race-font" style={{ fontSize: 26 }}>{snapshot.race.eventName} · {snapshot.race.name}</strong><p className="muted">{snapshot.race.leaderboard.length} équipages classés</p><div className="action-row"><button className="button small" onClick={() => setTab("results")}>Ouvrir les résultats</button></div></div></article>
     <article className="admin-panel"><div className="admin-panel-head"><h2>Accès administrateurs</h2><span className={`status-tag ${pending ? "pending" : ""}`}>{pending} en attente</span></div><div className="admin-panel-body"><p className="muted">Chaque compte connecté doit être approuvé avant de pouvoir modifier les données.</p><button className="button small" onClick={() => setTab("access")}>Gérer les accès</button></div></article></div></>;
 }
 

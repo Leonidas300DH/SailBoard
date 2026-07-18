@@ -14,6 +14,7 @@
 /* Public control rooms: every public route remains inside the same race cockpit. */
 .control-shell { background: radial-gradient(circle at 64% 10%, #0a3045 0, #031724 38%, #00101a 100%); }
 .control-stage { min-width: 0; min-height: 100vh; display: grid; grid-template-rows: 78px minmax(0,1fr); }
+.app-shell-content--timeline .control-stage { height: 100%; min-height: 0; overflow: hidden; }
 .control-topbar { z-index: 20; min-width: 0; display: flex; align-items: center; gap: 18px; padding: 10px 16px 10px 24px; background: linear-gradient(90deg, rgba(1,17,27,.98), rgba(2,25,39,.92)); border-bottom: 1px solid var(--line); }
 .control-heading { min-width: 0; flex: 1 1 auto; }
 .control-heading > span, .panel-kicker { display: block; color: var(--acid); font: 700 10px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .1em; }

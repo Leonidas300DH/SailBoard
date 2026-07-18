@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Anchor, ChevronRight, CloudOff, Gauge, Pause, Play, Thermometer, Waves, Wind, X } from "lucide-react";
+import { Anchor, ChevronRight, CloudOff, Gauge, Thermometer, Waves, Wind, X } from "lucide-react";
 import type { SeasonRace } from "@/lib/season-data";
 import type { StagePodiumEntry } from "@/lib/wdt-profiles";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
@@ -9,7 +9,7 @@ import { DecodeText } from "../map/DecodeText";
 
 /**
  * Floating race HUD — appears only when a stage is picked on the map,
- * timeline or roadbook. Carries the identity, the real conditions and the
+ * map or timeline. Carries the identity, the real conditions and the
  * one action that goes deeper: opening the race page.
  */
 export function RaceHud({
@@ -17,18 +17,14 @@ export function RaceHud({
   index,
   podium = [],
   weather,
-  isPlaying,
   isToday = false,
-  onTogglePlay,
   onClose,
 }: {
   race: SeasonRace;
   index: number;
   podium?: StagePodiumEntry[];
   weather: RaceWeatherSnapshot | null;
-  isPlaying: boolean;
   isToday?: boolean;
-  onTogglePlay: () => void;
   onClose: () => void;
 }) {
   const status = isToday
@@ -45,7 +41,6 @@ export function RaceHud({
         <strong><DecodeText text={race.name} /></strong>
         <small>
           {race.locationName} · {isToday ? <em className="race-dossier-live">{status}</em> : status}
-          {race.route ? null : " · Tracé non publié"}
         </small>
       </div>
       <button type="button" className="race-hud-close" aria-label="Refermer la fiche" onClick={onClose}><X /></button>
@@ -77,16 +72,6 @@ export function RaceHud({
     )}
 
     <footer className="race-hud-actions">
-      {race.route ? (
-        <button
-          type="button"
-          className="race-hud-play"
-          aria-label={isPlaying ? "Mettre l’animation du parcours en pause" : "Rejouer le parcours"}
-          onClick={onTogglePlay}
-        >
-          {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
-        </button>
-      ) : null}
       <Link className="button primary race-hud-open" href={`/courses/${race.slug}`}>
         Explorer l’étape
         <ChevronRight aria-hidden />

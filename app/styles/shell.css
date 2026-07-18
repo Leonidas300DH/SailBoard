@@ -1,4 +1,7 @@
 .public-shell { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: 176px minmax(0, 1fr); }
+.app-shell-content { min-width: 0; min-height: 100vh; min-height: 100dvh; }
+.app-shell-content--timeline { height: 100vh; height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) 118px; overflow: hidden; }
+.app-shell-content--timeline > :first-child { min-height: 0; }
 .side-nav { position: sticky; top: 0; height: 100vh; height: 100dvh; z-index: 30; display: flex; flex-direction: column; overflow: hidden; background: rgba(0, 16, 27, .97); border-right: 1px solid var(--line); }
 .side-brand { min-height: 92px; display: flex; align-items: center; padding: 16px 14px; border-bottom: 1px solid var(--line); }
 .nav-stack { min-height: 0; flex: 1 1 auto; display: flex; flex-direction: column; padding: 8px 0 18px; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
@@ -12,7 +15,8 @@
 .nav-season strong { display: block; overflow: hidden; text-overflow: ellipsis; font: 700 14px/1.15 var(--font-race), sans-serif; text-transform: uppercase; }
 .nav-season small { display: block; color: var(--acid); margin-top: 8px; font: 700 11px var(--font-geist-mono), monospace; }
 
-.race-stage { min-width: 0; min-height: 100vh; min-height: 100dvh; display: grid; grid-template-rows: minmax(570px, calc(100vh - 78px)) 78px; grid-template-rows: minmax(570px, calc(100dvh - 78px)) 78px; }
+.race-stage { min-width: 0; min-height: 100vh; min-height: 100dvh; display: grid; grid-template-rows: minmax(570px, 1fr); }
+.app-shell-content--timeline .race-stage { height: 100%; min-height: 0; overflow: hidden; }
 .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 5px rgba(255,30,30,.1); }
 .top-actions { margin-left: auto; display: flex; gap: 10px; }
 .button { min-height: 46px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: transparent; color: var(--text); font: 700 15px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .03em; transition: .2s ease; }
@@ -25,32 +29,7 @@
 .button.small { min-height: 40px; padding: 0 13px; font-size: 12px; }
 .button svg { width: 17px; height: 17px; }
 
-/* Roadbook folded into the rail, under the Saison entry. */
 .nav-slot { display: grid; }
-.nav-roadbook { border-bottom: 1px solid var(--line); }
-.nav-roadbook-toggle { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px 0 46px; color: var(--muted); background: transparent; border: 0; font: 600 9px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .08em; transition: color .2s ease; }
-.nav-roadbook-toggle:hover { color: var(--text); }
-.nav-roadbook-toggle svg { width: 13px; transition: transform .25s ease; }
-.nav-roadbook-toggle svg.open { transform: rotate(180deg); }
-.nav-roadbook-stages { display: none; }
-.nav-roadbook-stages.open { display: grid; padding-bottom: 8px; }
-.nav-stage { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 9px; min-height: 40px; padding: 3px 12px 3px 15px; color: var(--text); text-align: left; background: transparent; border: 0; border-left: 2px solid transparent; transition: background .18s ease; }
-.nav-stage:hover { background: rgba(214, 232, 239, .05); }
-.nav-stage.selected { background: rgba(255,30,30,.09); border-left-color: var(--danger); }
-.nav-stage-hex { width: 18px; height: 18px; display: grid; place-items: center; padding-bottom: 2px; border-radius: 50%; color: var(--bg-deep); background: var(--race); font: 700 9px/1 var(--font-race), sans-serif; font-style: normal; }
-.nav-stage[data-status="completed"] .nav-stage-hex { background: var(--past-race); }
-.nav-stage-copy { min-width: 0; }
-.nav-stage-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 11px var(--font-race), sans-serif; text-transform: uppercase; }
-.nav-stage-copy small { display: block; margin-top: 1px; color: var(--muted); font-size: 8px; }
-.nav-stage-state { color: var(--muted); font: 600 7px var(--font-race), sans-serif; font-style: normal; text-transform: uppercase; letter-spacing: .05em; }
-.nav-stage-state.completed { color: var(--past-race); }
-.nav-stage-state.upcoming { opacity: .55; }
-.nav-stage.selected .nav-stage-copy strong { color: var(--danger); }
-.nav-stage.selected .nav-stage-hex, .nav-stage.selected[data-status="completed"] .nav-stage-hex { color: #fff; background: var(--danger); }
-.nav-stage.selected .nav-stage-state { color: var(--danger); }
-
-
-
 /* Grouped nav section — a quiet title with indented sub-entries. */
 .nav-group-title { min-height: 44px; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 10px 2px 12px; color: #d9e2e5; border-left: 2px solid transparent; font: 700 11px/1.2 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .02em; }
 .nav-group-title.active { color: var(--acid); }

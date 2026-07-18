@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Every race of the season is navigable: database-backed races carry their
- * validated leaderboard; the others render as previews (traced route, real
+ * validated leaderboard; the others render as previews (race area, real
  * weather, no results yet) until officials publish data.
  */
 async function resolveRace(slug: string): Promise<RaceView | null> {

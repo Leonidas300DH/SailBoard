@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { Flag, Trophy } from "lucide-react";
 import type { PublicSection } from "@/lib/navigation";
+import { PersistentSeasonTimeline } from "../season/PersistentSeasonTimeline";
 import { ChampionshipNav } from "./ChampionshipNav";
 import { NavProfileHud, type NavProfileSelection } from "./NavProfileHud";
 
@@ -12,15 +13,17 @@ export function AppShell({
   shellClassName,
   navClassName,
   navFooter,
-  navExtras,
+  showPersistentTimeline = true,
+  timelineSelectedSlug,
   children,
 }: {
   active: PublicSection;
   shellClassName?: string;
   navClassName?: string;
   navFooter?: ReactNode;
-  /** Rendered right below the matching nav item — e.g. the season roadbook. */
-  navExtras?: Partial<Record<PublicSection, ReactNode>>;
+  /** The season home owns its interactive timeline; other public rooms share this one. */
+  showPersistentTimeline?: boolean;
+  timelineSelectedSlug?: string | null;
   children: ReactNode;
 }) {
   const [profileHud, setProfileHud] = useState<NavProfileSelection | null>(null);
@@ -30,11 +33,14 @@ export function AppShell({
       <Link className="side-brand" href="/" aria-label="Accueil SailBoard">
         <span className="brand"><span>SailBoard</span><span>Race</span></span>
       </Link>
-      <ChampionshipNav key={active} active={active} extras={navExtras} onProfileSelect={setProfileHud} />
+      <ChampionshipNav key={active} active={active} onProfileSelect={setProfileHud} />
       {navFooter}
     </aside>
     {profileHud ? <NavProfileHud selection={profileHud} onClose={() => setProfileHud(null)} onSelect={setProfileHud} /> : null}
-    {children}
+    <div className={`app-shell-content${showPersistentTimeline ? " app-shell-content--timeline" : ""}`}>
+      {children}
+      {showPersistentTimeline ? <PersistentSeasonTimeline selectedSlug={timelineSelectedSlug} /> : null}
+    </div>
   </main>;
 }
 

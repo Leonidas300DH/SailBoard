@@ -74,22 +74,6 @@
 .rail-profile-link { min-height: 52px; margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; color: #07131a; background: var(--boat-color); font: 800 11px var(--font-race), sans-serif; text-transform: uppercase; }
 .rail-profile-link svg { width: 15px; transform: rotate(180deg); }
 
-.race-footer { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 14px 24px; background: rgba(1, 12, 19, .98); border-top: 1px solid var(--line); }
-.race-footer-play { width: 44px; height: 44px; display: grid; place-items: center; color: var(--race); background: transparent; border: 1px solid rgba(232, 255, 41, .45); transition: .2s ease; }
-.race-footer-play:hover { color: var(--bg-deep); background: var(--race); border-color: var(--race); }
-.race-footer-play svg { width: 18px; fill: currentColor; }
-.race-footer-copy strong { display: block; font: 700 13px var(--font-race), sans-serif; text-transform: uppercase; }
-.race-footer-copy small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
-.timeline-total { text-align: right; }
-.timeline-total strong { display: block; font: 700 23px var(--font-geist-mono), monospace; }
-.timeline-total small { color: var(--muted); font-size: 9px; }
-
-@media (max-width: 760px) {
-  .race-footer { grid-template-columns: minmax(0, 1fr); padding: 12px 14px; }
-  .race-footer--has-play { grid-template-columns: auto minmax(0, 1fr); }
-  .race-footer .timeline-total { grid-column: 1; text-align: left; }
-  .race-footer--has-play .timeline-total { grid-column: 2; }
-}
 .race-conditions-overlay { position: absolute; z-index: 5; left: 16px; bottom: 16px; max-width: calc(100% - 32px); min-height: 62px; display: grid; grid-template-columns: minmax(210px,1.4fr) repeat(3,minmax(110px,.8fr)); background: rgba(0,14,24,.91); border: 1px solid var(--line-strong); backdrop-filter: blur(12px); }
 .race-conditions-overlay > div { min-width: 0; display: grid; grid-template-columns: 20px 1fr; align-content: center; column-gap: 8px; padding: 9px 13px; border-right: 1px solid var(--line); }
 .race-conditions-overlay > div:first-child { display: flex; flex-direction: column; justify-content: center; border-left: 2px solid var(--acid); }
@@ -109,5 +93,4 @@
 .leaderboard-empty { padding: 26px 18px; }
 .leaderboard-empty strong { display: block; font: 700 16px var(--font-race), sans-serif; text-transform: uppercase; }
 .leaderboard-empty p { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
-.race-footer-date { font-size: 17px !important; }
 .race-conditions-overlay--pending { grid-template-columns: minmax(210px, 1.6fr) minmax(130px, 1fr); }

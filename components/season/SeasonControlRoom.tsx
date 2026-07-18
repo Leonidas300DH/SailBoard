@@ -8,13 +8,12 @@ import { AppShell } from "../shell/AppShell";
 import { WindParticles } from "../map/WindParticles";
 import { SeasonMap } from "./SeasonMap";
 import { SeasonTopBar } from "./SeasonTopBar";
-import { NavRoadbook } from "./NavRoadbook";
 import { RaceHud } from "./RaceHud";
 import { SeasonTimeline } from "./SeasonTimeline";
 
 /**
  * Season home: the map is the whole screen. Nothing is selected on landing;
- * picking a stage (marker, timeline or the roadbook folded into the rail)
+ * picking a stage (marker or timeline)
  * flies the camera and opens the floating race HUD. Closing the HUD returns
  * to the circuit overview.
  */
@@ -28,7 +27,6 @@ export function SeasonControlRoom({
   nowIso: string;
 }) {
   const [selectedRaceId, setSelectedRaceId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
 
   const now = useMemo(() => new Date(nowIso), [nowIso]);
   const selectedRace = useMemo(
@@ -51,13 +49,13 @@ export function SeasonControlRoom({
     active="season"
     shellClassName="season-ocean-shell"
     navClassName="season-ocean-nav"
+    showPersistentTimeline={false}
   >
     <section className="season-ocean-stage">
       <div className="season-map-canvas">
         <SeasonMap
           races={SEASON_RACES}
           selectedRace={selectedRace}
-          isPlaying={isPlaying}
           windDirection={ambientWeather?.windDirection ?? 250}
           windKnots={ambientWeather?.windKnots ?? 12}
           onSelect={setSelectedRaceId}
@@ -82,9 +80,7 @@ export function SeasonControlRoom({
             index={selectedIndex}
             podium={stagePodiums[selectedRace.id] ?? []}
             weather={selectedWeather}
-            isPlaying={isPlaying}
             isToday={new Date(`${selectedRace.date}T00:00:00`).toDateString() === now.toDateString()}
-            onTogglePlay={() => setIsPlaying((value) => !value)}
             onClose={() => setSelectedRaceId(null)}
           />
         ) : null}
@@ -96,13 +92,6 @@ export function SeasonControlRoom({
         now={now}
         onSelect={setSelectedRaceId}
       />
-      <div className="season-mobile-stages">
-        <NavRoadbook
-          races={SEASON_RACES}
-          selectedId={selectedRace?.id ?? null}
-          onSelect={setSelectedRaceId}
-        />
-      </div>
     </section>
   </AppShell>;
 }

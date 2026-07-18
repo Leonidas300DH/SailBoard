@@ -1,34 +1,27 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import type { GeoJSONSource, Map as MaplibreMap, Marker } from "maplibre-gl";
+import type { Map as MaplibreMap, Marker } from "maplibre-gl";
 import type { SeasonRace } from "@/lib/season-data";
-import { bearingAt } from "@/lib/map/geo";
 import { attachGraticule } from "@/lib/map/graticule";
 import { buildCurvedChronology, chronologyFeatures } from "@/lib/map/season-chronology";
 import { useMapLibre } from "../map/useMapLibre";
 import { useCameraDirector } from "../map/useCameraDirector";
-import { useRouteAnimation } from "../map/useRouteAnimation";
 import { useSeasonChronologyAnimation } from "../map/useSeasonChronologyAnimation";
 import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
 
-const SELECTED_RACE = "#ff1e1e";
-const SELECTED_TRAIL = "rgba(255, 30, 30, 0.9)";
-const SELECTED_WAKE = "rgba(255, 30, 30, 0.22)";
 const INK = "#010a10";
 
 export function SeasonMap({
   races,
   selectedRace,
-  isPlaying,
   windDirection = 250,
   windKnots = 12,
   onSelect,
 }: {
   races: SeasonRace[];
   selectedRace: SeasonRace | null;
-  isPlaying: boolean;
   windDirection?: number;
   windKnots?: number;
   onSelect: (raceId: string) => void;
@@ -90,44 +83,6 @@ export function SeasonMap({
       },
     });
 
-    // Full route, faint and dashed — the animated comet draws on top of it.
-    map.addSource("selected-route", { type: "geojson", data: emptyCollection() });
-    map.addLayer({
-      id: "selected-route-shadow",
-      type: "line",
-      source: "selected-route",
-      paint: { "line-color": INK, "line-width": 7, "line-opacity": 0.7 },
-    });
-    map.addLayer({
-      id: "selected-route-track",
-      type: "line",
-      source: "selected-route",
-      paint: { "line-color": SELECTED_RACE, "line-width": 1.6, "line-opacity": 0.45, "line-dasharray": [1.5, 2.2] },
-    });
-
-    map.addSource("route-anim", { type: "geojson", lineMetrics: true, data: emptyCollection() });
-    map.addLayer({
-      id: "route-anim",
-      type: "line",
-      source: "route-anim",
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: { "line-width": 3.6, "line-gradient": ["interpolate", ["linear"], ["line-progress"], 0, "rgba(0,0,0,0)", 1, "rgba(0,0,0,0)"] },
-    });
-
-    map.addSource("selected-boat", { type: "geojson", data: emptyCollection() });
-    map.addLayer({
-      id: "selected-boat-halo",
-      type: "circle",
-      source: "selected-boat",
-      paint: { "circle-radius": 13, "circle-color": SELECTED_RACE, "circle-opacity": 0.2 },
-    });
-    map.addLayer({
-      id: "selected-boat",
-      type: "circle",
-      source: "selected-boat",
-      paint: { "circle-radius": 4.5, "circle-color": "#ffffff", "circle-stroke-color": SELECTED_RACE, "circle-stroke-width": 2.5 },
-    });
-
     // Stage markers are DOM elements: sober dots with native-type labels —
     // cyan for sailed stages, acid yellow for upcoming, red when selected.
     void import("maplibre-gl").then(({ default: maplibregl }) => {
@@ -167,19 +122,10 @@ export function SeasonMap({
 
   useSeasonChronologyAnimation({ mapRef, isReady, legs: chronologyLegs });
 
-  // Selection: swap route geometry, restyle markers, direct the camera.
-  // Races without an officially traced course show no line at all — the
-  // geometry is never invented.
+  // Selection restyles markers and directs the camera to the race area.
   useEffect(() => {
     const map = mapRef.current;
     if (!isReady || !map) return;
-    const routeSource = map.getSource("selected-route") as GeoJSONSource | undefined;
-    const animSource = map.getSource("route-anim") as GeoJSONSource | undefined;
-    const boatSource = map.getSource("selected-boat") as GeoJSONSource | undefined;
-    if (!routeSource || !animSource) return;
-    routeSource.setData(selectedRace?.route ?? emptyCollection());
-    animSource.setData(selectedRace?.route ?? emptyCollection());
-    if (!selectedRace?.route) boatSource?.setData(emptyCollection());
     markersRef.current.forEach((marker, raceId) => {
       marker.getElement().classList.toggle("selected", raceId === selectedRace?.id);
     });
@@ -198,25 +144,13 @@ export function SeasonMap({
       return;
     }
 
-    const coordinates = selectedRace.route?.geometry.coordinates;
     flyToTarget({
       center: selectedRace.coordinates,
-      zoom: coordinates ? 10.4 : 10.8,
+      zoom: 10.8,
       pitch: 52,
-      bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
+      bearing: 0,
     });
   }, [flyToBounds, flyToTarget, isReady, mapRef, races, selectedRace]);
-
-  useRouteAnimation({
-    mapRef,
-    isReady,
-    coordinates: selectedRace?.route?.geometry.coordinates ?? [],
-    playing: isPlaying && Boolean(selectedRace?.route),
-    gradientLayerId: "route-anim",
-    boatSourceId: "selected-boat",
-    trailColor: SELECTED_TRAIL,
-    wakeColor: SELECTED_WAKE,
-  });
 
   const recenter = useCallback(() => {
     const map = mapRef.current;
@@ -232,12 +166,11 @@ export function SeasonMap({
       );
       return;
     }
-    const coordinates = selectedRace.route?.geometry.coordinates;
     flyToTarget({
       center: selectedRace.coordinates,
-      zoom: coordinates ? 10.4 : 10.8,
+      zoom: 10.8,
       pitch: 52,
-      bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
+      bearing: 0,
     });
   }, [flyToBounds, flyToTarget, mapRef, races, selectedRace]);
 

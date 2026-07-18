@@ -13,10 +13,10 @@ export async function POST(request: Request) {
     const body = await request.json() as { raceId?: string; results?: Array<Record<string, unknown>> };
     if (!body.raceId || !Array.isArray(body.results) || !body.results.length) throw new Error("Résultats incomplets");
     const db = getDatabase();
-    const race = await db.prepare(`SELECT r.*, srv.config_json, srv.status AS rule_status, cv.status AS course_status
+    const race = await db.prepare(`SELECT r.*, srv.config_json, srv.status AS rule_status
       FROM races r JOIN scoring_rule_versions srv ON srv.id = r.scoring_rule_version_id
-      JOIN course_versions cv ON cv.id = r.course_version_id WHERE r.id = ?`).bind(body.raceId).first<Record<string, unknown>>();
-    if (!race || race.rule_status !== "published" || race.course_status !== "published") throw new Error("Le parcours et le barème doivent être publiés");
+      WHERE r.id = ?`).bind(body.raceId).first<Record<string, unknown>>();
+    if (!race || race.rule_status !== "published") throw new Error("Le barème doit être publié");
     const config = JSON.parse(String(race.config_json)) as ScoringConfig;
     const now = new Date().toISOString();
     const statements: PreparedStatement[] = [];

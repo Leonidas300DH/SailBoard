@@ -23,7 +23,8 @@ test("affiche les équipages connus et masque les chronos absents", async () => 
   assert.match(rail, /Composition non publiée/);
   assert.match(rail, /classements\?vue=individuel&selection=/);
   assert.doesNotMatch(rail, /rail-crew-summary/);
-  assert.match(experience, /race-footer--has-play/);
+  assert.match(experience, /timelineSelectedSlug=\{race\.slug\}/);
+  assert.doesNotMatch(experience, /Tracé|tracé|race-footer/);
   assert.match(styles, /\.rail-crew-points strong \{[^}]*white-space: nowrap/);
-  assert.match(styles, /\.race-footer--has-play \.timeline-total \{ grid-column: 2; \}/);
+  assert.doesNotMatch(styles, /\.race-footer/);
 });

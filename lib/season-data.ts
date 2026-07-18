@@ -20,8 +20,6 @@ export type SeasonRace = {
   result?: string;
   /** Unknown in the supplied official schedule; zero means not published. */
   distanceNm: number;
-  /** Official traced course — absent until race officials publish one. */
-  route?: GeoJSON.Feature<GeoJSON.LineString>;
 };
 
 /** The six stage colours of the WDT prism (charte octobre 2018). */

@@ -4,8 +4,8 @@ import { snapshotSlug, standingColor, WDT_2026_EVENTS, wdt2026TeamSnapshot, wdtC
 
 /**
  * Minimal RaceView for a season race that has no database record yet: the
- * traced route animates and the real weather loads, but the leaderboard is
- * empty until race officials publish results.
+ * geographic area and real weather load, while the leaderboard stays empty
+ * until race officials publish results.
  */
 export function seasonRacePreview(race: SeasonRace): RaceView {
   const eventIndex = WDT_2026_EVENTS.findIndex((event) => event.id === race.id);
@@ -41,14 +41,7 @@ export function seasonRacePreview(race: SeasonRace): RaceView {
     center: race.coordinates,
     distanceNm: race.distanceNm,
     laps: 1,
-    // No invented geometry: without an officially traced course the map shows
-    // the race area only.
-    courseGeoJson: {
-      type: "FeatureCollection",
-      features: race.route
-        ? [{ ...race.route, properties: { ...race.route.properties, kind: "route" } }]
-        : [],
-    },
+    courseGeoJson: { type: "FeatureCollection", features: [] },
     leaderboard,
   };
 }

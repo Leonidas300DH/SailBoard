@@ -1,5 +1,6 @@
 /* Season timeline — one slim time-proportional rail, nothing else. */
 .season-timeline { min-width: 0; min-height: 0; color: var(--text); background: var(--bg-deep); border-top: 1px solid var(--line-strong); }
+.season-timeline--loading { height: 100%; }
 .timeline-rail { position: relative; min-width: 0; height: 100%; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: #38515c transparent; }
 .timeline-canvas { position: relative; height: 100%; min-width: 760px; margin: 0 34px; }
 .timeline-axis span { position: absolute; top: 12px; left: var(--pos); transform: translateX(-50%); color: var(--muted); font: 700 8px var(--font-race), sans-serif; letter-spacing: .06em; }
@@ -25,7 +26,12 @@
 .timeline-node:focus-visible .timeline-node-marker { box-shadow: 0 0 0 2px var(--bg-deep), 0 0 0 4px var(--danger); }
 
 @media (max-width: 760px) {
+  .season-timeline { height: 104px; }
   .timeline-canvas { min-width: 720px; margin: 0 18px; }
+  .timeline-axis span { top: 8px; }
+  .timeline-line { top: 44px; }
+  .timeline-node { top: 32px; }
+  .timeline-today { top: 23px; bottom: 8px; }
 }
 
 

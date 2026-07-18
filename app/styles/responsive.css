@@ -43,9 +43,12 @@
   .nav-rich-row > .nav-link, .nav-rich-row > .nav-sublink { flex: 1 1 0; }
   .nav-sublink svg { width: 20px; height: 20px; }
   .nav-link.active, .nav-sublink.active { border-left: 0; background: transparent; border-top-color: var(--acid); }
-  .race-stage { min-height: calc(100vh - 68px); min-height: calc(100dvh - 68px); grid-template-rows: auto auto; }
+  .app-shell-content { min-height: calc(100vh - 68px - env(safe-area-inset-bottom)); min-height: calc(100dvh - 68px - env(safe-area-inset-bottom)); }
+  .app-shell-content--timeline { height: calc(100vh - 68px - env(safe-area-inset-bottom)); height: calc(100dvh - 68px - env(safe-area-inset-bottom)); grid-template-rows: minmax(0, 1fr) 104px; }
+  .race-stage { min-height: calc(100vh - 68px); min-height: calc(100dvh - 68px); grid-template-rows: minmax(0,1fr); }
   .button { padding-inline: 13px; font-size: 12px; }
   .race-main { display: flex; flex-direction: column; }
+  .app-shell-content--timeline .race-main { min-height: 0; overflow-y: auto; }
   .map-wrap { min-height: 58vh; min-height: 58dvh; }
   .map-caption { top: 10px; left: 54px; max-width: calc(100% - 174px); }
   .map-chip { min-height: 40px; padding: 8px 11px; font-size: 9px; white-space: nowrap; }
@@ -62,6 +65,7 @@
   .rail-metrics > div:last-child { border-right: 0; }
   .rail-profile-link { margin-top: 8px; }
   .control-stage { min-height: calc(100vh - 68px); min-height: calc(100dvh - 68px); grid-template-rows: auto minmax(0,1fr); }
+  .app-shell-content--timeline .control-stage { overflow-y: auto; }
   .control-topbar { min-height: 112px; display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px; padding-top: calc(10px + env(safe-area-inset-top)); }
   .control-heading { min-width: 0; flex: 1; }
   .control-heading h1 { max-width: none; overflow: visible; font-size: 21px; white-space: nowrap; }

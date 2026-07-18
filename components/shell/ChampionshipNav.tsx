@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { ArrowRight, Check, ChevronDown, ChevronRight, Flag, Map, Sailboat, Settings, Trophy, Users } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { SEASON_RACES } from "@/lib/season-data";
 import type { PublicSection } from "@/lib/navigation";
 import { snapshotSlug, wdt2026IndividualSnapshot, wdt2026TeamSnapshot } from "@/lib/wdt-2026";
 import { participantDisplayName, teamDisplayName, type NavProfileSelection } from "./NavProfileHud";
-
-type NavExtras = Partial<Record<PublicSection, ReactNode>>;
 
 const TEAM_PODIUM = wdt2026TeamSnapshot.rows.slice(0, 3);
 const SAILOR_PODIUM = wdt2026IndividualSnapshot.rows.slice(0, 3);
@@ -68,11 +66,9 @@ function PodiumPreview({
 
 export function ChampionshipNav({
   active,
-  extras,
   onProfileSelect,
 }: {
   active: PublicSection;
-  extras?: NavExtras;
   onProfileSelect: (selection: NavProfileSelection) => void;
 }) {
   const seasonActive = active === "season" || active === "course";
@@ -100,7 +96,6 @@ export function ChampionshipNav({
           <ArrowRight aria-hidden />
         </Link>
       </div> : null}
-      {extras?.season ?? null}
     </div>
 
     <div className="nav-slot nav-ranking-tree">
@@ -118,7 +113,6 @@ export function ChampionshipNav({
           <DisclosureButton open={teamsOpen} controls="nav-team-podium" label="le podium des équipages" onClick={() => setTeamsOpen((value) => !value)} />
         </div>
         {teamsOpen ? <PodiumPreview id="nav-team-podium" type="teams" rows={TEAM_PODIUM} onSelect={onProfileSelect} /> : null}
-        {extras?.rankings ?? null}
       </div>
 
       <div className="nav-rich-section nav-rich-section--ranking">
@@ -129,7 +123,6 @@ export function ChampionshipNav({
           <DisclosureButton open={sailorsOpen} controls="nav-sailor-podium" label="le podium des navigateurs" onClick={() => setSailorsOpen((value) => !value)} />
         </div>
         {sailorsOpen ? <PodiumPreview id="nav-sailor-podium" type="sailors" rows={SAILOR_PODIUM} onSelect={onProfileSelect} /> : null}
-        {extras?.sailors ?? null}
       </div>
     </div>
 
@@ -138,7 +131,6 @@ export function ChampionshipNav({
         <Settings aria-hidden /><span>Admin</span>
         <ChevronRight className="nav-admin-chevron" aria-hidden />
       </Link>
-      {extras?.admin ?? null}
     </div>
   </nav>;
 }
