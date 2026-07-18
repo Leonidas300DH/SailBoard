@@ -31,8 +31,8 @@
 .race-marker:hover { z-index: 4; }
 .race-marker:hover span, .race-marker.selected span { opacity: 1; }
 .race-marker.selected { z-index: 3; }
-.race-marker.selected i, .race-marker.selected[data-status="completed"] i { transform: scale(1.35); background: var(--danger); box-shadow: 0 0 0 2px rgba(1, 10, 16, .9), 0 0 0 5px rgba(228, 0, 43, .35), 0 0 18px rgba(228, 0, 43, .6); }
-.race-marker.selected span strong { color: #ff4055; }
+.race-marker.selected i, .race-marker.selected[data-status="completed"] i { transform: scale(1.35); background: var(--danger); box-shadow: 0 0 0 2px rgba(1, 10, 16, .9), 0 0 0 5px rgba(255, 31, 38, .35), 0 0 18px rgba(255, 31, 38, .6); }
+.race-marker.selected span strong { color: #ff5157; }
 
 @media (max-width: 760px) {
   .race-marker { width: 20px; height: 20px; }

@@ -28,7 +28,8 @@
 
   --acid: var(--race);
   --acid-deep: var(--race-deep);
-  --danger: var(--wdt-red);
+  /* Selection/live red — a real vivid red, not the washed charte 185C. */
+  --danger: #ff1f26;
   --blue: #009cde;
   --orange: #f6eb61;
   --violet: #0033a0;
