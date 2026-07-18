@@ -14,12 +14,14 @@ test("affiche les équipages connus et masque les chronos absents", async () => 
   ]);
 
   assert.match(wdt, /export function wdtCrewForEvent/);
+  assert.match(wdt, /export function wdtTeamForParticipantEvent/);
   assert.match(wdt, /matchingTeams\.length !== 1/);
   assert.match(seasonView, /crew: wdtCrewForEvent\(team\.name, eventIndex\)/);
   assert.match(rail, /hasTiming \? <div><span>Temps<\/span>/);
   assert.match(rail, /hasTiming && gap != null \? <div><span>Écart 1er<\/span>/);
   assert.match(rail, /Équipage de l’étape/);
   assert.match(rail, /Composition non publiée/);
+  assert.match(rail, /classements\?vue=individuel&selection=/);
   assert.doesNotMatch(rail, /rail-crew-summary/);
   assert.match(experience, /race-footer--has-play/);
   assert.match(styles, /\.rail-crew-points strong \{[^}]*white-space: nowrap/);

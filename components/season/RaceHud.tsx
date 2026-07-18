@@ -54,7 +54,7 @@ export function RaceHud({
     {podium.length > 0 ? (
       <div className="race-hud-podium" aria-label="Premiers de l’étape">
         {podium.map((entry) => (
-          <Link key={entry.slug} href={`/bateaux/${entry.slug}`} className="race-hud-podium-row">
+          <Link key={entry.slug} href={`/classements?vue=bateaux&selection=${entry.slug}`} className="race-hud-podium-row">
             <b className="mono">{entry.place}</b>
             <span>{entry.name}</span>
           </Link>

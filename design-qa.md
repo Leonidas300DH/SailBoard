@@ -1,23 +1,24 @@
-# Design QA — fiches équipage et navigateur
+# Design QA — HUD équipage et navigateur
 
 ## Périmètre
 
-- État de production rejeté après la première correction : `docs/audit/06-sailor-profile-too-tall.png` — zone haute mesurée à 541 px.
-- Implémentation finale : `docs/audit/08-sailor-profile-compact-final.png` et `docs/audit/09-team-profile-compact-final.png` — viewport navigateur 1280 × 720.
-- Routes : `/bateaux/centre-de-mediation` puis `/participants/cahierc-pierre` via le membre cliquable.
-- États : fiche équipage avec membres visibles ; fiche navigateur avec attribution et historique.
+- État rejeté : `docs/audit/11-sailor-profile-full-width-rejected.png` — une fiche dédiée pleine largeur, encore envahissante malgré sa réduction en hauteur.
+- Référence de densité : `/var/folders/vc/3dmscl8d4rd_t9gqggky7m9r0000gn/T/codex-clipboard-2206ca26-7be9-4436-b7c3-79d6186663a1.png` — dossier équipage dans le rail de course.
+- Implémentation finale desktop : `docs/audit/14-team-ranking-hud-final.png` et `docs/audit/15-sailor-ranking-hud-final.png` — viewport 1280 × 720.
+- Implémentation finale mobile : `docs/audit/16-sailor-ranking-hud-mobile-final.png` — viewport 390 × 844.
+- Parcours vérifié : Centre de Médiation → Cahierc Pierre → Centre de Médiation, dans le même système de HUD.
 
 ## Comparaison finale
 
 | Surface | État défaillant | Implémentation finale | Verdict |
 |---|---|---|---|
-| Typographie | Noms géants coupés par la carte et la colonne de données | Noms complets, échelle responsive et rang secondaire | Corrigé |
-| Espacement et rythme | Profil et carte occupent 541 px ; l’historique commence à 649 px | Bande profil de 176 px ; l’historique commence à 284 px | Corrigé — −67 % |
-| Couleurs et tokens | Palette SailBoard cohérente mais accents concurrents | Palette et couleur d’équipage conservées ; action principale jaune SailBoard | Conforme |
-| Images et actifs | Carte satellite sans fonction prioritaire sur une fiche | Carte supprimée des profils ; elle reste réservée aux pages de course | Corrigé |
-| Copie et données | Métriques vides et tirets sans utilité | Champs absents masqués ; score, équipage et attribution explicites | Corrigé |
-| Interaction | Destination cliquable mais page résultante inexploitable | Équipier cliquable, dossier navigateur lisible, retour étape et équipage accessibles | Validé |
-| Responsive | Coupes desktop et chevauchement rôle/points | Aucun débordement à 390 px ; historique reflué selon le type de profil | Validé |
+| Typographie | Nom géant et répété dans une fiche dédiée | Identité sur une ligne dans un rail de 330–430 px ; score ramené à 28 px | Corrigé |
+| Espacement et rythme | Pleine page puis bande pleine largeur avec beaucoup de vide | HUD de 419 px utiles pour un navigateur et 499 px pour un équipage sur mobile ; aucun écran profil | Corrigé |
+| Couleurs et tokens | Palette SailBoard cohérente mais surface trop massive | Couleur de rang et tokens SailBoard conservés dans le rail | Conforme |
+| Images et actifs | Carte sans fonction sur les profils | Aucun média ajouté ; la carte reste réservée aux courses | Corrigé |
+| Copie et données | Rang, score et nombre d’étapes répétés dans plusieurs blocs | Un score, l’équipage ou l’affectation, puis les quatre étapes effectivement courues | Corrigé |
+| Interaction | Le clic quittait le contexte pour une page profil | Deep-link vers le classement, HUD repliable, navigation équipage ↔ navigateur et anciennes URL redirigées | Validé |
+| Responsive | Fiche fullscreen et zones vides | Overlay de 390 px sans débordement horizontal ; contenu sous-jacent reste visible | Validé |
 
 ## Historique QA
 
@@ -39,16 +40,24 @@
 
 - [P2] Le rôle « Navigateur » chevauchait les points sur desktop et créait un débordement horizontal sur mobile.
 
-### Correction finale — validée
+### Deuxième correction — rejetée
 
 - Modificateur de grille dédié à l’historique navigateur.
 - Carte entièrement supprimée des fiches équipage et navigateur.
 - Identité, score, rang, attribution et membres regroupés dans une bande de 176 px.
 - La zone haute passe de 541 à 176 px, soit une réduction mesurée de 67 %.
-- À 1280 × 720, les quatre lignes d’historique sont visibles sans défilement sur les deux profils.
-- Le clic Centre de Médiation → Cahierc Pierre aboutit sur la bonne route.
-- La comparaison de l’état production et de l’implémentation compacte a été effectuée dans une même entrée visuelle pour chaque profil.
-- Aucun avertissement ni erreur applicative relevé dans la console des deux routes.
+- Le contenu reste cependant présenté comme un hero pleine largeur et duplique le nom déjà présent dans le bandeau.
+
+### Troisième correction — HUD validé
+
+- Suppression du composant `EntityControlRoom` et de toutes les pages profil visuelles.
+- Les anciennes routes `/bateaux/[slug]` et `/participants/[slug]` redirigent vers le classement avec le HUD sélectionné.
+- Le rail n’existe que lorsqu’une sélection est ouverte ; sa fermeture redonne toute la largeur au classement (`1070 px` mesurés).
+- Suppression des métriques « meilleure étape » et « étapes » qui répétaient le résumé du championnat.
+- Le HUD affiche seulement identité, total, équipage ou affectation et quatre étapes courues ; les deux étapes futures sont absentes.
+- Les trois navigateurs de Centre de Médiation sont directement cliquables ; Cahierc Pierre renvoie vers Centre de Médiation.
+- À 390 × 844, aucun débordement horizontal : `scrollWidth === innerWidth === 390`.
+- Aucun avertissement ni erreur applicative relevé pendant les parcours desktop et mobile.
 
 ## Contrôles techniques
 

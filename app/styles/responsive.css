@@ -19,14 +19,12 @@
   .leaderboard { grid-template-columns: 280px minmax(240px,1fr); }
   .control-topbar { padding-left: 16px; }
   .control-status { display: none; }
-  .rank-control-grid { grid-template-columns: minmax(450px,1fr) 320px; }
+  .rank-control-grid.intel-open { grid-template-columns: minmax(450px,1fr) 320px; }
   .control-kpis strong { font-size: 20px; white-space: normal; }
   .control-kpis > div:first-child strong { font-size: 18px; }
   .control-kpis small { font-size: 9px; }
   .standings-grid { grid-template-columns: 44px minmax(145px,1fr) repeat(var(--completed-stage-count,4),minmax(38px,48px)) 56px; gap: 6px; }
   .standings-stage-label.upcoming, .standings-score.upcoming { display: none; }
-  .entity-hero-grid { grid-template-columns: minmax(280px,.88fr) minmax(360px,1.12fr); }
-  .entity-identity h2 { font-size: clamp(34px,4.5vw,48px); }
 }
 
 @media (max-width: 760px) {
@@ -83,37 +81,11 @@
   .standings-head { display: none; }
   .standings-grid { grid-template-columns: 42px minmax(130px, 1fr) 70px; }
   .standings-score { display: none; }
-  .competitor-intel { display: none; }
-  .competitor-intel.mobile-open { position: fixed; z-index: 46; inset: 76px 0 calc(68px + env(safe-area-inset-bottom)); min-height: 0; display: flex; overflow: auto; border-top: 1px solid var(--competitor-color); box-shadow: 0 -22px 70px rgba(0,0,0,.58); }
+  .rank-control-grid.intel-open { display: flex; }
+  .rank-control-grid.intel-open > .competitor-intel { display: none; }
+  .rank-control-grid.intel-open > .competitor-intel.mobile-open { position: fixed; z-index: 46; inset: 76px 0 calc(68px + env(safe-area-inset-bottom)); min-height: 0; display: flex; overflow: auto; border-top: 1px solid var(--competitor-color); box-shadow: 0 -22px 70px rgba(0,0,0,.58); }
   .intel-overline { position: sticky; top: 0; z-index: 3; padding-right: 10px; background: #031522; }
-  .intel-overline .intel-close { display: grid; }
-  .intel-title h2 { font-size: 34px; }
-  .entity-control-body { padding: 10px; display: block; }
-  .entity-hero-grid { display: flex; flex-direction: column; }
-  .entity-identity { min-height: 185px; padding: 14px; border-right: 0; border-bottom: 1px solid var(--line); }
-  .entity-identity h2 { max-width: none; margin-top: 15px; font-size: clamp(30px,10vw,40px); overflow-wrap: normal; }
-  .entity-identity-footer { padding-top: 12px; align-items: flex-end; }
-  .entity-badges { justify-items: end; }
-  .entity-badges span { width: fit-content; }
-  .entity-telemetry { display: flex; }
-  .entity-telemetry > .intel-section-title { display: flex; }
-  .entity-stage-summary { grid-template-columns: 1fr 1fr; }
-  .entity-stage-summary > :nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line); border-right: 0; }
-  .entity-crew-list { grid-template-columns: 1fr; padding: 0 12px 7px; border-left: 0; }
-  .entity-crew-list a { min-height: 34px; border-right: 0; border-bottom: 1px solid var(--line); }
-  .entity-participant-summary { grid-template-columns: 110px minmax(0,1fr); }
-  .allocation-context { grid-template-columns: 1fr; padding: 10px 12px; }
-  .assignment-link { grid-column: 1; grid-row: auto; min-height: 44px; margin-top: 8px; }
-  .entity-record-panel { margin-top: 10px; }
-  .entity-ledger-head { display: none; }
-  .entity-ledger-row { grid-template-columns: 1fr 56px; padding: 12px; }
-  .entity-ledger-row > span:nth-child(2) { grid-column: 1; }
-  .entity-place { grid-column: 2; grid-row: 1; text-align: right; }
-  .entity-ledger-row > .mono { grid-column: 2; grid-row: 2; text-align: right; }
-  .entity-ledger--participant .entity-ledger-row > span:first-child { grid-column: 1; grid-row: 1; }
-  .entity-ledger--participant .entity-ledger-row > span:nth-child(2) { grid-column: 1; grid-row: 2; }
-  .entity-ledger--participant .entity-place { grid-column: 1; grid-row: 3; overflow: hidden; color: var(--muted); font-size: 10px; text-align: left; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
-  .entity-ledger--participant .entity-ledger-row > .mono { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+  .intel-title h2 { font-size: 22px; }
   .content-nav { flex-wrap: wrap; row-gap: 2px; min-height: 64px; padding: calc(8px + env(safe-area-inset-top)) 16px 8px; }
   .content-nav .brand { font-size: 21px; }
   .content-nav-links { order: 3; flex-basis: 100%; display: flex; gap: 2px; overflow-x: auto; }

@@ -39,7 +39,7 @@ Capture : `docs/audit/06-sailor-profile-too-tall.png`
 
 ## Étape 4 — version compacte
 
-**État final : sain.**
+**État : rejeté.**
 
 Captures :
 
@@ -59,18 +59,60 @@ Corrections appliquées :
 - Historique navigateur doté d’une grille spécifique : rôle sous l’équipage sur mobile, points isolés à droite.
 - Rail contextuel : Équipages ouvert sur une fiche équipage, Navigateurs ouvert sur une fiche navigateur.
 
+La hauteur a bien été réduite, mais le résultat reste un grand hero de 1 072 px de large. Le nom est dupliqué et le profil continue d’être mis en scène comme une page fullscreen.
+
+## Étape 5 — barre de données
+
+**État : rejeté.**
+
+Captures :
+
+- itération locale abandonnée, non conservée
+
+Corrections appliquées :
+
+- Suppression totale du hero, de l’identité dupliquée et des styles associés.
+- Barre fonctionnelle de 88 px contenant uniquement statut, rang, score, dernière étape et équipage.
+- Suppression du bouton « Voir l’étape » dupliqué ; l’action globale du bandeau suffit.
+- Historique remonté à 188 px depuis le haut du viewport.
+- Trois membres d’équipage conservés comme liens directs vers leurs fiches.
+- Même structure dense sur les profils équipage et navigateur.
+
+Cette version réduisait la hauteur mais restait une surface pleine largeur. Elle corrigeait la taille sans corriger le modèle d’interaction.
+
+## Étape 6 — HUD contextuel
+
+**État final : sain.**
+
+Captures :
+
+- `docs/audit/14-team-ranking-hud-final.png`
+- `docs/audit/15-sailor-ranking-hud-final.png`
+- `docs/audit/16-sailor-ranking-hud-mobile-final.png`
+
+Corrections appliquées :
+
+- Suppression de la page profil et de son composant plein écran.
+- Ouverture des équipages et navigateurs dans le rail droit du classement, sur le modèle du dossier de course.
+- HUD absent par défaut, ouvert par deep-link ou clic sur une ligne, et réellement repliable.
+- Score compact, membres ou affectation immédiatement accessibles, quatre étapes courues uniquement.
+- Suppression des blocs redondants « meilleure étape », « nombre d’étapes » et des étapes futures vides.
+- Liens croisés dans le HUD : équipage vers navigateur puis navigateur vers équipage.
+- Redirection des anciennes URL de profil vers le nouveau HUD pour préserver tous les liens existants.
+
 ## Vérifications
 
-- Desktop : 1280 × 720, sans coupe ni chevauchement.
-- Les quatre entrées d’historique sont visibles sans défilement.
-- Parcours vérifié : Centre de Médiation → Cahierc Pierre.
-- Les noms des membres restent des liens et le bouton d’étape reste accessible.
+- Desktop : 1280 × 720, rail de 358 px, sans coupe ni chevauchement.
+- Mobile : 390 × 844, HUD navigateur de 423 px et HUD équipage de 500 px ; le classement reste visible derrière.
+- Aucun débordement horizontal sur les deux HUD mobiles.
+- Parcours vérifié : Centre de Médiation → Cahierc Pierre → Centre de Médiation.
+- Le bouton de fermeture retire le rail et rend les 1 070 px au classement desktop.
 
 ## Accessibilité et limites de preuve
 
 - La hiérarchie de titres, les liens natifs et les libellés des disclosures sont conservés.
 - Aucun texte essentiel n’est porté uniquement par la couleur.
-- Cette passe de densification a été recapturée et mesurée sur le viewport desktop 1280 × 720 ; aucune nouvelle capture mobile n’a été acceptée, l’override du navigateur n’ayant pas modifié son viewport dans cette session.
-- L’audit couvre la structure desktop, le clic principal et les erreurs navigateur ; il ne constitue pas un audit WCAG exhaustif au lecteur d’écran.
+- Les états desktop et mobile ont été recapturés avec la même implémentation locale.
+- L’audit couvre la structure, les liens croisés, le repli, les redirections et les erreurs navigateur ; il ne constitue pas un audit WCAG exhaustif au lecteur d’écran.
 
 final result: passed

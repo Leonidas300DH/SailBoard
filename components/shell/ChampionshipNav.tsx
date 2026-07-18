@@ -69,8 +69,8 @@ function PodiumPreview({
       {rows.map((row, index) => {
         const displayName = type === "teams" ? titleCase(row.name) : participantDisplayName(row.name);
         const profileHref = type === "teams"
-          ? `/bateaux/${snapshotSlug(row.name)}`
-          : `/participants/${snapshotSlug(row.name)}`;
+          ? `/classements?vue=bateaux&selection=${snapshotSlug(row.name)}`
+          : `/classements?vue=individuel&selection=${snapshotSlug(row.name)}`;
         return <Link key={`${type}-${row.name}`} className="nav-podium-row" href={profileHref} title={displayName}>
           <span className="nav-podium-rank">
             {index === 0 ? <Check aria-hidden /> : null}

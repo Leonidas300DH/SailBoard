@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Gauge, Search, Sparkles, Trophy, Users, X } from "lucide-react";
+import { ChevronRight, Search, Sparkles, Trophy, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ControlShell } from "./shell/AppShell";
 
@@ -14,7 +14,6 @@ export type ChampionshipRow = {
   points: number;
   races?: number;
   position: number;
-  profileHref?: string;
   boatName?: string;
   boatHref?: string;
   role?: string;
@@ -38,18 +37,15 @@ function formatPoints(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
-export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snapshotMeta }: { mode: "boats" | "individual"; rows: ChampionshipRow[]; raceSlug: string; eventName: string; snapshotMeta?: RankingSnapshotMeta }) {
-  const [selectedId, setSelectedId] = useState(rows[0]?.id ?? "");
+export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snapshotMeta, initialSelectionSlug }: { mode: "boats" | "individual"; rows: ChampionshipRow[]; raceSlug: string; eventName: string; snapshotMeta?: RankingSnapshotMeta; initialSelectionSlug?: string }) {
+  const initialSelection = rows.find((row) => row.slug === initialSelectionSlug);
+  const [selectedId, setSelectedId] = useState(initialSelection?.id ?? rows[0]?.id ?? "");
   const [query, setQuery] = useState("");
-  const [isIntelOpen, setIsIntelOpen] = useState(false);
+  const [isIntelOpen, setIsIntelOpen] = useState(Boolean(initialSelection));
   const filtered = useMemo(() => rows.filter((row) => `${row.name} ${row.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query, rows]);
   const selected = filtered.find((row) => row.id === selectedId) ?? filtered[0];
   const events = snapshotMeta?.events ?? [];
-  const bestStage = useMemo(() => {
-    const scores = (selected?.eventScores ?? []).filter((score): score is number => score != null);
-    if (scores.length === 0) return null;
-    return snapshotMeta?.scoreDirection === "low" ? Math.min(...scores) : Math.max(...scores);
-  }, [selected, snapshotMeta]);
+  const completedEvents = events.map((event, index) => ({ event, index })).filter(({ event }) => event.status === "completed");
 
   return <ControlShell active={mode === "individual" ? "sailors" : "rankings"} raceSlug={raceSlug} eventName={eventName} title={snapshotMeta?.title ?? (mode === "individual" ? "Classement des navigateurs" : "Classement des équipages")} eyebrow={snapshotMeta?.eyebrow ?? "Championnat 2026 · contrôle officiel"}>
     <div className={`control-body control-body--${mode}`}>
@@ -60,7 +56,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
         <div><span>{snapshotMeta ? "Étapes courues" : "Dernière manche"}</span><strong className="mono">{snapshotMeta ? `${String(snapshotMeta.completedRaces).padStart(2, "0")} / ${String(snapshotMeta.totalRaces).padStart(2, "0")}` : "06 / 06"}</strong><small>{snapshotMeta?.sourceLabel ?? eventName}</small></div>
       </section>
 
-      <div className={`rank-control-grid rank-control-grid--${mode}`}>
+      <div className={`rank-control-grid rank-control-grid--${mode} ${isIntelOpen ? "intel-open" : ""}`}>
         <section className="control-list-panel">
           <div className="control-panel-head">
             <div className="view-switch" aria-label="Changer de classement">
@@ -89,7 +85,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
                 key={row.id}
                 type="button"
                 onClick={() => { setSelectedId(row.id); setIsIntelOpen(true); }}
-                className={`standings-row standings-grid ${selected?.id === row.id ? "selected" : ""}`}
+                className={`standings-row standings-grid ${isIntelOpen && selected?.id === row.id ? "selected" : ""}`}
                 style={{ "--competitor-color": row.color, "--stage-count": events.length, "--completed-stage-count": events.filter((event) => event.status === "completed").length } as React.CSSProperties}
               >
                 <span className="standings-pos"><span className="mono">{row.position}</span></span>
@@ -106,14 +102,11 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
         </section>
 
         {selected ? <aside className={`competitor-intel ${isIntelOpen ? "mobile-open" : ""}`} style={{ "--competitor-color": selected.color } as React.CSSProperties} aria-label={`Détail de ${selected.name}`}>
-          <div className="intel-overline"><span>{snapshotMeta ? "Classement provisoire" : "Sélection active"}</span><span className="mono">RANG · {selected.position.toString().padStart(2, "0")}</span><button className="intel-close" type="button" onClick={() => setIsIntelOpen(false)} aria-label="Fermer le détail"><X /></button></div>
+          <div className="intel-overline"><span>{snapshotMeta ? "Classement provisoire" : "Sélection active"}</span><span className="mono">RANG · {selected.position.toString().padStart(2, "0")}</span><Link className="intel-close" href={mode === "individual" ? "/classements?vue=individuel" : "/classements?vue=bateaux"} aria-label="Fermer le détail"><X /></Link></div>
           <div className="intel-title"><span className="intel-position">{selected.position}<sup>{selected.position === 1 ? "er" : "e"}</sup></span><div><h2>{selected.name}</h2><p>{selected.subtitle}</p></div></div>
           <div className="intel-score"><span>Total après {snapshotMeta?.completedRaces ?? selected.races ?? "—"} étapes</span><strong className="mono">{formatPoints(selected.points)}</strong><small>PTS</small></div>
-          <div className="intel-metrics">
-            <div><Gauge /><span>Meilleure étape</span><strong>{bestStage ?? "—"}</strong></div>
-            <div><Trophy /><span>{snapshotMeta ? "Étapes" : "Manches"}</span><strong>{snapshotMeta ? `${snapshotMeta.completedRaces}/${snapshotMeta.totalRaces}` : selected.races ?? "—"}</strong></div>
-          </div>
-          {snapshotMeta && selected.eventScores ? <div className="intel-breakdown"><div className="intel-section-title"><Trophy />Détail par étape</div>{snapshotMeta.events.map((event, index) => <div className="intel-event-score" key={event.id}><span><i>{index + 1}</i><span><strong>{event.shortName}</strong><small>{event.status === "completed" ? "Points publiés" : "À venir"}</small></span></span><strong className={`mono ${selected.eventScores?.[index] == null ? "pending" : ""}`}>{selected.eventScores?.[index] ?? "—"}</strong></div>)}</div> : mode === "boats" ? <div className="intel-crew"><div className="intel-section-title"><Users />Équipage de l’étape</div>{selected.crew?.map((member) => <Link key={member.slug} href={`/participants/${member.slug}`}><span>{member.name}</span><small>{member.role}</small><ChevronRight /></Link>)}</div> : <div className="intel-crew"><div className="intel-section-title"><Sparkles />Affectation de l’étape</div><Link href={selected.boatHref ?? "#"}><span>{selected.boatName ?? "Équipage non renseigné"}</span><small>{selected.role ?? "Rôle non renseigné"}</small><ChevronRight /></Link></div>}
+          {mode === "boats" ? <div className="intel-crew"><div className="intel-section-title"><Users />Équipage de la dernière étape</div>{selected.crew && selected.crew.length > 0 ? selected.crew.map((member) => <Link key={member.slug} href={`/classements?vue=individuel&selection=${member.slug}`}><span>{member.name}</span><small>{member.role}</small><ChevronRight /></Link>) : <div className="intel-empty">Composition non publiée</div>}</div> : <div className="intel-crew"><div className="intel-section-title"><Sparkles />Équipage de la dernière étape</div>{selected.boatHref ? <Link href={selected.boatHref}><span>{selected.boatName}</span><small>{selected.role ?? "Navigateur"}</small><ChevronRight /></Link> : <div className="intel-empty">Affectation non publiée</div>}</div>}
+          {snapshotMeta && selected.eventScores ? <div className="intel-breakdown"><div className="intel-section-title"><Trophy />Étapes courues</div>{completedEvents.map(({ event, index }) => <div className="intel-event-score" key={event.id}><span><i>{index + 1}</i><span><strong>{event.shortName}</strong></span></span><strong className={`mono ${selected.eventScores?.[index] == null ? "pending" : ""}`}>{selected.eventScores?.[index] ?? "—"}</strong></div>)}</div> : null}
         </aside> : null}
       </div>
     </div>

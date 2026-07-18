@@ -51,7 +51,7 @@ export function CompetitorRail({
     <div className="rail-crew-points">
       <span className="rail-section-label">Équipage de l’étape</span>
       {selected.crew.length > 0 ? selected.crew.map((member) => (
-        <Link key={member.id} href={`/participants/${member.slug}`}>
+        <Link key={member.id} href={`/classements?vue=individuel&selection=${member.slug}`}>
           <span>
             <strong>{member.name}</strong>
             <small>{member.role}</small>

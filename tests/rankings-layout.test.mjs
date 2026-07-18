@@ -4,10 +4,13 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("garde le rail de classement compact et respecte la casse des navigateurs", async () => {
-  const [controlRoom, styles] = await Promise.all([
+test("ouvre les profils dans un HUD compact et respecte la casse des navigateurs", async () => {
+  const [controlRoom, styles, rankingsPage, boatPage, participantPage] = await Promise.all([
     readFile(new URL("components/ChampionshipControlRoom.tsx", root), "utf8"),
     readFile(new URL("app/styles/content.css", root), "utf8"),
+    readFile(new URL("app/classements/page.tsx", root), "utf8"),
+    readFile(new URL("app/bateaux/[slug]/page.tsx", root), "utf8"),
+    readFile(new URL("app/participants/[slug]/page.tsx", root), "utf8"),
   ]);
 
   assert.match(controlRoom, /control-body--\$\{mode\}/);
@@ -16,9 +19,19 @@ test("garde le rail de classement compact et respecte la casse des navigateurs",
   assert.match(controlRoom, /standings-score mono \$\{event\.status\}/);
   assert.doesNotMatch(controlRoom, /Calcul officiel/);
   assert.doesNotMatch(controlRoom, /ShieldCheck/);
+  assert.doesNotMatch(controlRoom, /intel-metrics/);
+  assert.match(controlRoom, /completedEvents/);
+  assert.match(controlRoom, /isIntelOpen \? "intel-open"/);
+  assert.match(controlRoom, /classements\?vue=individuel&selection=/);
+  assert.match(rankingsPage, /initialSelectionSlug=\{selection\}/);
+  assert.match(rankingsPage, /wdtCrewForEvent/);
+  assert.match(rankingsPage, /wdtTeamForParticipantEvent/);
+  assert.match(boatPage, /redirect\(`\/classements\?vue=bateaux&selection=/);
+  assert.match(participantPage, /redirect\(`\/classements\?vue=individuel&selection=/);
   assert.match(styles, /clamp\(330px,28vw,430px\)/);
   assert.match(styles, /rank-control-grid--individual \.standings-name strong/);
   assert.match(styles, /rank-control-grid--individual \.intel-title h2 \{[^}]*white-space: nowrap/);
   assert.match(styles, /\.intel-score \{[^}]*grid-template-columns: 1fr auto auto/);
-  assert.match(styles, /\.intel-metrics > div \{[^}]*min-height: 42px;[^}]*grid-template-columns: 16px minmax\(0,1fr\) auto/);
+  assert.match(styles, /\.intel-score strong \{[^}]*font-size: 28px/);
+  assert.match(styles, /\.intel-event-score \{[^}]*min-height: 34px/);
 });

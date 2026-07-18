@@ -105,3 +105,21 @@ export function wdtCrewForEvent(teamName: string, eventIndex: number) {
       points: expectedIndividualScore,
     }));
 }
+
+/**
+ * Resolve the team used by a navigator for one stage without inventing an
+ * assignment. The workbook's inverse score scale only gives us a reliable
+ * answer when a single team owns the matching score for that stage.
+ */
+export function wdtTeamForParticipantEvent(participantName: string, eventIndex: number) {
+  const participant = wdt2026IndividualSnapshot.rows.find((row) => row.name === participantName);
+  const individualScore = participant?.eventScores[eventIndex];
+  if (individualScore == null || individualScore <= 0) return null;
+
+  const expectedTeamScore = 7 - individualScore;
+  const matchingTeams = wdt2026TeamSnapshot.rows.filter((row) => row.eventScores[eventIndex] === expectedTeamScore);
+  if (matchingTeams.length !== 1 || expectedTeamScore <= 0) return null;
+
+  const team = matchingTeams[0];
+  return { name: team.name, slug: snapshotSlug(team.name) };
+}
