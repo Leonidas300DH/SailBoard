@@ -22,6 +22,7 @@ test("distingue les étapes passées en cyan et la sélection en rouge", async (
   assert.match(shell, /nav-stage\[data-status="completed"\] \.nav-stage-hex \{ background: var\(--past-race\)/);
   assert.match(shell, /nav-stage\.selected\[data-status="completed"\] \.nav-stage-hex \{[^}]*background: var\(--danger\)/);
   assert.match(seasonMap, /const SELECTED_RACE = "#ff1e1e"/);
+  assert.match(seasonMap, /<i aria-hidden="true">\$\{raceIndex \+ 1\}<\/i>/);
   assert.match(seasonMap, /trailColor: SELECTED_TRAIL/);
   assert.match(routeAnimation, /cometExpression\(progress, trailColor, wakeColor\)/);
 });

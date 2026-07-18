@@ -101,14 +101,14 @@ export function SeasonMap({
     // cyan for sailed stages, acid yellow for upcoming, red when selected.
     void import("maplibre-gl").then(({ default: maplibregl }) => {
       const nextRaceId = allRaces.find((race) => race.status === "upcoming")?.id;
-      allRaces.forEach((race) => {
+      allRaces.forEach((race, raceIndex) => {
         const element = document.createElement("button");
         element.type = "button";
         element.className = "race-marker";
         element.setAttribute("aria-label", `${race.name}, ${race.dateLabel} 2026`);
         element.dataset.status = race.status;
         if (race.id === nextRaceId) element.classList.add("next");
-        element.innerHTML = `<i aria-hidden></i><span><strong>${race.shortName}</strong><small>${race.dateLabel}</small></span>`;
+        element.innerHTML = `<i aria-hidden="true">${raceIndex + 1}</i><span><strong>${race.shortName}</strong><small>${race.dateLabel}</small></span>`;
         element.addEventListener("click", (event) => {
           event.stopPropagation();
           onSelectRef.current(race.id);
