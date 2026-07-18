@@ -29,9 +29,12 @@ export function WindParticles({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || prefersReducedMotion()) return;
-    if (window.innerWidth < 760) return;
     const context = canvas.getContext("2d");
     if (!context) return;
+
+    // The static CSS wind-field owns small screens; pause rather than burn
+    // CPU under it, and resume if the viewport grows back (rotation).
+    const compactMedia = window.matchMedia("(max-width: 760px)");
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     let width = 0;
@@ -89,10 +92,23 @@ export function WindParticles({
       context.stroke();
       frame = requestAnimationFrame(tick);
     };
-    frame = requestAnimationFrame(tick);
-    return () => {
+    const start = () => {
+      if (frame || compactMedia.matches) return;
+      previous = performance.now();
+      frame = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      if (!frame) return;
       cancelAnimationFrame(frame);
+      frame = 0;
+    };
+    const syncToViewport = () => (compactMedia.matches ? stop() : start());
+    compactMedia.addEventListener("change", syncToViewport);
+    syncToViewport();
+    return () => {
+      stop();
       observer.disconnect();
+      compactMedia.removeEventListener("change", syncToViewport);
     };
   }, []);
 

@@ -1,7 +1,7 @@
 /* Race Ops season home — full-bleed tactical map, compact dossier, roadbook drawer. */
-.season-ocean-shell { height: 100vh; overflow: hidden; background: var(--bg-deep); }
+.season-ocean-shell { height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg-deep); }
 .season-ocean-nav { background: rgba(1, 10, 16, .985); }
-.season-ocean-stage { min-width: 0; min-height: 100vh; display: grid; grid-template-rows: minmax(560px, 1fr) 118px; background: var(--bg-deep); }
+.season-ocean-stage { min-width: 0; min-height: 100vh; min-height: 100dvh; display: grid; grid-template-rows: minmax(560px, 1fr) 118px; background: var(--bg-deep); }
 /* Mobile navigates by the stage list; desktop by the timeline. */
 .season-mobile-stages { display: none; }
 .season-map-canvas { position: relative; min-height: 0; overflow: hidden; }
@@ -38,13 +38,13 @@
 .race-hud::after { content: ""; position: absolute; left: 0; right: 0; top: -38px; height: 38px; pointer-events: none; background: linear-gradient(180deg, transparent, rgba(0, 156, 222, .2), transparent); animation: hudScan .6s ease-out .05s forwards; }
 @keyframes hudScan { to { top: 100%; opacity: 0; } }
 @keyframes hudIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-.race-hud-head { display: grid; grid-template-columns: 40px minmax(0, 1fr) 34px; gap: 12px; align-items: center; padding: 13px 12px 12px 14px; }
-.race-hud-hex { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: var(--danger); color: #fff; padding-bottom: 2px; font: 700 14px/1 var(--font-race), sans-serif; font-style: normal; box-shadow: 0 0 0 2px rgba(255, 31, 38, .3); }
+.race-hud-head { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 13px 12px 12px 14px; }
+.race-hud-hex { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: var(--danger); color: #fff; padding-bottom: 2px; font: 700 14px/1 var(--font-race), sans-serif; font-style: normal; box-shadow: 0 0 0 2px rgba(255,30,30,.3); }
 .race-hud-id { min-width: 0; }
 .race-hud-id > span { display: block; color: var(--muted); font: 600 8px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .09em; }
 .race-hud-id strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-top: 3px; overflow: hidden; white-space: normal; font: 700 17px/1.12 var(--font-race), sans-serif; font-style: italic; text-transform: uppercase; min-height: 19px; }
 .race-hud-id small { display: block; margin-top: 4px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
-.race-hud-close { width: 30px; height: 30px; display: grid; place-items: center; color: var(--muted); background: transparent; border: 1px solid var(--line); transition: .2s ease; }
+.race-hud-close { width: 40px; height: 40px; display: grid; place-items: center; color: var(--muted); background: transparent; border: 1px solid var(--line); transition: .2s ease; }
 .race-hud-close:hover { color: var(--text); border-color: var(--line-strong); }
 .race-hud-close svg { width: 14px; }
 .race-hud-podium { display: grid; padding: 4px 0; border-top: 1px solid var(--line); }
@@ -59,29 +59,23 @@
 .race-hud-weather strong { font-size: 11px; font-weight: 600; }
 .race-hud-weather--pending small { color: var(--muted); font-size: 10px; }
 .race-hud-actions { display: flex; align-items: center; gap: 9px; padding: 11px 14px 13px; border-top: 1px solid var(--line); }
-.race-hud-play { width: 38px; height: 38px; flex: 0 0 auto; display: grid; place-items: center; color: var(--race); background: transparent; border: 1px solid rgba(232, 255, 41, .45); transition: .2s ease; }
+.race-hud-play { width: 44px; height: 44px; flex: 0 0 auto; display: grid; place-items: center; color: var(--race); background: transparent; border: 1px solid rgba(232, 255, 41, .45); transition: .2s ease; }
 .race-hud-play:hover { color: var(--bg-deep); background: var(--race); border-color: var(--race); }
 .race-hud-play svg { width: 15px; fill: currentColor; }
 .race-hud-open { flex: 1; min-height: 40px; }
 .race-hud-open svg { width: 15px; }
 
-@media (max-width: 1120px) {
-}
-
-@media (max-width: 960px) and (min-width: 761px) {
-  }
-
 @media (max-width: 760px) {
-  .season-ocean-shell { height: auto; overflow: visible; padding-bottom: 68px; }
+  .season-ocean-shell { height: auto; overflow: visible; padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
   .season-ocean-stage { min-height: 0; grid-template-rows: 520px minmax(0, 1fr); }
   .season-timeline { display: none; }
   .season-mobile-stages { display: block; overflow-y: auto; border-top: 1px solid var(--line-strong); background: var(--bg-deep); }
   .season-mobile-stages .nav-roadbook { border-bottom: 0; }
   .season-mobile-stages .nav-stage { min-height: 52px; padding-inline: 16px; }
-  .season-mobile-stages .nav-roadbook-toggle { padding-left: 16px; min-height: 42px; }
+  .season-mobile-stages .nav-roadbook-toggle { padding-left: 16px; min-height: 44px; }
   .season-ocean-nav   .season-ocean-top { min-height: 50px; gap: 7px; padding: 0 10px 0 12px; }
   .season-top-id { font-size: 8px; letter-spacing: .06em; }
-      .season-primary-action { min-width: 0; min-height: 40px; padding: 0 11px; font-size: 0; }
+      .season-primary-action { min-width: 0; min-height: 44px; padding: 0 11px; font-size: 0; }
   .season-primary-action svg { margin: 0; }
   .wind-field { inset: 62px 0 190px; }
   .race-hud { left: 0; right: 0; top: auto; bottom: 0; width: 100%; border-right: 0; border-bottom: 0; animation-name: hudInUp; }

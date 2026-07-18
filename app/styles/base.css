@@ -1,5 +1,5 @@
 * { box-sizing: border-box; }
-html { background: var(--bg-deep); color: var(--text); }
+html { background: var(--bg-deep); color: var(--text); color-scheme: dark; }
 body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 62% 0%, #07293c 0, var(--bg) 46%, var(--bg-deep) 100%); color: var(--text); font-family: var(--font-geist-sans), sans-serif; }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; }
@@ -19,3 +19,15 @@ button { cursor: pointer; }
 /* The next upcoming stage breathes until it becomes the selection. */
 @keyframes nextGlow { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.45); } }
 @keyframes nextPing { 0% { transform: scale(.7); opacity: .85; } 70% { transform: scale(2); opacity: 0; } 100% { transform: scale(2); opacity: 0; } }
+
+/* Keyboard focus is always visible, in race yellow. */
+:focus-visible { outline: 2px solid var(--race); outline-offset: 2px; }
+
+/* One tactical radius across chrome surfaces. */
+.button, .map-chip, .map-return, .hud-recenter, .hud-readout, .hud-reticle-tag,
+.control-kpis, .rank-control-grid, .control-search, .standings-score,
+.admin-panel, .metric-strip, .notice, .empty-state, .assignment-link, .access-gate > div,
+.race-hud, .race-conditions-overlay, .entity-map-label, .intel-close, .race-hud-close,
+.rail-detail-head button, .mark-actions button, .course-search form, .course-tools {
+  border-radius: var(--radius);
+}

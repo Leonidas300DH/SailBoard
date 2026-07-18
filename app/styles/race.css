@@ -22,7 +22,7 @@
 .leaderboard { min-height: 0; overflow: hidden; background: rgba(1,17,27,.97); border-left: 1px solid var(--line); display: grid; grid-template-columns: 310px minmax(300px,1fr); }
 .leaderboard-core { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .panel-title { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--line); font: 700 18px var(--font-race), sans-serif; text-transform: uppercase; }
-.rank-head { display: grid; grid-template-columns: 40px 1fr 48px 16px; gap: 6px; padding: 10px 16px; color: #718894; border-bottom: 1px solid var(--line); font: 700 9px var(--font-race), sans-serif; text-transform: uppercase; }
+.rank-head { display: grid; grid-template-columns: 40px 1fr 48px 16px; gap: 6px; padding: 10px 16px; color: var(--muted); border-bottom: 1px solid var(--line); font: 700 9px var(--font-race), sans-serif; text-transform: uppercase; }
 .rank-list { overflow: auto; }
 .rank-row { width: 100%; display: grid; grid-template-columns: 40px 1fr 48px 16px; gap: 7px; align-items: center; min-height: 72px; padding: 9px 16px; color: var(--text); text-align: left; background: transparent; border: 0; border-bottom: 1px solid var(--line); transition: .18s ease; }
 .rank-row:hover, .rank-row.selected { background: color-mix(in srgb, var(--boat-color) 16%, transparent); }
@@ -34,13 +34,13 @@
 .rank-points { text-align: right; font: 700 13px var(--font-geist-mono), monospace; }
 .rank-expand-icon { width: 15px; color: var(--muted); transition: transform .2s ease, color .2s ease; }
 .rank-row:hover .rank-expand-icon, .rank-row.selected .rank-expand-icon { color: var(--boat-color); transform: translateX(-2px); }
-.leader-foot { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,64,80,.6); }
+.leader-foot { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,30,30,.6); }
 .leader-foot strong { display: block; color: var(--danger); font: 700 14px var(--font-race), sans-serif; text-transform: uppercase; }
 .leader-foot span { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
 .leaderboard-detail { min-width: 300px; min-height: 0; display: flex; flex-direction: column; border-left: 1px solid var(--line-strong); background: radial-gradient(circle at 100% 0, color-mix(in srgb, var(--boat-color) 12%, transparent), transparent 40%), #021522; opacity: 0; transform: translateX(24px); transition: opacity .22s ease .06s, transform .28s cubic-bezier(.22,.8,.24,1); pointer-events: none; }
 .leaderboard.expanded .leaderboard-detail { opacity: 1; transform: translateX(0); pointer-events: auto; }
 .rail-detail-head { min-height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px 0 18px; color: var(--boat-color); border-bottom: 1px solid var(--line); font: 700 10px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .08em; }
-.rail-detail-head button { width: 34px; height: 34px; display: grid; place-items: center; color: var(--muted); background: transparent; border: 1px solid var(--line); }
+.rail-detail-head button { width: 40px; height: 40px; display: grid; place-items: center; color: var(--muted); background: transparent; border: 1px solid var(--line); }
 .rail-detail-head button:hover { color: var(--boat-color); border-color: var(--boat-color); }
 .rail-detail-head svg { width: 16px; }
 .rail-boat-identity { min-height: 94px; display: flex; align-items: center; gap: 12px; padding: 17px 18px 10px; }
@@ -75,7 +75,7 @@
 .rail-profile-link svg { width: 15px; transform: rotate(180deg); }
 
 .race-footer { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 14px 24px; background: rgba(1, 12, 19, .98); border-top: 1px solid var(--line); }
-.race-footer-play { width: 42px; height: 42px; display: grid; place-items: center; color: var(--race); background: transparent; border: 1px solid rgba(232, 255, 41, .45); transition: .2s ease; }
+.race-footer-play { width: 44px; height: 44px; display: grid; place-items: center; color: var(--race); background: transparent; border: 1px solid rgba(232, 255, 41, .45); transition: .2s ease; }
 .race-footer-play:hover { color: var(--bg-deep); background: var(--race); border-color: var(--race); }
 .race-footer-play svg { width: 18px; fill: currentColor; }
 .race-footer-copy strong { display: block; font: 700 13px var(--font-race), sans-serif; text-transform: uppercase; }

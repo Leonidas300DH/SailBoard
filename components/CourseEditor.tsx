@@ -87,9 +87,9 @@ export function CourseEditor({ race, onSaved }: { race: RaceView; onSaved: () =>
       map.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");
       map.on("load", () => {
         map.addSource("draft", { type: "geojson", data: toGeoJson(marks) });
-        map.addLayer({ id: "draft-route", type: "line", source: "draft", filter: ["==", ["get", "kind"], "route"], paint: { "line-color": "#d8ff00", "line-width": 3, "line-dasharray": [2, 1] } });
+        map.addLayer({ id: "draft-route", type: "line", source: "draft", filter: ["==", ["get", "kind"], "route"], paint: { "line-color": "#e8ff29", "line-width": 3, "line-dasharray": [2, 1] } });
         map.addLayer({ id: "draft-lines", type: "line", source: "draft", filter: ["match", ["get", "kind"], ["start", "gate", "finish"], true, false], paint: { "line-color": "#f3f7f8", "line-width": 4 } });
-        map.addLayer({ id: "draft-points", type: "circle", source: "draft", filter: ["==", ["get", "kind"], "handle"], paint: { "circle-radius": 8, "circle-color": ["match", ["get", "markType"], "start", "#ffffff", "finish", "#ff4050", "#d8ff00"], "circle-stroke-color": "#00101a", "circle-stroke-width": 3 } });
+        map.addLayer({ id: "draft-points", type: "circle", source: "draft", filter: ["==", ["get", "kind"], "handle"], paint: { "circle-radius": 8, "circle-color": ["match", ["get", "markType"], "start", "#ffffff", "finish", "#ff1e1e", "#e8ff29"], "circle-stroke-color": "#00101a", "circle-stroke-width": 3 } });
         map.on("mouseenter", "draft-points", () => { map.getCanvas().style.cursor = "grab"; });
         map.on("mouseleave", "draft-points", () => { map.getCanvas().style.cursor = tool ? "crosshair" : ""; });
         map.on("mousedown", "draft-points", (event) => {

@@ -8,45 +8,27 @@
   --bg: #030d14;
   --bg-deep: #010a10;
   --panel: rgba(4, 17, 26, 0.92);
-  --panel-soft: rgba(6, 24, 36, 0.88);
   --line: rgba(148, 196, 214, 0.14);
   --line-strong: rgba(196, 228, 240, 0.3);
   --text: #f2f7f9;
   --muted: #8ba4b0;
 
   /* WDT prism (charte octobre 2018) — Pantone 3955C is the race accent,
-     2925C carries the tactical HUD, 185C flags live/danger states. */
+     2925C carries the tactical HUD, and a vivid red flags live/selection
+     states (the charte 185C washes out on night surfaces). */
   --race: #e8ff29;
-  --race-deep: #a4b800;
   --hud: #009cde;
   --hud-dim: rgba(0, 156, 222, 0.6);
   --past-race: #35b8ff;
   --past-race-dim: rgba(53, 184, 255, 0.55);
-  --wdt-blue: #0033a0;
-  --wdt-red: #e4002b;
-  --wdt-pale: #f6eb61;
-  --wdt-olive: #a09200;
-  --wdt-black: #25271f;
-
-  --acid: var(--race);
-  --acid-deep: var(--race-deep);
-  /* Selection/live red — a real vivid red, not the washed charte 185C. */
   --danger: #ff1e1e;
-  --blue: #009cde;
-  --orange: #f6eb61;
-  --violet: #0033a0;
-  --radius: 2px;
+
+  /* Legacy alias — prefer --race in new code. */
+  --acid: var(--race);
+
+  /* One tactical radius across chrome surfaces. */
+  --radius: 3px;
 
   /* Tactical map furniture */
   --grid-line: rgba(0, 156, 222, 0.14);
-  --glow-race: 0 0 18px rgba(232, 255, 41, 0.35);
-  --glow-hud: 0 0 14px rgba(0, 156, 222, 0.35);
-
-  /* Type scale */
-  --text-xs: 10px;
-  --text-sm: 12px;
-  --text-base: 14px;
-  --text-lg: 18px;
-  --text-xl: 26px;
-  --text-hero: clamp(34px, 4.6vw, 58px);
 }

@@ -27,8 +27,8 @@
 }
 
 @media (max-width: 760px) {
-  .public-shell { display: block; padding-bottom: 68px; }
-  .side-nav { position: fixed; inset: auto 0 0; width: auto; height: 68px; z-index: 50; flex-direction: row; border: 0; border-top: 1px solid var(--line); }
+  .public-shell { display: block; padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .side-nav { position: fixed; inset: auto 0 0; width: auto; height: calc(68px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); z-index: 50; flex-direction: row; border: 0; border-top: 1px solid var(--line); }
   .side-brand, .nav-season { display: none; }
   .nav-stack { width: 100%; display: flex; padding: 0; }
   .nav-slot { display: contents; }
@@ -37,14 +37,14 @@
   .nav-link, .nav-sublink { flex: 1; min-height: 68px; justify-content: center; padding: 0; border: 0; border-top: 2px solid transparent; }
   .nav-sublink svg { width: 20px; height: 20px; }
   .nav-link.active, .nav-sublink.active { border-left: 0; background: transparent; border-top-color: var(--acid); }
-  .race-stage { min-height: calc(100vh - 68px); grid-template-rows: auto auto; }
+  .race-stage { min-height: calc(100vh - 68px); min-height: calc(100dvh - 68px); grid-template-rows: auto auto; }
   .button { padding-inline: 13px; font-size: 12px; }
   .race-main { display: flex; flex-direction: column; }
-  .map-wrap { min-height: 58vh; }
+  .map-wrap { min-height: 58vh; min-height: 58dvh; }
   .map-caption { top: 10px; left: 54px; max-width: calc(100% - 174px); }
-  .map-chip { min-height: 34px; padding: 8px 9px; font-size: 9px; white-space: nowrap; }
+  .map-chip { min-height: 40px; padding: 8px 11px; font-size: 9px; white-space: nowrap; }
   .map-chip-metric, .map-chip-meta { display: none; }
-  .map-return { top: 10px; right: 10px; min-height: 34px; padding-inline: 10px; font-size: 9px; }
+  .map-return { top: 10px; right: 10px; min-height: 40px; padding-inline: 12px; font-size: 9px; }
   .leaderboard { display: block; border-left: 0; border-top: 1px solid var(--line); }
   .rank-list { max-height: 360px; }
   .rank-expand-icon { transform: rotate(-90deg); }
@@ -55,13 +55,13 @@
   .rail-metrics > div, .rail-metrics > div:nth-child(2), .rail-metrics > div:last-child { grid-column: auto; border-right: 1px solid var(--line); border-bottom: 0; padding-inline: 13px; }
   .rail-metrics > div:last-child { border-right: 0; }
   .rail-profile-link { margin-top: 8px; }
-  .control-stage { min-height: calc(100vh - 68px); grid-template-rows: auto minmax(0,1fr); }
-  .control-topbar { min-height: 112px; display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px; }
+  .control-stage { min-height: calc(100vh - 68px); min-height: calc(100dvh - 68px); grid-template-rows: auto minmax(0,1fr); }
+  .control-topbar { min-height: 112px; display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px; padding-top: calc(10px + env(safe-area-inset-top)); }
   .control-heading { min-width: 0; flex: 1; }
   .control-heading h1 { max-width: none; overflow: visible; font-size: 21px; white-space: nowrap; }
   .control-heading > span { font-size: 8px; }
   .control-topbar .top-actions { width: 100%; margin-left: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .control-topbar .top-actions .button { min-width: 0; min-height: 40px; padding-inline: 8px; font-size: 11px; }
+  .control-topbar .top-actions .button { min-width: 0; min-height: 44px; padding-inline: 8px; font-size: 11px; }
   .control-body { padding: 10px; grid-template-rows: auto auto; }
   .control-kpis { grid-template-columns: repeat(2,1fr); }
   .control-kpis > div { padding: 11px 12px; }
@@ -77,7 +77,7 @@
   .standings-grid { grid-template-columns: 42px minmax(130px, 1fr) 70px; }
   .standings-score { display: none; }
   .competitor-intel { display: none; }
-  .competitor-intel.mobile-open { position: fixed; z-index: 46; inset: 76px 0 68px; min-height: 0; display: flex; overflow: auto; border-top: 1px solid var(--competitor-color); box-shadow: 0 -22px 70px rgba(0,0,0,.58); }
+  .competitor-intel.mobile-open { position: fixed; z-index: 46; inset: 76px 0 calc(68px + env(safe-area-inset-bottom)); min-height: 0; display: flex; overflow: auto; border-top: 1px solid var(--competitor-color); box-shadow: 0 -22px 70px rgba(0,0,0,.58); }
   .intel-overline { position: sticky; top: 0; z-index: 3; padding-right: 10px; background: #031522; }
   .intel-overline .intel-close { display: grid; }
   .intel-title h2 { font-size: 34px; }
@@ -86,7 +86,7 @@
   .entity-identity { border-right: 0; border-bottom: 1px solid var(--line); }
   .entity-index { font-size: 86px; }
   .entity-identity h2 { font-size: 48px; }
-  .entity-map-panel { min-height: 48vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  .entity-map-panel { min-height: 48vh; min-height: 48dvh; border-right: 0; border-bottom: 1px solid var(--line); }
   .entity-telemetry { display: flex; }
   .entity-telemetry > .intel-section-title { display: flex; }
   .entity-crew-list { padding: 0 18px 12px; border-left: 0; }
@@ -96,9 +96,16 @@
   .entity-ledger-row > span:nth-child(2) { grid-column: 1; }
   .entity-place { grid-column: 2; grid-row: 1; text-align: right; }
   .entity-ledger-row > .mono { grid-column: 2; grid-row: 2; text-align: right; }
-  .content-nav { min-height: 64px; padding: 0 16px; }
-  .content-nav-links { display: none; }
+  .content-nav { flex-wrap: wrap; row-gap: 2px; min-height: 64px; padding: calc(8px + env(safe-area-inset-top)) 16px 8px; }
   .content-nav .brand { font-size: 21px; }
+  .content-nav-links { order: 3; flex-basis: 100%; display: flex; gap: 2px; overflow-x: auto; }
+  .content-nav-link { white-space: nowrap; }
+}
+
+/* Phone landscape — release the fixed-height season shell so nothing crops. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .season-ocean-shell { height: auto; overflow: visible; }
+  .season-ocean-stage { grid-template-rows: minmax(430px, 1fr) 118px; }
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }

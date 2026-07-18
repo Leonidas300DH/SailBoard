@@ -28,7 +28,7 @@ export function attachGraticule(map: MaplibreMap) {
     id: "graticule",
     type: "line",
     source: "graticule",
-    paint: { "line-color": "#55e6c4", "line-width": 0.7, "line-opacity": 0.14 },
+    paint: { "line-color": "#009cde", "line-width": 0.7, "line-opacity": 0.14 },
   });
   map.on("moveend", () => {
     const source = map.getSource("graticule") as GeoJSONSource | undefined;

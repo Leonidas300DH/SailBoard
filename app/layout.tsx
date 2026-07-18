@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Jost } from "next/font/google";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
@@ -37,6 +37,13 @@ export const metadata: Metadata = {
     images: [{ url: "/og.png", width: 1731, height: 909, alt: "SailBoard — Race, Crew, Results" }],
   },
   twitter: { card: "summary_large_image", title: "SailBoard — le World Diam Tour au point près", description: "Étapes, parcours, équipages, navigateurs et classements.", images: ["/og.png"] },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#030d14",
 };
 
 export default function RootLayout({
