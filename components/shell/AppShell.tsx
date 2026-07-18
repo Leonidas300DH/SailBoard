@@ -23,22 +23,8 @@ export function AppShell({
 }) {
   return <main className={`public-shell${shellClassName ? ` ${shellClassName}` : ""}`}>
     <aside className={`side-nav${navClassName ? ` ${navClassName}` : ""}`} aria-label="Navigation principale">
-      <Link className="side-brand" href="/" aria-label="Accueil — World Diam Tour France 2026">
-        <span className="wdt-block cut-right">
-          <svg className="wdt-hex" viewBox="0 0 100 100" aria-hidden>
-            <polygon points="25,6.7 75,6.7 50,50" fill="#0033a0" />
-            <polygon points="0,50 25,6.7 50,50" fill="#009cde" />
-            <polygon points="75,6.7 100,50 50,50" fill="#e4002b" />
-            <polygon points="100,50 75,93.3 50,50" fill="#efdf00" />
-            <polygon points="75,93.3 25,93.3 50,50" fill="#f6eb61" />
-            <polygon points="25,93.3 0,50 50,50" fill="#a09200" />
-          </svg>
-          <span className="wdt-word">
-            <strong>WDT</strong>
-            <small>World<br />Diam<br />Tour</small>
-          </span>
-          <span className="wdt-frieze wdt-block-frieze" aria-hidden />
-        </span>
+      <Link className="side-brand" href="/" aria-label="Accueil SailBoard">
+        <span className="brand"><span>SailBoard</span><span>Race</span></span>
       </Link>
       <nav className="nav-stack">
         {publicNav().map(({ id, href, label, icon: Icon }) => (

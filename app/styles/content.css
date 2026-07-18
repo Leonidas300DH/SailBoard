@@ -49,8 +49,8 @@
 .standings-row { position: relative; width: 100%; min-height: 52px; padding: 6px 14px; color: var(--text); text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; transition: background .18s ease; }
 .standings-row:hover, .standings-row.selected { background: color-mix(in srgb, var(--competitor-color) 10%, rgba(4, 24, 40, .9)); }
 .standings-row.selected::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--competitor-color); }
-.standings-pos { width: 32px; height: 28px; display: grid; place-items: center; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); background: color-mix(in srgb, var(--competitor-color) 30%, #0a1826); font-size: 12px; font-weight: 700; }
-.standings-row.selected .standings-pos { background: var(--competitor-color); color: var(--bg-deep); }
+.standings-pos { color: var(--competitor-color); font: 700 19px var(--font-race), sans-serif; }
+.standings-row.selected .standings-pos { text-shadow: 0 0 12px color-mix(in srgb, var(--competitor-color) 60%, transparent); }
 .standings-name { min-width: 0; }
 .standings-name strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 15px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .02em; }
 .standings-score { min-height: 26px; display: grid; place-items: center; color: #cfdce1; background: rgba(148, 196, 214, .05); border: 1px solid rgba(148, 196, 214, .09); font-size: 11px; }
