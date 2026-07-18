@@ -42,7 +42,7 @@
 .race-hud-weather strong { font-size: 11px; font-weight: 600; }
 .race-hud-weather--pending small { color: var(--muted); font-size: 10px; }
 .race-hud-actions { display: flex; align-items: center; gap: 9px; padding: 11px 14px 13px; border-top: 1px solid var(--line); }
-.race-hud-play { width: 38px; height: 38px; flex: 0 0 auto; display: grid; place-items: center; color: var(--race); background: transparent; border: 1px solid rgba(239, 223, 0, .45); transition: .2s ease; }
+.race-hud-play { width: 38px; height: 38px; flex: 0 0 auto; display: grid; place-items: center; color: var(--race); background: transparent; border: 1px solid rgba(232, 255, 41, .45); transition: .2s ease; }
 .race-hud-play:hover { color: var(--bg-deep); background: var(--race); border-color: var(--race); }
 .race-hud-play svg { width: 15px; fill: currentColor; }
 .race-hud-open { flex: 1; min-height: 40px; }

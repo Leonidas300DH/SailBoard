@@ -35,7 +35,7 @@
 .nav-stage:hover { background: rgba(214, 232, 239, .05); }
 .nav-stage.selected { background: rgba(228, 0, 43, .09); border-left-color: var(--danger); }
 .nav-stage-hex { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; color: var(--bg-deep); background: var(--race); font: 700 9px var(--font-race), sans-serif; font-style: normal; }
-.nav-stage[data-status="completed"] .nav-stage-hex { background: #b5a900; }
+.nav-stage[data-status="completed"] .nav-stage-hex { background: #a4b800; }
 .nav-stage-copy { min-width: 0; }
 .nav-stage-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 11px var(--font-race), sans-serif; text-transform: uppercase; }
 .nav-stage-copy small { display: block; margin-top: 1px; color: var(--muted); font-size: 8px; }

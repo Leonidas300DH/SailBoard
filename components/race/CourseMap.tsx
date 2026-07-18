@@ -10,7 +10,7 @@ import { useCameraDirector } from "../map/useCameraDirector";
 import { useRouteAnimation } from "../map/useRouteAnimation";
 import { MapHud } from "../map/MapHud";
 
-const RACE_ACCENT = "#efdf00";
+const RACE_ACCENT = "#e8ff29";
 const INK = "#010a10";
 const MARK_IDLE = "#3b5662";
 

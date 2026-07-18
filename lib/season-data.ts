@@ -25,7 +25,7 @@ export type SeasonRace = {
 };
 
 /** The six stage colours of the WDT prism (charte octobre 2018). */
-export const WDT_PRISM = ["#009cde", "#0033a0", "#e4002b", "#efdf00", "#f6eb61", "#a09200"];
+export const WDT_PRISM = ["#009cde", "#0033a0", "#e4002b", "#e8ff29", "#f6eb61", "#a09200"];
 
 export const SEASON_RACES: SeasonRace[] = seasonSource.events.map((event, index) => ({
   id: event.id,
@@ -49,5 +49,5 @@ export function seasonRaceBySlug(slug: string): SeasonRace | undefined {
 
 /** Dark ink on the light prism colours, white on the dense ones. */
 export function wdtInk(color: string): string {
-  return ["#efdf00", "#f6eb61", "#009cde"].includes(color) ? "#25271f" : "#f2f7f9";
+  return ["#e8ff29", "#f6eb61", "#009cde"].includes(color) ? "#25271f" : "#f2f7f9";
 }

@@ -16,8 +16,8 @@
 
   /* WDT prism (charte octobre 2018) — Pantone 3955C is the race accent,
      2925C carries the tactical HUD, 185C flags live/danger states. */
-  --race: #efdf00;
-  --race-deep: #a09200;
+  --race: #e8ff29;
+  --race-deep: #a4b800;
   --hud: #009cde;
   --hud-dim: rgba(0, 156, 222, 0.6);
   --wdt-blue: #0033a0;
@@ -36,7 +36,7 @@
 
   /* Tactical map furniture */
   --grid-line: rgba(0, 156, 222, 0.14);
-  --glow-race: 0 0 18px rgba(239, 223, 0, 0.35);
+  --glow-race: 0 0 18px rgba(232, 255, 41, 0.35);
   --glow-hud: 0 0 14px rgba(0, 156, 222, 0.35);
 
   /* Type scale */
