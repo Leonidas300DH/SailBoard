@@ -1,0 +1,104 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, Pause, Play, Radio, Wind } from "lucide-react";
+import type { RaceView } from "@/lib/domain";
+import type { RaceWeatherSnapshot } from "@/lib/weather";
+import { AppShell } from "../shell/AppShell";
+import { CloudLayer } from "../map/CloudLayer";
+import { WindParticles } from "../map/WindParticles";
+import { CourseMap } from "./CourseMap";
+import { LeaderboardPanel } from "./LeaderboardPanel";
+import { CompetitorRail, formatTime } from "./CompetitorRail";
+import { RaceConditions } from "./RaceConditions";
+
+/**
+ * Race sheet: animated official course on the left, validated leaderboard on
+ * the right. The old simulated-fleet replay is gone — the course animation is
+ * openly a simulation of the traced route, not GPS data.
+ */
+export function RaceExperience({
+  race,
+  weather,
+  context = "season",
+}: {
+  race: RaceView;
+  weather: RaceWeatherSnapshot;
+  context?: "season" | "course";
+}) {
+  const [selectedEntryId, setSelectedEntryId] = useState(race.leaderboard[1]?.entryId ?? race.leaderboard[0]?.entryId);
+  const [isRailExpanded, setIsRailExpanded] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const selected = useMemo(
+    () => race.leaderboard.find((row) => row.entryId === selectedEntryId) ?? race.leaderboard[0],
+    [race.leaderboard, selectedEntryId],
+  );
+  const leader = race.leaderboard[0];
+
+  const openRail = (entryId: string) => {
+    setSelectedEntryId(entryId);
+    setIsRailExpanded(true);
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      window.setTimeout(() => {
+        document.getElementById("selected-boat-rail")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+  };
+
+  return <AppShell
+    active={context}
+    raceSlug={race.slug}
+    navFooter={<div className="nav-season"><strong>{race.eventName}</strong><small>17 JUIL. 2026</small></div>}
+  >
+    <section className="race-stage">
+      <div className={`race-main ${isRailExpanded ? "rail-expanded" : ""}`}>
+        <div className="map-wrap">
+          <CourseMap center={race.center} geojson={race.courseGeoJson} isPlaying={isPlaying} />
+          <CloudLayer windDirection={weather.windDirection} windKnots={weather.windKnots} />
+          <div className="map-shade" aria-hidden />
+          <WindParticles windDirection={weather.windDirection} windKnots={weather.windKnots} />
+          <div className="map-caption" aria-label="Contexte de la course">
+            <span className="map-chip map-chip-status"><Radio aria-hidden />Parcours animé · Simulation</span>
+            <span className="map-chip map-chip-metric"><Wind aria-hidden />{weather.windKnots.toFixed(1)} ND · {Math.round(weather.windDirection)}° {weather.windLabel}</span>
+            <span className="map-chip map-chip-meta">{race.locationName} · parcours officiel</span>
+          </div>
+          <Link className="map-return" href="/"><ArrowLeft aria-hidden />Saison 2026</Link>
+          <RaceConditions weather={weather} />
+        </div>
+
+        <aside className={`leaderboard ${isRailExpanded ? "expanded" : ""}`}>
+          <LeaderboardPanel
+            leaderboard={race.leaderboard}
+            selectedEntryId={selected?.entryId}
+            isRailExpanded={isRailExpanded}
+            onOpen={openRail}
+          />
+          {selected ? (
+            <CompetitorRail selected={selected} leader={leader} onClose={() => setIsRailExpanded(false)} />
+          ) : null}
+        </aside>
+      </div>
+
+      <footer className="race-footer">
+        <button
+          type="button"
+          className="race-footer-play"
+          aria-label={isPlaying ? "Mettre l’animation du parcours en pause" : "Rejouer le parcours"}
+          onClick={() => setIsPlaying((value) => !value)}
+        >
+          {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
+        </button>
+        <div className="race-footer-copy">
+          <strong>Animation du parcours officiel</strong>
+          <small>Simulation illustrative — aucune trace GPS des concurrents</small>
+        </div>
+        <div className="timeline-total">
+          <span className="label">Temps vainqueur</span>
+          <strong>{formatTime(leader?.elapsedSeconds ?? null)}</strong>
+          <small>{race.distanceNm.toFixed(1)} NM · {race.laps} tour{race.laps > 1 ? "s" : ""}</small>
+        </div>
+      </footer>
+    </section>
+  </AppShell>;
+}

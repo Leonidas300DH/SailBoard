@@ -1,4 +1,7 @@
 import type { RaceView } from "./domain";
+import type { SeasonRace } from "./season-data";
+
+export type WeatherReliability = "archive" | "forecast" | "fallback";
 
 export type RaceWeatherSnapshot = {
   observedAt: string;
@@ -14,6 +17,10 @@ export type RaceWeatherSnapshot = {
   tideLabel: string;
   source: string;
   modeled: boolean;
+  /** Provenance of the wind block: ERA5 archive, forecast model, or demo fallback. */
+  reliability: WeatherReliability;
+  /** False when the marine block (waves/tide/sea temp) fell back to demo values. */
+  marineReliable: boolean;
 };
 
 const FALLBACK: RaceWeatherSnapshot = {
@@ -30,7 +37,15 @@ const FALLBACK: RaceWeatherSnapshot = {
   tideLabel: "BM 12:46",
   source: "Open-Meteo · reconstitution de démonstration",
   modeled: true,
+  reliability: "fallback",
+  marineReliable: false,
 };
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+/** The ERA5 archive lags real time by a few days. */
+const ARCHIVE_DELAY_MS = 5 * DAY_MS;
+/** Open-Meteo forecasts stop ~16 days out. */
+export const FORECAST_HORIZON_MS = 15 * DAY_MS;
 
 function nearestIndex(times: string[] | undefined, target: Date) {
   if (!times?.length) return -1;
@@ -55,70 +70,129 @@ type WeatherPayload = {
   hourly?: Record<string, Array<number | string | null>> & { time?: string[] };
 };
 
-export async function getRaceWeatherSnapshot(race: RaceView): Promise<RaceWeatherSnapshot> {
-  const target = new Date(race.scheduledAt);
-  const date = target.toISOString().slice(0, 10);
-  const pastThreshold = Date.now() - 4 * 24 * 60 * 60 * 1000;
-  const weatherBase = target.getTime() < pastThreshold
-    ? "https://archive-api.open-meteo.com/v1/archive"
-    : "https://api.open-meteo.com/v1/forecast";
-  const weatherParams = new URLSearchParams({
-    latitude: String(race.center[1]),
-    longitude: String(race.center[0]),
-    start_date: date,
-    end_date: date,
-    hourly: "temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m",
-    timezone: "Europe/Paris",
-    wind_speed_unit: "kn",
-    cell_selection: "sea",
-  });
-  const marineParams = new URLSearchParams({
-    latitude: String(race.center[1]),
-    longitude: String(race.center[0]),
-    start_date: date,
-    end_date: date,
-    hourly: "wave_height,wave_direction,wave_period,sea_surface_temperature,sea_level_height_msl",
-    timezone: "Europe/Paris",
-    cell_selection: "sea",
-  });
+function numberAt(payload: WeatherPayload | null, key: string, index: number): number | null {
+  if (!payload || index < 0) return null;
+  const value = payload.hourly?.[key]?.[index];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
 
+async function fetchPayload(base: string, params: URLSearchParams): Promise<WeatherPayload | null> {
   try {
-    const [weatherResponse, marineResponse] = await Promise.all([
-      fetch(`${weatherBase}?${weatherParams}`, { next: { revalidate: 86_400 } }),
-      fetch(`https://marine-api.open-meteo.com/v1/marine?${marineParams}`, { next: { revalidate: 86_400 } }),
-    ]);
-    if (!weatherResponse.ok || !marineResponse.ok) return FALLBACK;
-    const weather = await weatherResponse.json() as WeatherPayload;
-    const marine = await marineResponse.json() as WeatherPayload;
-    const weatherIndex = nearestIndex(weather.hourly?.time, target);
-    const marineIndex = nearestIndex(marine.hourly?.time, target);
-    if (weatherIndex < 0 || marineIndex < 0) return FALLBACK;
-    const numberAt = (payload: WeatherPayload, key: string, index: number, fallback: number) => {
-      const value = payload.hourly?.[key]?.[index];
-      return typeof value === "number" && Number.isFinite(value) ? value : fallback;
-    };
-    const windDirection = numberAt(weather, "wind_direction_10m", weatherIndex, FALLBACK.windDirection);
-    const levels = (marine.hourly?.sea_level_height_msl ?? []) as Array<number | string | null>;
-    const numericLevels = levels.map((value, index) => ({ index, value: typeof value === "number" ? value : Number.POSITIVE_INFINITY }));
-    const lowTideIndex = numericLevels.reduce((best, item) => item.value < best.value ? item : best, numericLevels[0] ?? { index: 0, value: 0 }).index;
-    const lowTideTime = marine.hourly?.time?.[lowTideIndex]?.slice(11, 16) ?? FALLBACK.tideLabel.slice(-5);
-    return {
-      observedAt: target.toLocaleString("fr-FR", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" }),
-      windKnots: numberAt(weather, "wind_speed_10m", weatherIndex, FALLBACK.windKnots),
-      windDirection,
-      windLabel: compass(windDirection),
-      gustKnots: numberAt(weather, "wind_gusts_10m", weatherIndex, FALLBACK.gustKnots),
-      temperature: numberAt(weather, "temperature_2m", weatherIndex, FALLBACK.temperature),
-      waveHeight: numberAt(marine, "wave_height", marineIndex, FALLBACK.waveHeight),
-      waveDirection: numberAt(marine, "wave_direction", marineIndex, FALLBACK.waveDirection),
-      wavePeriod: numberAt(marine, "wave_period", marineIndex, FALLBACK.wavePeriod),
-      seaTemperature: numberAt(marine, "sea_surface_temperature", marineIndex, FALLBACK.seaTemperature),
-      tideLabel: `BM ${lowTideTime}`,
-      source: "Open-Meteo · ECMWF IFS / Météo-France MFWAM",
-      modeled: true,
-    };
+    const response = await fetch(`${base}?${params}`, { next: { revalidate: 86_400 } });
+    if (!response.ok) return null;
+    return await response.json() as WeatherPayload;
   } catch {
-    return FALLBACK;
+    return null;
   }
 }
 
+function hourlyParams(lng: number, lat: number, date: string, hourly: string, knots: boolean) {
+  const params = new URLSearchParams({
+    latitude: String(lat),
+    longitude: String(lng),
+    start_date: date,
+    end_date: date,
+    hourly,
+    timezone: "Europe/Paris",
+    cell_selection: "sea",
+  });
+  if (knots) params.set("wind_speed_unit", "kn");
+  return params;
+}
+
+/**
+ * Real conditions at a position and datetime. Past races hit the ERA5 archive
+ * (wind) and the marine hindcast (waves/tide); recent or upcoming dates hit
+ * the forecast models. The two blocks fail independently: a marine outage
+ * never discards real archive wind, and vice versa. Selection is by value —
+ * if the archive still has no data (its few-days lag), the forecast endpoint
+ * is tried before giving up.
+ */
+export async function getWeatherAt(coordinates: [number, number], scheduledAt: string): Promise<RaceWeatherSnapshot> {
+  const target = new Date(scheduledAt);
+  const date = target.toISOString().slice(0, 10);
+  const [lng, lat] = coordinates;
+  const isPast = target.getTime() < Date.now() - ARCHIVE_DELAY_MS;
+  const windHourly = "temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m";
+  const marineHourly = "wave_height,wave_direction,wave_period,sea_surface_temperature,sea_level_height_msl";
+
+  const primaryWindBase = isPast ? "https://archive-api.open-meteo.com/v1/archive" : "https://api.open-meteo.com/v1/forecast";
+  const [primaryWind, marine] = await Promise.all([
+    fetchPayload(primaryWindBase, hourlyParams(lng, lat, date, windHourly, true)),
+    fetchPayload("https://marine-api.open-meteo.com/v1/marine", hourlyParams(lng, lat, date, marineHourly, false)),
+  ]);
+
+  // Value-based fallback: an empty archive answer (recent race) retries the forecast model.
+  let wind = primaryWind;
+  let reliability: WeatherReliability = isPast ? "archive" : "forecast";
+  if (numberAt(wind, "wind_speed_10m", nearestIndex(wind?.hourly?.time, target)) === null && isPast) {
+    wind = await fetchPayload("https://api.open-meteo.com/v1/forecast", hourlyParams(lng, lat, date, windHourly, true));
+    reliability = "forecast";
+  }
+
+  const windIndex = nearestIndex(wind?.hourly?.time, target);
+  const marineIndex = nearestIndex(marine?.hourly?.time, target);
+  const windSpeed = numberAt(wind, "wind_speed_10m", windIndex);
+  if (windSpeed === null) return FALLBACK;
+
+  const windDirection = numberAt(wind, "wind_direction_10m", windIndex) ?? FALLBACK.windDirection;
+  const waveHeight = numberAt(marine, "wave_height", marineIndex);
+  const marineReliable = waveHeight !== null;
+
+  let tideLabel = FALLBACK.tideLabel;
+  if (marine?.hourly?.sea_level_height_msl && marine.hourly.time) {
+    const levels = marine.hourly.sea_level_height_msl;
+    let lowIndex = -1;
+    let lowValue = Number.POSITIVE_INFINITY;
+    levels.forEach((value, index) => {
+      if (typeof value === "number" && value < lowValue) {
+        lowValue = value;
+        lowIndex = index;
+      }
+    });
+    if (lowIndex >= 0) tideLabel = `BM ${marine.hourly.time[lowIndex]?.slice(11, 16) ?? ""}`.trim();
+  }
+
+  const sourceParts = [reliability === "archive" ? "Open-Meteo · archive ERA5" : "Open-Meteo · ECMWF IFS"];
+  sourceParts.push(marineReliable ? "Météo-France MFWAM" : "mer reconstituée");
+
+  return {
+    observedAt: target.toLocaleString("fr-FR", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" }),
+    windKnots: windSpeed,
+    windDirection,
+    windLabel: compass(windDirection),
+    gustKnots: numberAt(wind, "wind_gusts_10m", windIndex) ?? FALLBACK.gustKnots,
+    temperature: numberAt(wind, "temperature_2m", windIndex) ?? FALLBACK.temperature,
+    waveHeight: waveHeight ?? FALLBACK.waveHeight,
+    waveDirection: numberAt(marine, "wave_direction", marineIndex) ?? FALLBACK.waveDirection,
+    wavePeriod: numberAt(marine, "wave_period", marineIndex) ?? FALLBACK.wavePeriod,
+    seaTemperature: numberAt(marine, "sea_surface_temperature", marineIndex) ?? FALLBACK.seaTemperature,
+    tideLabel,
+    source: sourceParts.join(" / "),
+    modeled: true,
+    reliability,
+    marineReliable,
+  };
+}
+
+export async function getRaceWeatherSnapshot(race: RaceView): Promise<RaceWeatherSnapshot> {
+  return getWeatherAt(race.center, race.scheduledAt);
+}
+
+/**
+ * Real weather for every season race whose date is inside the models' reach:
+ * archive for past races, forecast for imminent ones, `null` beyond the
+ * forecast horizon (the UI announces "prévision à J-15").
+ */
+export async function getSeasonRacesWeather(races: SeasonRace[]): Promise<Record<string, RaceWeatherSnapshot | null>> {
+  const results = await Promise.allSettled(
+    races.map(async (race): Promise<[string, RaceWeatherSnapshot | null]> => {
+      const raceTime = new Date(`${race.date}T15:00:00+02:00`);
+      if (raceTime.getTime() > Date.now() + FORECAST_HORIZON_MS) return [race.id, null];
+      return [race.id, await getWeatherAt(race.coordinates, raceTime.toISOString())];
+    }),
+  );
+  return Object.fromEntries(
+    results.map((result, index) => result.status === "fulfilled" ? result.value : [races[index].id, null]),
+  );
+}

@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Flag, LocateFixed, MapPin, Navigation, Save, Search, ShieldCheck, Trash2 } from "lucide-react";
 import type { CourseMark, CourseMarkType, RaceView, RoundingSide } from "@/lib/domain";
+import { buildIgnStyle } from "@/lib/map/style";
+import { installBackgroundRafShim } from "./map/useMapLibre";
 
 type MapLibre = typeof import("maplibre-gl");
 type Tool = CourseMarkType | null;
@@ -70,6 +72,7 @@ export function CourseEditor({ race, onSaved }: { race: RaceView; onSaved: () =>
 
   useEffect(() => {
     let cancelled = false;
+    installBackgroundRafShim();
     void import("maplibre-gl").then((maplibre) => {
       if (cancelled || !containerRef.current || mapRef.current) return;
       maplibreRef.current = maplibre;
@@ -78,18 +81,7 @@ export function CourseEditor({ race, onSaved }: { race: RaceView; onSaved: () =>
         center: race.center,
         zoom: 11.4,
         attributionControl: false,
-        style: {
-          version: 8,
-          sources: {
-            ign: {
-              type: "raster",
-              tiles: ["https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}"],
-              tileSize: 256,
-              attribution: "© IGN",
-            },
-          },
-          layers: [{ id: "ign", type: "raster", source: "ign", paint: { "raster-saturation": -0.15, "raster-contrast": 0.18, "raster-brightness-max": 0.7 } }],
-        },
+        style: buildIgnStyle("editor"),
       });
       map.addControl(new maplibre.NavigationControl({ showCompass: true }), "top-left");
       map.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");

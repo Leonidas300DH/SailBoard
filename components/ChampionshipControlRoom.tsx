@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ChevronRight, Gauge, Search, ShieldCheck, Sparkles, Trophy, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { PublicCockpitShell } from "./PublicCockpitShell";
+import { ControlShell } from "./shell/AppShell";
 
 export type ChampionshipRow = {
   id: string;
@@ -39,7 +39,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
   const maxPoints = Math.max(...rows.map((row) => row.points), 1);
   const fieldPoints = rows.reduce((sum, row) => sum + row.points, 0);
 
-  return <PublicCockpitShell active={mode === "individual" ? "sailors" : "rankings"} raceSlug={raceSlug} eventName={eventName} title={snapshotMeta?.title ?? (mode === "individual" ? "Classement des marins" : "Classement des bateaux")} eyebrow={snapshotMeta?.eyebrow ?? "Championnat 2026 · contrôle officiel"}>
+  return <ControlShell active={mode === "individual" ? "sailors" : "rankings"} raceSlug={raceSlug} eventName={eventName} title={snapshotMeta?.title ?? (mode === "individual" ? "Classement des marins" : "Classement des bateaux")} eyebrow={snapshotMeta?.eyebrow ?? "Championnat 2026 · contrôle officiel"}>
     <div className="control-body">
       <section className="control-kpis" aria-label="Résumé du championnat">
         <div><span>Leader</span><strong>{rows[0]?.name ?? "—"}</strong><small>{rows[0]?.points.toFixed(1) ?? "0.0"} points</small></div>
@@ -85,5 +85,5 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
         </aside> : null}
       </div>
     </div>
-  </PublicCockpitShell>;
+  </ControlShell>;
 }

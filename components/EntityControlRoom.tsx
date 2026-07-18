@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Activity, ChevronRight, Flag, Gauge, Radio, ShieldCheck, Trophy, Users } from "lucide-react";
-import { PublicCockpitShell } from "./PublicCockpitShell";
-import { EventLocatorMap } from "./EventLocatorMap";
+import { ControlShell } from "./shell/AppShell";
+import { SeasonMap } from "./season/SeasonMap";
 import type { RaceView } from "@/lib/domain";
 import { SEASON_RACES } from "@/lib/season-data";
 
@@ -25,7 +25,7 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
   const current = race.leaderboard.find((row) => row.boatSlug === boat.slug);
   const total = history.reduce((sum, row) => sum + row.points, 0);
   const locatedRaces = [SEASON_RACES[2]];
-  return <PublicCockpitShell active="rankings" raceSlug={race.slug} eventName={race.eventName} title={`Dossier bateau · ${boat.name}`} eyebrow="Flotte officielle · unité sportive">
+  return <ControlShell active="rankings" raceSlug={race.slug} eventName={race.eventName} title={`Dossier bateau · ${boat.name}`} eyebrow="Flotte officielle · unité sportive">
     <div className="entity-control-body" style={{ "--competitor-color": boat.color } as React.CSSProperties}>
       <section className="entity-hero-grid">
         <div className="entity-identity">
@@ -35,7 +35,7 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
           <div className="entity-score"><span>Score championnat</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
           <div className="entity-badges"><span><ShieldCheck /> Résultats certifiés</span><span><Activity /> {history.length} manche disputée</span></div>
         </div>
-        <div className="entity-map-panel"><EventLocatorMap races={locatedRaces} selectedRaceId="trophee-golfe" isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName} · {race.name}</small></div></div>
+        <div className="entity-map-panel"><SeasonMap races={locatedRaces} selectedRace={locatedRaces[0]} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName} · {race.name}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Dernière manche</span><span className="mono">OFFICIEL</span></div>
           <div className="telemetry-position"><span>Position</span><strong>{current?.position ?? "—"}<sup>e</sup></strong></div>
@@ -47,7 +47,7 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
       </section>
       <section className="entity-record-panel"><div className="control-panel-head"><div><span className="panel-kicker">Journal sportif</span><h3>Historique des courses</h3></div><span className="mono muted">{history.length.toString().padStart(2, "0")} ENTRÉE</span></div><RecordList rows={history} /></section>
     </div>
-  </PublicCockpitShell>;
+  </ControlShell>;
 }
 
 export function ParticipantControlRoom({ participant, history, race }: { participant: { name: string; slug: string; nationality: string }; history: HistoryRow[]; race: RaceView }) {
@@ -55,7 +55,7 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
   const latest = history[0];
   const currentEntry = race.leaderboard.find((entry) => entry.crew.some((member) => member.slug === participant.slug));
   const locatedRaces = [SEASON_RACES[2]];
-  return <PublicCockpitShell active="sailors" raceSlug={race.slug} eventName={race.eventName} title={`Dossier marin · ${participant.name}`} eyebrow="Performance individuelle · profil officiel">
+  return <ControlShell active="sailors" raceSlug={race.slug} eventName={race.eventName} title={`Dossier marin · ${participant.name}`} eyebrow="Performance individuelle · profil officiel">
     <div className="entity-control-body" style={{ "--competitor-color": currentEntry?.color ?? "var(--acid)" } as React.CSSProperties}>
       <section className="entity-hero-grid participant-grid">
         <div className="entity-identity">
@@ -65,7 +65,7 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
           <div className="entity-score"><span>Capital individuel</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
           <div className="entity-badges"><span><ShieldCheck /> Profil vérifié</span><span><Activity /> {history.length} manche disputée</span></div>
         </div>
-        <div className="entity-map-panel"><EventLocatorMap races={locatedRaces} selectedRaceId="trophee-golfe" isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
+        <div className="entity-map-panel"><SeasonMap races={locatedRaces} selectedRace={locatedRaces[0]} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Attribution individuelle</span><span className="mono">RÈGLE · V1</span></div>
           <div className="telemetry-position"><span>Points de la manche</span><strong>{latest?.points.toFixed(1) ?? "0.0"}<sup>pts</sup></strong></div>
@@ -77,5 +77,5 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
       </section>
       <section className="entity-record-panel"><div className="control-panel-head"><div><span className="panel-kicker">Journal individuel</span><h3>Bateaux, rôles et résultats</h3></div><span className="mono muted">TRAÇABILITÉ COMPLÈTE</span></div><RecordList rows={history} participant /></section>
     </div>
-  </PublicCockpitShell>;
+  </ControlShell>;
 }

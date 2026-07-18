@@ -1,0 +1,44 @@
+/*
+ * Race Ops design tokens — the single file the art direction owns.
+ * Legacy names (--acid, --bg…) are kept as aliases so every existing class
+ * inherits the new palette without a rename sweep.
+ */
+:root {
+  /* Atlantic night */
+  --bg: #030d14;
+  --bg-deep: #010a10;
+  --panel: rgba(4, 17, 26, 0.92);
+  --panel-soft: rgba(6, 24, 36, 0.88);
+  --line: rgba(148, 196, 214, 0.14);
+  --line-strong: rgba(196, 228, 240, 0.3);
+  --text: #f2f7f9;
+  --muted: #8ba4b0;
+
+  /* Regatta yellow — race accent (course marks, CTA, animated tracks) */
+  --race: #e8ff29;
+  --race-deep: #a4b800;
+  /* Radar cyan — tactical HUD (graticule, reticle, coordinates, telemetry) */
+  --hud: #55e6c4;
+  --hud-dim: rgba(85, 230, 196, 0.55);
+
+  --acid: var(--race);
+  --acid-deep: var(--race-deep);
+  --danger: #ff4050;
+  --blue: #36baff;
+  --orange: #ff8b22;
+  --violet: #b96de3;
+  --radius: 2px;
+
+  /* Tactical map furniture */
+  --grid-line: rgba(85, 230, 196, 0.12);
+  --glow-race: 0 0 18px rgba(232, 255, 41, 0.35);
+  --glow-hud: 0 0 14px rgba(85, 230, 196, 0.3);
+
+  /* Type scale */
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-lg: 18px;
+  --text-xl: 26px;
+  --text-hero: clamp(34px, 4.6vw, 58px);
+}

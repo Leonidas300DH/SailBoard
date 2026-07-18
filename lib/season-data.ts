@@ -13,13 +13,6 @@ export type SeasonRace = {
   winner?: string;
   result?: string;
   distanceNm: number;
-  windKnots: number;
-  windDirection: number;
-  windLabel: string;
-  gustKnots: number;
-  waveHeight: number;
-  seaTemperature: number;
-  tideLabel: string;
   href?: string;
   route: GeoJSON.Feature<GeoJSON.LineString>;
 };
@@ -60,13 +53,6 @@ export const SEASON_RACES: SeasonRace[] = [
     winner: "Kaz a Barh",
     result: "1er · 18 pts",
     distanceNm: 12.6,
-    windKnots: 14.2,
-    windDirection: 268,
-    windLabel: "O",
-    gustKnots: 19,
-    waveHeight: 0.8,
-    seaTemperature: 12,
-    tideLabel: "PM 14:18",
     route: routeAround("spi-ouest", [-3.008, 47.586], 0.075),
   },
   {
@@ -82,13 +68,6 @@ export const SEASON_RACES: SeasonRace[] = [
     winner: "Bleuenn",
     result: "1er · 18 pts",
     distanceNm: 10.2,
-    windKnots: 21.4,
-    windDirection: 244,
-    windLabel: "OSO",
-    gustKnots: 28,
-    waveHeight: 1.4,
-    seaTemperature: 14,
-    tideLabel: "BM 11:32",
     route: routeAround("douarnenez", [-4.324, 48.094], 0.09),
   },
   {
@@ -104,13 +83,6 @@ export const SEASON_RACES: SeasonRace[] = [
     winner: "Kaz a Barh",
     result: "Résultats validés",
     distanceNm: 8.4,
-    windKnots: 18.4,
-    windDirection: 230,
-    windLabel: "SO",
-    gustKnots: 24,
-    waveHeight: 0.7,
-    seaTemperature: 18,
-    tideLabel: "BM 12:46",
     href: "/courses/trophee-du-golfe-manche-6",
     route: {
       type: "Feature",
@@ -139,13 +111,6 @@ export const SEASON_RACES: SeasonRace[] = [
     status: "upcoming",
     result: "Inscriptions ouvertes",
     distanceNm: 18.8,
-    windKnots: 16.2,
-    windDirection: 252,
-    windLabel: "OSO",
-    gustKnots: 22,
-    waveHeight: 1.1,
-    seaTemperature: 19,
-    tideLabel: "PM 10:54",
     route: routeAround("glenan", [-3.998, 47.72], 0.105),
   },
   {
@@ -160,13 +125,6 @@ export const SEASON_RACES: SeasonRace[] = [
     status: "upcoming",
     result: "À venir",
     distanceNm: 22.4,
-    windKnots: 19.6,
-    windDirection: 286,
-    windLabel: "ONO",
-    gustKnots: 27,
-    waveHeight: 1.7,
-    seaTemperature: 17,
-    tideLabel: "BM 09:21",
     route: routeAround("classic-channel", [-3.445, 48.82], 0.12),
   },
   {
@@ -181,13 +139,6 @@ export const SEASON_RACES: SeasonRace[] = [
     status: "upcoming",
     result: "Finale · double points",
     distanceNm: 14.1,
-    windKnots: 17.8,
-    windDirection: 302,
-    windLabel: "NO",
-    gustKnots: 25,
-    waveHeight: 1.3,
-    seaTemperature: 16,
-    tideLabel: "PM 16:08",
     route: routeAround("saint-malo", [-2.035, 48.69], 0.095),
   },
 ];

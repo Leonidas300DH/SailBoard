@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { RaceExperience } from "@/components/RaceExperience";
+import { RaceExperience } from "@/components/race/RaceExperience";
 import { getRaceBySlug } from "@/lib/database";
 import { getRaceWeatherSnapshot } from "@/lib/weather";
 
