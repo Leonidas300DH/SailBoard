@@ -14,25 +14,30 @@
   --text: #f2f7f9;
   --muted: #8ba4b0;
 
-  /* Regatta yellow — race accent (course marks, CTA, animated tracks) */
-  --race: #e8ff29;
-  --race-deep: #a4b800;
-  /* Radar cyan — tactical HUD (graticule, reticle, coordinates, telemetry) */
-  --hud: #55e6c4;
-  --hud-dim: rgba(85, 230, 196, 0.55);
+  /* WDT prism (charte octobre 2018) — Pantone 3955C is the race accent,
+     2925C carries the tactical HUD, 185C flags live/danger states. */
+  --race: #efdf00;
+  --race-deep: #a09200;
+  --hud: #009cde;
+  --hud-dim: rgba(0, 156, 222, 0.6);
+  --wdt-blue: #0033a0;
+  --wdt-red: #e4002b;
+  --wdt-pale: #f6eb61;
+  --wdt-olive: #a09200;
+  --wdt-black: #25271f;
 
   --acid: var(--race);
   --acid-deep: var(--race-deep);
-  --danger: #ff4050;
-  --blue: #36baff;
-  --orange: #ff8b22;
-  --violet: #b96de3;
+  --danger: var(--wdt-red);
+  --blue: #009cde;
+  --orange: #f6eb61;
+  --violet: #0033a0;
   --radius: 2px;
 
   /* Tactical map furniture */
-  --grid-line: rgba(85, 230, 196, 0.12);
-  --glow-race: 0 0 18px rgba(232, 255, 41, 0.35);
-  --glow-hud: 0 0 14px rgba(85, 230, 196, 0.3);
+  --grid-line: rgba(0, 156, 222, 0.14);
+  --glow-race: 0 0 18px rgba(239, 223, 0, 0.35);
+  --glow-hud: 0 0 14px rgba(0, 156, 222, 0.35);
 
   /* Type scale */
   --text-xs: 10px;

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Chakra_Petch, Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Jost } from "next/font/google";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
@@ -13,10 +13,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const chakraPetch = Chakra_Petch({
+// Jost is the closest open Futura — the WDT charte sets Futura Std Heavy for
+// display and Futura light condensed caps for eyebrows.
+const jost = Jost({
   variable: "--font-race",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["300", "500", "600", "700"],
   style: ["normal", "italic"],
 });
 
@@ -45,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${chakraPetch.variable}`}
+        className={`${geistSans.variable} ${geistMono.variable} ${jost.variable}`}
       >
         {children}
       </body>

@@ -11,7 +11,7 @@ Le classeur `Classement WDT 2026.xlsx`, fourni le 18 juillet 2026, est la source
 
 Le visuel historique reste conservé à titre de référence graphique :
 
-![Classement individuel WDT 2026 France après quatre courses](./reference-wdt-2026-individual-standings.png)
+![Classement individuel WDT 2026 France après quatre étapes](./reference-wdt-2026-individual-standings.png)
 
 ## Règles intégrées
 
@@ -35,7 +35,14 @@ L’application ne recopie donc plus les rangs incohérents de l’affiche. Elle
 
 ## Fichiers d’intégration
 
+- `data/wdt-2026-season.json` centralise les six étapes et leurs métadonnées officielles ;
 - `data/wdt-2026-team-standings.json` conserve les résultats par équipe et par étape ;
 - `data/wdt-2026-individual-standings.json` conserve les résultats par coureur et par étape ;
 - `lib/wdt-2026.ts` vérifie chaque total et calcule les rangs dans le bon sens ;
 - les valeurs `null` des étapes à venir restent distinctes d’un score nul.
+
+## Persistance PostgreSQL
+
+La base Neon est la source servie par `/classements`. L’import `scripts/import-wdt-2026.mjs` est transactionnel et idempotent. Les étapes sont enregistrées dans `events`, les bateaux engagés sous le nom de leur équipe dans `boats` et les navigateurs/coureurs dans `participants`. Les points cumulés sont liés directement aux étapes dans `stage_team_results` et `stage_individual_scores` ; `stage_crew_assignments` conserve les compositions d’équipage connues. La table `data_imports` conserve l’empreinte de la source et le résumé de chaque version importée.
+
+Une affectation coureur–bateau n’est créée que lorsque le score individuel permet de retrouver un bateau unique avec la règle inverse `7 - place`. Les scores nuls et les correspondances ambiguës restent stockés sans bateau : aucune composition d’équipage absente du classeur n’est inventée.

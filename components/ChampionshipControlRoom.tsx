@@ -44,11 +44,12 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
   const [isIntelOpen, setIsIntelOpen] = useState(false);
   const filtered = useMemo(() => rows.filter((row) => `${row.name} ${row.subtitle}`.toLowerCase().includes(query.toLowerCase())), [query, rows]);
   const selected = filtered.find((row) => row.id === selectedId) ?? filtered[0];
-  const maxPoints = Math.max(...rows.map((row) => row.points), 1);
-  const minPoints = Math.min(...rows.map((row) => row.points), maxPoints);
-  const performanceFor = (points: number) => snapshotMeta?.scoreDirection === "low"
-    ? Math.max(8, minPoints / Math.max(points, 1) * 100)
-    : Math.max(8, points / maxPoints * 100);
+  const events = snapshotMeta?.events ?? [];
+  const bestStage = useMemo(() => {
+    const scores = (selected?.eventScores ?? []).filter((score): score is number => score != null);
+    if (scores.length === 0) return null;
+    return snapshotMeta?.scoreDirection === "low" ? Math.min(...scores) : Math.max(...scores);
+  }, [selected, snapshotMeta]);
 
   return <ControlShell active={mode === "individual" ? "sailors" : "rankings"} raceSlug={raceSlug} eventName={eventName} title={snapshotMeta?.title ?? (mode === "individual" ? "Classement des marins" : "Classement des bateaux")} eyebrow={snapshotMeta?.eyebrow ?? "Championnat 2026 · contrôle officiel"}>
     <div className="control-body">
@@ -68,26 +69,49 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
             </div>
             <label className="control-search"><Search aria-hidden /><span className="sr-only">Filtrer</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={mode === "individual" ? "Rechercher un coureur" : "Rechercher une équipe"} /></label>
           </div>
-          <div className="control-table-head"><span>Pos.</span><span>Concurrent</span><span>Étapes</span><span>Indice</span><span>Total</span></div>
+          <div
+            className="standings-head standings-grid"
+            style={{ "--stage-count": events.length } as React.CSSProperties}
+          >
+            <span>Pos.</span>
+            <span>Concurrent</span>
+            {events.map((event, index) => (
+              <abbr key={event.id} title={event.name} className={`standings-stage-label ${event.status}`}>
+                É{index + 1}
+              </abbr>
+            ))}
+            <span className="standings-total-label">Total</span>
+          </div>
           <div className="control-ranking-list">
             {filtered.length === 0 ? <div className="control-empty-ranking"><Search aria-hidden /><strong>{mode === "individual" ? "Aucun coureur trouvé" : "Aucune équipe trouvée"}</strong><span>Essayez une autre recherche.</span></div> : null}
-            {filtered.map((row) => <button key={row.id} type="button" onClick={() => { setSelectedId(row.id); setIsIntelOpen(true); }} className={`control-rank-row ${selected?.id === row.id ? "selected" : ""}`} style={{ "--competitor-color": row.color } as React.CSSProperties}>
-              <span className="control-rank-pos">{String(row.position).padStart(2, "0")}</span>
-              <span className="control-rank-name"><i /><strong>{row.name}</strong><small>{row.subtitle}</small></span>
-              <span className="mono">{snapshotMeta ? `${snapshotMeta.completedRaces}/${snapshotMeta.totalRaces}` : row.races == null ? "—" : String(row.races).padStart(2, "0")}</span>
-              <span className="performance-bar"><i style={{ width: `${performanceFor(row.points)}%` }} /></span>
-              <span className="control-rank-points mono">{formatPoints(row.points)}</span>
-            </button>)}
+            {filtered.map((row) => (
+              <button
+                key={row.id}
+                type="button"
+                onClick={() => { setSelectedId(row.id); setIsIntelOpen(true); }}
+                className={`standings-row standings-grid ${selected?.id === row.id ? "selected" : ""}`}
+                style={{ "--competitor-color": row.color, "--stage-count": events.length } as React.CSSProperties}
+              >
+                <span className="standings-pos"><span className="mono">{row.position}</span></span>
+                <span className="standings-name"><strong>{row.name}</strong></span>
+                {events.map((event, index) => (
+                  <span key={event.id} className={`standings-score mono ${row.eventScores?.[index] == null ? "pending" : ""}`}>
+                    {row.eventScores?.[index] ?? "·"}
+                  </span>
+                ))}
+                <span className="standings-total mono">{formatPoints(row.points)}</span>
+              </button>
+            ))}
           </div>
         </section>
 
         {selected ? <aside className={`competitor-intel ${isIntelOpen ? "mobile-open" : ""}`} style={{ "--competitor-color": selected.color } as React.CSSProperties} aria-label={`Détail de ${selected.name}`}>
-          <div className="intel-scanline" />
+          <div className="wdt-frieze intel-frieze" aria-hidden />
           <div className="intel-overline"><span>{snapshotMeta ? "Classement provisoire" : "Sélection active"}</span><span className="mono">RANG · {selected.position.toString().padStart(2, "0")}</span><button className="intel-close" type="button" onClick={() => setIsIntelOpen(false)} aria-label="Fermer le détail"><X /></button></div>
           <div className="intel-title"><span className="intel-position">{selected.position}<sup>{selected.position === 1 ? "er" : "e"}</sup></span><div><h2>{selected.name}</h2><p>{selected.subtitle}</p></div></div>
           <div className="intel-score"><span>Total après {snapshotMeta?.completedRaces ?? selected.races ?? "—"} étapes</span><strong className="mono">{formatPoints(selected.points)}</strong><small>PTS</small></div>
           <div className="intel-metrics">
-            <div><Gauge /><span>Indice</span><strong>{Math.round(performanceFor(selected.points))}%</strong></div>
+            <div><Gauge /><span>Meilleure étape</span><strong>{bestStage ?? "—"}</strong></div>
             <div><Trophy /><span>{snapshotMeta ? "Étapes" : "Manches"}</span><strong>{snapshotMeta ? `${snapshotMeta.completedRaces}/${snapshotMeta.totalRaces}` : selected.races ?? "—"}</strong></div>
             <div><ShieldCheck /><span>Statut</span><strong>{snapshotMeta ? "Provisoire" : "Validé"}</strong></div>
           </div>

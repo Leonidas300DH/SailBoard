@@ -56,7 +56,6 @@ export function RaceExperience({
 
   return <AppShell
     active={context}
-    raceSlug={race.slug}
     navFooter={<div className="nav-season"><strong>{race.eventName}</strong><small>{raceDateLabel}</small></div>}
   >
     <section className="race-stage">

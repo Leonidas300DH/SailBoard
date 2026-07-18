@@ -20,6 +20,7 @@ export default async function RankingsPage({ searchParams }: { searchParams: Pro
       points: source.points,
       position: source.rank,
       eventScores: source.eventScores,
+      profileHref: individual ? `/participants/${slug}` : `/bateaux/${slug}`,
     };
   });
 

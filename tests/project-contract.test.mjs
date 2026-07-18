@@ -14,10 +14,10 @@ test("configure une application Next.js Vercel sans dépendance Sites", async ()
 });
 
 test("couvre le modèle relationnel V1 et les instantanés de points", async () => {
-  const migration = (await readdir(new URL("drizzle-postgres/", root))).find((file) => file.endsWith(".sql"));
-  assert.ok(migration);
-  const sql = await readFile(new URL(`drizzle-postgres/${migration}`, root), "utf8");
-  for (const table of ["admins", "admin_access_requests", "audit_logs", "seasons", "events", "races", "course_versions", "course_marks", "boats", "participants", "race_entries", "crew_assignments", "scoring_rule_versions", "results", "individual_awards"]) {
+  const migrations = (await readdir(new URL("drizzle-postgres/", root))).filter((file) => file.endsWith(".sql"));
+  assert.ok(migrations.length > 0);
+  const sql = (await Promise.all(migrations.map((migration) => readFile(new URL(`drizzle-postgres/${migration}`, root), "utf8")))).join("\n");
+  for (const table of ["admins", "admin_access_requests", "audit_logs", "seasons", "events", "races", "course_versions", "course_marks", "boats", "participants", "race_entries", "crew_assignments", "scoring_rule_versions", "results", "individual_awards", "stage_team_results", "stage_crew_assignments", "stage_individual_scores", "data_imports"]) {
     assert.ok(sql.includes(`CREATE TABLE \"${table}\"`), `migration contains ${table}`);
   }
   assert.match(sql, /scoring_snapshot_json/);

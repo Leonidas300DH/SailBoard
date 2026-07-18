@@ -43,8 +43,7 @@ export function SeasonControlRoom({
 
   return <AppShell
     active="season"
-    raceSlug={selectedRace.slug}
-    shellClassName="season-ocean-shell"
+        shellClassName="season-ocean-shell"
     navClassName="season-ocean-nav"
     navFooter={
       <div className="season-nav-progress">

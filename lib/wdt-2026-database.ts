@@ -11,14 +11,14 @@ import {
 
 type TeamScoreRow = {
   name: string;
-  race_slug: string;
+  stage_slug: string;
   points: number | string | null;
 };
 
 type IndividualScoreRow = {
   name: string;
-  race_slug: string;
-  points: number | string;
+  stage_slug: string;
+  points: number | string | null;
 };
 
 type ImportRow = {
@@ -46,8 +46,8 @@ function rowsFromScores(
   const byName = new Map<string, Array<number | null>>();
   for (const row of source) {
     const scores = byName.get(row.name) ?? Array<number | null>(WDT_2026_EVENTS.length).fill(null);
-    const index = eventIndex.get(row.race_slug);
-    if (index === undefined) throw new Error(`Étape WDT inconnue dans la base: ${row.race_slug}`);
+    const index = eventIndex.get(row.stage_slug);
+    if (index === undefined) throw new Error(`Étape WDT inconnue dans la base: ${row.stage_slug}`);
     scores[index] = row.points === null ? null : Number(row.points);
     byName.set(row.name, scores);
   }
@@ -65,23 +65,22 @@ async function readDatabaseSnapshots(): Promise<Wdt2026Snapshots> {
   const pool = getPool();
   const [teamResult, individualResult, importResult] = await Promise.all([
     pool.query<TeamScoreRow>(`
-      select b.name, r.slug as race_slug, res.boat_points as points
+      select b.name, replace(e.slug, 'wdt-2026-event-', '') as stage_slug,
+        str.championship_points as points
       from seasons s
       join events e on e.season_id = s.id
-      join races r on r.event_id = e.id
-      join race_entries re on re.race_id = r.id
-      join boats b on b.id = re.boat_id
-      left join results res on res.entry_id = re.id
+      join stage_team_results str on str.event_id = e.id
+      join boats b on b.id = str.boat_id
       where s.slug = $1
-      order by e.starts_on, re.start_number
+      order by e.starts_on, b.name
     `, ["wdt-2026"]),
     pool.query<IndividualScoreRow>(`
-      select p.name, r.slug as race_slug, iss.points
+      select p.name, replace(e.slug, 'wdt-2026-event-', '') as stage_slug,
+        sis.championship_points as points
       from seasons s
       join events e on e.season_id = s.id
-      join races r on r.event_id = e.id
-      join individual_stage_scores iss on iss.race_id = r.id
-      join participants p on p.id = iss.participant_id
+      join stage_individual_scores sis on sis.event_id = e.id
+      join participants p on p.id = sis.participant_id
       where s.slug = $1 and p.public_visible = 1
       order by e.starts_on, p.name
     `, ["wdt-2026"]),

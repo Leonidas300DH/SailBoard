@@ -30,6 +30,9 @@ export function SeasonMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const onSelectRef = useRef(onSelect);
   const racesRef = useRef(races);
+  // Landing view is the whole circuit — the cinematic dive only happens once
+  // the visitor explicitly picks a race.
+  const hasEnteredRef = useRef(false);
   useEffect(() => {
     onSelectRef.current = onSelect;
     racesRef.current = races;
@@ -183,15 +186,25 @@ export function SeasonMap({
       ["match", ["get", "status"], "completed", INK, "#f2f7f9"],
     ]);
 
-    if (circuitOpen) {
+    const overview = (rightPadding: number) => {
       const longitudes = races.map((race) => race.coordinates[0]);
       const latitudes = races.map((race) => race.coordinates[1]);
       const isCompact = map.getContainer().clientWidth < 760;
       flyToBounds(
         [[Math.min(...longitudes), Math.min(...latitudes)], [Math.max(...longitudes), Math.max(...latitudes)]],
-        isCompact ? 46 : { top: 110, right: 400, bottom: 190, left: 90 },
+        isCompact ? 46 : { top: 96, right: rightPadding, bottom: 150, left: 90 },
         7.4,
       );
+    };
+
+    if (!hasEnteredRef.current) {
+      hasEnteredRef.current = true;
+      overview(circuitOpen ? 400 : 90);
+      return;
+    }
+
+    if (circuitOpen) {
+      overview(400);
     } else {
       const coordinates = selectedRace.route?.geometry.coordinates;
       flyToTarget({

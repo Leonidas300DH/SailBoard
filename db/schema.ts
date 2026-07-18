@@ -200,3 +200,53 @@ export const individualStageScores = pgTable("individual_stage_scores", {
   index("individual_stage_scores_participant_idx").on(table.participantId),
   index("individual_stage_scores_boat_idx").on(table.boatId),
 ]);
+
+export const stageTeamResults = pgTable("stage_team_results", {
+  id: text("id").primaryKey(),
+  eventId: text("event_id").notNull().references(() => events.id),
+  boatId: text("boat_id").notNull().references(() => boats.id),
+  finalPosition: integer("final_position"),
+  championshipPoints: doublePrecision("championship_points"),
+  status: text("status", { enum: ["pending", "provisional", "published"] }).notNull(),
+  sourceMode: text("source_mode").notNull(),
+  sourceJson: text("source_json").notNull(),
+  finalizedAt: text("finalized_at"),
+  ...timestamps,
+}, (table) => [
+  uniqueIndex("stage_team_results_event_boat_uq").on(table.eventId, table.boatId),
+  index("stage_team_results_event_idx").on(table.eventId),
+  index("stage_team_results_boat_idx").on(table.boatId),
+]);
+
+export const stageCrewAssignments = pgTable("stage_crew_assignments", {
+  id: text("id").primaryKey(),
+  eventId: text("event_id").notNull().references(() => events.id),
+  boatId: text("boat_id").notNull().references(() => boats.id),
+  participantId: text("participant_id").notNull().references(() => participants.id),
+  role: text("role").notNull(),
+  sourceMode: text("source_mode").notNull(),
+  sourceJson: text("source_json").notNull(),
+  ...timestamps,
+}, (table) => [
+  uniqueIndex("stage_crew_event_boat_participant_uq").on(table.eventId, table.boatId, table.participantId),
+  index("stage_crew_event_idx").on(table.eventId),
+  index("stage_crew_boat_idx").on(table.boatId),
+  index("stage_crew_participant_idx").on(table.participantId),
+]);
+
+export const stageIndividualScores = pgTable("stage_individual_scores", {
+  id: text("id").primaryKey(),
+  eventId: text("event_id").notNull().references(() => events.id),
+  participantId: text("participant_id").notNull().references(() => participants.id),
+  boatId: text("boat_id").references(() => boats.id),
+  championshipPoints: doublePrecision("championship_points"),
+  status: text("status", { enum: ["pending", "provisional", "published"] }).notNull(),
+  sourceMode: text("source_mode").notNull(),
+  sourceJson: text("source_json").notNull(),
+  ...timestamps,
+}, (table) => [
+  uniqueIndex("stage_individual_scores_event_participant_uq").on(table.eventId, table.participantId),
+  index("stage_individual_scores_event_idx").on(table.eventId),
+  index("stage_individual_scores_participant_idx").on(table.participantId),
+  index("stage_individual_scores_boat_idx").on(table.boatId),
+]);

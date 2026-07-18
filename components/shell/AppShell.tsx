@@ -7,14 +7,12 @@ import { publicNav, type PublicSection } from "@/lib/navigation";
 
 export function AppShell({
   active,
-  raceSlug,
   shellClassName,
   navClassName,
   navFooter,
   children,
 }: {
   active: PublicSection;
-  raceSlug: string;
   shellClassName?: string;
   navClassName?: string;
   navFooter?: ReactNode;
@@ -26,7 +24,7 @@ export function AppShell({
         <span className="brand"><span>SailBoard</span><span>Race</span></span>
       </Link>
       <nav className="nav-stack">
-        {publicNav(raceSlug).map(({ id, href, label, icon: Icon }) => (
+        {publicNav().map(({ id, href, label, icon: Icon }) => (
           <Link key={id} href={href} aria-label={label} className={`nav-link ${active === id ? "active" : ""}`}>
             <Icon aria-hidden />
             <span>{label}</span>
@@ -56,7 +54,6 @@ export function ControlShell({
 }) {
   return <AppShell
     active={active}
-    raceSlug={raceSlug}
     shellClassName="control-shell"
     navFooter={<div className="nav-season"><strong>{eventName}</strong><small>17 JUIL. 2026</small></div>}
   >

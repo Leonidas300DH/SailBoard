@@ -80,7 +80,7 @@ function databaseRows(sources, importedAt) {
   const { season, teams, individuals, sourceHash } = sources;
   const seasonId = "wdt-2026";
   const ruleId = "wdt-2026-scoring-v1";
-  const importId = "wdt-2026-official-workbook";
+  const importId = `wdt-2026-official-${sourceHash.slice(0, 16)}`;
   const timestamps = { created_at: importedAt, updated_at: importedAt };
   const colors = ["#d9ff00", "#36baff", "#ff6b48", "#f6c945", "#9b7bff", "#30d6a3", "#ff7fba", "#8aa4b1", "#f5f8f7"];
 
@@ -137,6 +137,9 @@ function databaseRows(sources, importedAt) {
   const stageScores = [];
   const crewAssignments = [];
   const awards = [];
+  const canonicalTeamResults = [];
+  const canonicalIndividualScores = [];
+  const canonicalCrewAssignments = [];
 
   season.events.forEach((event, eventIndex) => {
     const race = races[eventIndex];
@@ -153,6 +156,18 @@ function databaseRows(sources, importedAt) {
       };
       entries.push(entry);
       const teamScore = team.eventScores[eventIndex];
+      canonicalTeamResults.push({
+        id: `wdt-2026-stage-team-result-${event.id}-${slugify(team.name)}`,
+        event_id: events[eventIndex].id,
+        boat_id: boat.id,
+        final_position: null,
+        championship_points: teamScore,
+        status: teamScore === null ? "pending" : "published",
+        source_mode: "official_workbook",
+        source_json: JSON.stringify({ importId, sourceHash, eventIndex, note: "Le classeur fournit les points de championnat, pas la position finale détaillée de l’étape." }),
+        finalized_at: teamScore === null ? null : importedAt,
+        ...timestamps,
+      });
       if (teamScore !== null) {
         const matchingTeams = scoreToTeams.get(teamScore) ?? [];
         matchingTeams.push({ boat, entry });
@@ -173,15 +188,38 @@ function databaseRows(sources, importedAt) {
       }
     });
 
-    if (event.status !== "completed") return;
     individuals.rows.forEach((participant) => {
       const participantId = `wdt-2026-participant-${slugify(participant.name)}`;
       const points = participant.eventScores[eventIndex];
-      if (points === null) throw new Error(`Score individuel absent sur une étape terminée: ${participant.name}, ${event.name}.`);
+      if (event.status === "completed" && points === null) throw new Error(`Score individuel absent sur une étape terminée: ${participant.name}, ${event.name}.`);
       const expectedTeamScore = points > 0 ? 7 - points : null;
       const candidates = expectedTeamScore === null ? [] : (scoreToTeams.get(expectedTeamScore) ?? []);
       const assignment = candidates.length === 1 ? candidates[0] : null;
-      const mapping = points === 0 ? "no_points" : assignment ? "unique_reverse_scale" : "ambiguous_reverse_scale";
+      const mapping = points === null ? "pending" : points === 0 ? "no_points" : assignment ? "unique_reverse_scale" : "ambiguous_reverse_scale";
+      canonicalIndividualScores.push({
+        id: `wdt-2026-stage-individual-score-${event.id}-${slugify(participant.name)}`,
+        event_id: events[eventIndex].id,
+        participant_id: participantId,
+        boat_id: assignment?.boat.id ?? null,
+        championship_points: points,
+        status: points === null ? "pending" : "published",
+        source_mode: "official_workbook",
+        source_json: JSON.stringify({ importId, sourceHash, eventIndex, mapping, expectedTeamScore, candidateBoatIds: candidates.map((candidate) => candidate.boat.id) }),
+        ...timestamps,
+      });
+      if (assignment) {
+        canonicalCrewAssignments.push({
+          id: `wdt-2026-stage-crew-${event.id}-${slugify(participant.name)}`,
+          event_id: events[eventIndex].id,
+          boat_id: assignment.boat.id,
+          participant_id: participantId,
+          role: "Navigateur",
+          source_mode: "inferred_from_official_workbook",
+          source_json: JSON.stringify({ importId, sourceHash, mapping, note: "Affectation déduite uniquement lorsque la correspondance points-équipe est unique." }),
+          ...timestamps,
+        });
+      }
+      if (points === null) return;
       stageScores.push({
         id: `wdt-2026-stage-score-${event.id}-${slugify(participant.name)}`,
         race_id: race.id,
@@ -197,7 +235,7 @@ function databaseRows(sources, importedAt) {
         id: `wdt-2026-crew-${event.id}-${slugify(participant.name)}`,
         entry_id: assignment.entry.id,
         participant_id: participantId,
-        role: "Équipier",
+        role: "Navigateur",
         created_at: importedAt,
       });
       const resultId = `wdt-2026-result-${event.id}-${slugify(assignment.boat.name)}`;
@@ -220,7 +258,19 @@ function databaseRows(sources, importedAt) {
       name: "Règlement officiel WDT 2026",
       version: 1,
       status: "published",
-      config_json: JSON.stringify({ team: { aggregation: "sum", direction: "low", source: "place par étape" }, individual: { aggregation: "sum", direction: "high", formula: "7 - place du bateau, minimum 0", source: "classeur officiel" } }),
+      config_json: JSON.stringify({
+        direction: "low",
+        positionPoints: { "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7 },
+        participationPoints: 7,
+        statusPoints: { dnf: 7, dns: 7, dsq: 7 },
+        individualMode: "manual",
+        roleWeights: {},
+        tieBreakers: ["best_recent"],
+        wdt: {
+          team: { aggregation: "sum", direction: "low", source: "points de championnat par étape dans le classeur officiel" },
+          individual: { aggregation: "sum", direction: "high", source: "points individuels par étape dans le classeur officiel" },
+        },
+      }),
       published_at: importedAt,
       archived_at: null,
       ...timestamps,
@@ -234,13 +284,16 @@ function databaseRows(sources, importedAt) {
     stageScores,
     crewAssignments,
     awards,
+    canonicalTeamResults,
+    canonicalIndividualScores,
+    canonicalCrewAssignments,
     imports: [{
       id: importId,
       season_id: seasonId,
       source_name: "Classement WDT 2026.xlsx",
       source_hash: sourceHash,
       status: "completed",
-      summary_json: JSON.stringify({ events: events.length, completedEvents: season.events.filter((event) => event.status === "completed").length, teams: boats.length, participants: participants.length, teamResults: results.length, individualStageScores: stageScores.length, inferredCrewAssignments: crewAssignments.length }),
+      summary_json: JSON.stringify({ stages: events.length, completedStages: season.events.filter((event) => event.status === "completed").length, teams: boats.length, sailors: participants.length, stageTeamResults: canonicalTeamResults.length, stageIndividualScores: canonicalIndividualScores.length, inferredStageCrewAssignments: canonicalCrewAssignments.length }),
       imported_at: importedAt,
     }],
   };
@@ -267,9 +320,12 @@ async function run() {
     await upsertRows(client, "individual_stage_scores", ["id", "race_id", "participant_id", "boat_id", "points", "source_mode", "source_json", "created_at", "updated_at"], rows.stageScores, "on conflict (id) do update set race_id=excluded.race_id, participant_id=excluded.participant_id, boat_id=excluded.boat_id, points=excluded.points, source_mode=excluded.source_mode, source_json=excluded.source_json, updated_at=excluded.updated_at");
     await upsertRows(client, "crew_assignments", ["id", "entry_id", "participant_id", "role", "created_at"], rows.crewAssignments, "on conflict (id) do update set entry_id=excluded.entry_id, participant_id=excluded.participant_id, role=excluded.role");
     await upsertRows(client, "individual_awards", ["id", "result_id", "participant_id", "points", "mode", "snapshot_json", "created_at"], rows.awards, "on conflict (id) do update set result_id=excluded.result_id, participant_id=excluded.participant_id, points=excluded.points, mode=excluded.mode, snapshot_json=excluded.snapshot_json");
-    await upsertRows(client, "data_imports", ["id", "season_id", "source_name", "source_hash", "status", "summary_json", "imported_at"], rows.imports, "on conflict (id) do update set season_id=excluded.season_id, source_name=excluded.source_name, source_hash=excluded.source_hash, status=excluded.status, summary_json=excluded.summary_json, imported_at=excluded.imported_at");
+    await upsertRows(client, "stage_team_results", ["id", "event_id", "boat_id", "final_position", "championship_points", "status", "source_mode", "source_json", "finalized_at", "created_at", "updated_at"], rows.canonicalTeamResults, "on conflict (id) do update set event_id=excluded.event_id, boat_id=excluded.boat_id, final_position=excluded.final_position, championship_points=excluded.championship_points, status=excluded.status, source_mode=excluded.source_mode, source_json=excluded.source_json, finalized_at=excluded.finalized_at, updated_at=excluded.updated_at");
+    await upsertRows(client, "stage_individual_scores", ["id", "event_id", "participant_id", "boat_id", "championship_points", "status", "source_mode", "source_json", "created_at", "updated_at"], rows.canonicalIndividualScores, "on conflict (id) do update set event_id=excluded.event_id, participant_id=excluded.participant_id, boat_id=excluded.boat_id, championship_points=excluded.championship_points, status=excluded.status, source_mode=excluded.source_mode, source_json=excluded.source_json, updated_at=excluded.updated_at");
+    await upsertRows(client, "stage_crew_assignments", ["id", "event_id", "boat_id", "participant_id", "role", "source_mode", "source_json", "created_at", "updated_at"], rows.canonicalCrewAssignments, "on conflict (id) do update set event_id=excluded.event_id, boat_id=excluded.boat_id, participant_id=excluded.participant_id, role=excluded.role, source_mode=excluded.source_mode, source_json=excluded.source_json, updated_at=excluded.updated_at");
+    await upsertRows(client, "data_imports", ["id", "season_id", "source_name", "source_hash", "status", "summary_json", "imported_at"], rows.imports, "on conflict (source_hash) do update set id=excluded.id, season_id=excluded.season_id, source_name=excluded.source_name, status=excluded.status, summary_json=excluded.summary_json, imported_at=excluded.imported_at");
     await client.query("commit");
-    console.log(JSON.stringify({ imported: true, season: "wdt-2026", events: rows.events.length, teams: rows.boats.length, participants: rows.participants.length, teamResults: rows.results.length, individualStageScores: rows.stageScores.length, inferredCrewAssignments: rows.crewAssignments.length }, null, 2));
+    console.log(JSON.stringify({ imported: true, season: "wdt-2026", stages: rows.events.length, teams: rows.boats.length, sailors: rows.participants.length, stageTeamResults: rows.canonicalTeamResults.length, stageIndividualScores: rows.canonicalIndividualScores.length, inferredStageCrewAssignments: rows.canonicalCrewAssignments.length }, null, 2));
   } catch (error) {
     await client.query("rollback");
     throw error;

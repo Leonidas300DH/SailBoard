@@ -33,9 +33,9 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
           <span className="entity-index">{String(current?.position ?? "—").padStart(2, "0")}</span>
           <h2>{boat.name}</h2><p>{boat.model} · <span className="mono">{boat.sailNumber}</span></p>
           <div className="entity-score"><span>Score championnat</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
-          <div className="entity-badges"><span><ShieldCheck /> Résultats certifiés</span><span><Activity /> {history.length} manche disputée</span></div>
+          <div className="entity-badges"><span><ShieldCheck /> Résultats certifiés</span><span><Activity /> {history.length} manche{history.length > 1 ? "s" : ""} disputée{history.length > 1 ? "s" : ""}</span></div>
         </div>
-        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName} · {race.name}</small></div></div>
+        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName === race.name ? race.eventName : `${race.eventName} · ${race.name}`}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Dernière manche</span><span className="mono">OFFICIEL</span></div>
           <div className="telemetry-position"><span>Position</span><strong>{current?.position ?? "—"}<sup>e</sup></strong></div>
@@ -63,7 +63,7 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
           <span className="entity-index">{String(currentEntry?.position ?? "—").padStart(2, "0")}</span>
           <h2>{participant.name}</h2><p>{latest?.role ?? "Équipier"} · championnat 2026</p>
           <div className="entity-score"><span>Capital individuel</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
-          <div className="entity-badges"><span><ShieldCheck /> Profil vérifié</span><span><Activity /> {history.length} manche disputée</span></div>
+          <div className="entity-badges"><span><ShieldCheck /> Profil vérifié</span><span><Activity /> {history.length} manche{history.length > 1 ? "s" : ""} disputée{history.length > 1 ? "s" : ""}</span></div>
         </div>
         <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
         <div className="entity-telemetry">

@@ -39,31 +39,31 @@
 .control-search { width: min(240px,42%); height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid var(--line-strong); background: #021724; }
 .control-search svg { width: 15px; color: var(--acid); }
 .control-search input { width: 100%; min-width: 0; color: var(--text); border: 0; outline: 0; background: transparent; font-size: 12px; }
-.control-table-head, .control-rank-row { display: grid; grid-template-columns: 54px minmax(170px,1.25fr) 72px minmax(100px,.8fr) 76px; gap: 10px; align-items: center; }
-.control-table-head { min-height: 34px; padding: 0 14px; color: #708994; border-bottom: 1px solid var(--line); font: 700 9px var(--font-race), sans-serif; text-transform: uppercase; }
-.control-table-head span:last-child { text-align: right; }
+/* Championship matrix — position, name, one cell per stage, total. */
+.standings-grid { display: grid; grid-template-columns: 52px minmax(170px, 1fr) repeat(var(--stage-count, 0), minmax(42px, 58px)) 78px; gap: 8px; align-items: center; }
+.standings-head { min-height: 38px; padding: 0 14px; color: #708994; border-bottom: 1px solid var(--line); font: 600 9px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .07em; }
+.standings-head abbr { text-decoration: none; text-align: center; cursor: help; }
+.standings-stage-label.upcoming { opacity: .4; }
+.standings-total-label { text-align: right; }
 .control-ranking-list { min-height: 0; overflow: auto; }
-.control-rank-row { position: relative; width: 100%; min-height: 68px; padding: 8px 14px; color: var(--text); text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; transition: background .18s ease, transform .18s ease; }
-.control-rank-row:hover, .control-rank-row.selected { background: color-mix(in srgb, var(--competitor-color) 11%, rgba(4,28,42,.9)); }
-.control-rank-row.selected::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--competitor-color); }
-.control-rank-pos { color: var(--competitor-color); font: 700 27px var(--font-race), sans-serif; }
-.control-rank-name { min-width: 0; display: grid; grid-template-columns: 4px 1fr; column-gap: 10px; }
-.control-rank-name i { grid-row: 1 / 3; width: 4px; height: 34px; align-self: center; background: var(--competitor-color); }
-.control-rank-name strong, .control-rank-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.control-rank-name strong { font: 700 17px var(--font-race), sans-serif; text-transform: uppercase; }
-.control-rank-name small { color: var(--muted); font-size: 10px; }
-.control-rank-row > .mono { color: #d7e2e6; font-size: 11px; }
-.performance-bar { height: 4px; overflow: hidden; background: #102d3c; }
-.performance-bar i { display: block; height: 100%; background: var(--competitor-color); box-shadow: 0 0 14px color-mix(in srgb, var(--competitor-color) 70%, transparent); }
-.control-rank-points { color: var(--competitor-color) !important; text-align: right; font-size: 14px !important; font-weight: 800; }
-.competitor-intel { position: relative; min-width: 0; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 85% 12%, color-mix(in srgb, var(--competitor-color) 15%, transparent), transparent 38%), #031522; }
-.intel-scanline { position: absolute; inset: 0; pointer-events: none; opacity: .18; background: repeating-linear-gradient(180deg, transparent 0 5px, rgba(255,255,255,.025) 6px); }
+.standings-row { position: relative; width: 100%; min-height: 52px; padding: 6px 14px; color: var(--text); text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; transition: background .18s ease; }
+.standings-row:hover, .standings-row.selected { background: color-mix(in srgb, var(--competitor-color) 10%, rgba(4, 24, 40, .9)); }
+.standings-row.selected::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--competitor-color); }
+.standings-pos { width: 32px; height: 28px; display: grid; place-items: center; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); background: color-mix(in srgb, var(--competitor-color) 30%, #0a1826); font-size: 12px; font-weight: 700; }
+.standings-row.selected .standings-pos { background: var(--competitor-color); color: var(--bg-deep); }
+.standings-name { min-width: 0; }
+.standings-name strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 15px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .02em; }
+.standings-score { min-height: 26px; display: grid; place-items: center; color: #cfdce1; background: rgba(148, 196, 214, .05); border: 1px solid rgba(148, 196, 214, .09); font-size: 11px; }
+.standings-score.pending { color: #55707c; background: transparent; border-style: dashed; }
+.standings-total { color: var(--competitor-color); text-align: right; font-size: 14px; font-weight: 800; }
+.competitor-intel { position: relative; min-width: 0; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 85% 12%, color-mix(in srgb, var(--competitor-color) 14%, transparent), transparent 40%), linear-gradient(200deg, rgba(0, 51, 160, .16), transparent 45%), #041220; }
+.intel-frieze { flex: 0 0 auto; }
 .intel-overline { min-height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; color: var(--muted); border-bottom: 1px solid var(--line); font: 700 9px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .09em; }
 .intel-overline span:first-child { color: var(--competitor-color); }
 .intel-close { display: none; width: 36px; height: 36px; place-items: center; color: var(--text); border: 1px solid var(--line-strong); background: transparent; }
 .intel-close svg { width: 16px; height: 16px; }
 .intel-title { display: flex; align-items: center; gap: 16px; padding: 22px 20px 15px; }
-.intel-position { color: var(--competitor-color); font: 700 52px/.8 var(--font-race), sans-serif; }
+.intel-position { min-width: 74px; padding: 10px 16px 10px 12px; display: inline-block; color: var(--bg-deep); background: var(--competitor-color); clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); font: 700 40px/.85 var(--font-race), sans-serif; }
 .intel-position sup { font-size: 16px; }
 .intel-title h2 { margin: 0; font: 700 clamp(28px,3vw,44px)/.9 var(--font-race), sans-serif; text-transform: uppercase; }
 .intel-title p { margin: 7px 0 0; color: var(--muted); font-size: 11px; }
