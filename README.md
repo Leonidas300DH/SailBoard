@@ -15,7 +15,7 @@ Supabase, OpenAI Sites, Cloudflare D1 et Sign in with ChatGPT ne font pas partie
 
 ## Expérience publique
 
-L’accueil « Season Ocean » relie six régates sur une carte satellite de la Bretagne. La timeline distingue les courses passées et à venir, pilote le zoom cartographique et anime un aperçu du parcours sélectionné. La fiche course synchronise carte, flotte, classement, rail concurrent et scrubber temporel.
+L’accueil « Season Ocean » relie six régates sur une carte satellite de la Bretagne. La timeline distingue les courses passées et à venir, pilote le zoom cartographique et anime un aperçu du parcours sélectionné. Un roadbook dépliable transforme le calendrier en circuit territorial : ses six étapes, statuts et liaisons sont synchronisés avec la carte et deviennent une feuille plein écran sur mobile. La fiche course synchronise carte, flotte, classement, rail concurrent et scrubber temporel.
 
 Les conditions du jour sont demandées côté serveur à Open-Meteo puis mises en cache pendant 24 heures. Elles utilisent les modèles météo et marine disponibles pour la position et l’horaire de la course. Ce sont des données modélisées destinées à la lecture sportive et non à la navigation. Une valeur de démonstration explicite prend le relais si le fournisseur est indisponible.
 
@@ -60,3 +60,8 @@ npm run build
 ```
 
 Les mutations d’administration vérifient l’identité et le rôle côté serveur. La finalisation d’un résultat et les instantanés de points utilisent une transaction PostgreSQL unique.
+
+## Notes produit
+
+- [`docs/replay-data-model.md`](docs/replay-data-model.md) décrit les données nécessaires aux trois niveaux de replay, de la simulation à la trace GPS.
+- [`docs/reference-season-circuit.md`](docs/reference-season-circuit.md) conserve la référence du calendrier et les décisions de traduction visuelle SailBoard.

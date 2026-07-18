@@ -26,11 +26,13 @@ export function EventLocatorMap({
   races,
   selectedRaceId,
   isPlaying,
+  overviewMode = false,
   onSelect,
 }: {
   races: SeasonRace[];
   selectedRaceId: string;
   isPlaying: boolean;
+  overviewMode?: boolean;
   onSelect: (raceId: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -121,11 +123,21 @@ export function EventLocatorMap({
       map.setPaintProperty("race-location-halo", "circle-opacity", ["case", ["==", ["get", "id"], selectedRaceId], 0.2, 0.07]);
       map.setPaintProperty("race-locations", "circle-radius", ["case", ["==", ["get", "id"], selectedRaceId], 9, 5]);
       map.setPaintProperty("race-locations", "circle-color", ["case", ["==", ["get", "id"], selectedRaceId], "#d9ff00", "#d7e4e8"]);
-      map.easeTo({ center: race.coordinates, zoom: 8.85, duration: 900, essential: true });
+      if (overviewMode) {
+        const longitudes = races.map((item) => item.coordinates[0]);
+        const latitudes = races.map((item) => item.coordinates[1]);
+        const compact = map.getContainer().clientWidth < 760;
+        map.fitBounds(
+          [[Math.min(...longitudes), Math.min(...latitudes)], [Math.max(...longitudes), Math.max(...latitudes)]],
+          { padding: compact ? 46 : { top: 116, right: 400, bottom: 154, left: 90 }, duration: 900, essential: true, maxZoom: 7.2 },
+        );
+      } else {
+        map.easeTo({ center: race.coordinates, zoom: 8.85, duration: 900, essential: true });
+      }
       return true;
     };
     if (!update()) map.once("load", update);
-  }, [races, selectedRaceId]);
+  }, [overviewMode, races, selectedRaceId]);
 
   useEffect(() => {
     const map = mapRef.current;

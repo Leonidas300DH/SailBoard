@@ -19,6 +19,7 @@ import {
   Users,
   Waves,
   Wind,
+  X,
 } from "lucide-react";
 import type { RaceView } from "@/lib/domain";
 import { SEASON_RACES } from "@/lib/season-data";
@@ -30,6 +31,7 @@ type Leader = { id: string; name: string; slug: string; points: number; color: s
 export function SeasonControlRoom({ race, leaders, weather }: { race: RaceView; leaders: Leader[]; weather: RaceWeatherSnapshot }) {
   const [selectedRaceId, setSelectedRaceId] = useState("trophee-golfe");
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isCircuitOpen, setIsCircuitOpen] = useState(false);
   const timelineScrollRef = useRef<HTMLDivElement>(null);
   const selectedRace = useMemo(() => SEASON_RACES.find((item) => item.id === selectedRaceId) ?? SEASON_RACES[2], [selectedRaceId]);
   const selectedIndex = SEASON_RACES.findIndex((item) => item.id === selectedRace.id);
@@ -38,6 +40,11 @@ export function SeasonControlRoom({ race, leaders, weather }: { race: RaceView; 
     if (!timelineScrollRef.current || window.innerWidth > 760) return;
     timelineScrollRef.current.scrollTo({ left: Math.max(0, selectedIndex * 178 - 95), behavior: "smooth" });
   }, [selectedIndex]);
+
+  useEffect(() => {
+    const update = window.setTimeout(() => setIsCircuitOpen(window.innerWidth > 900), 0);
+    return () => window.clearTimeout(update);
+  }, []);
   const selectedWeather = selectedRace.id === "trophee-golfe" ? {
     windKnots: weather.windKnots,
     windDirection: weather.windDirection,
@@ -79,18 +86,41 @@ export function SeasonControlRoom({ race, leaders, weather }: { race: RaceView; 
     </aside>
 
     <section className="season-ocean-stage">
-      <div className="season-map-canvas">
-        <EventLocatorMap races={SEASON_RACES} selectedRaceId={selectedRace.id} isPlaying={isPlaying} onSelect={setSelectedRaceId} />
+      <div className={`season-map-canvas ${isCircuitOpen ? "circuit-open" : ""}`}>
+        <EventLocatorMap races={SEASON_RACES} selectedRaceId={selectedRace.id} isPlaying={isPlaying} overviewMode={isCircuitOpen} onSelect={setSelectedRaceId} />
         <div className="season-ocean-shade" />
         <div className="wind-field" aria-hidden>{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ "--wind-index": index, "--wind-angle": `${selectedWeather.windDirection + 180}deg` } as React.CSSProperties} />)}</div>
 
         <header className="season-ocean-top">
           <div><span>Championnat 2026</span><strong>La saison en mouvement</strong></div>
           <div className="season-top-meta"><span className="status-dot status-dot--locked" /> <span>6 régates · Bretagne</span></div>
+          <button className={`circuit-toggle ${isCircuitOpen ? "active" : ""}`} type="button" aria-label={isCircuitOpen ? "Refermer le circuit" : "Ouvrir le circuit"} aria-expanded={isCircuitOpen} aria-controls="season-circuit" onClick={() => setIsCircuitOpen((value) => !value)}><Map /> <span>{isCircuitOpen ? "Refermer" : "Vue circuit"}</span></button>
           <Link className="button primary season-primary-action" href={selectedRace.href ?? `/courses/${race.slug}`}><Flag />Explorer la course</Link>
         </header>
 
         <div className="season-map-index"><span>BRETAGNE</span><strong className="mono">47°55’ N</strong><small>05°06’ O — 01°58’ O</small></div>
+
+        <aside id="season-circuit" className={`season-circuit-rail ${isCircuitOpen ? "open" : ""}`} aria-label="Roadbook de la saison" aria-hidden={!isCircuitOpen}>
+          <header className="circuit-rail-head">
+            <div><span>Roadbook 2026</span><strong>Le circuit atlantique</strong><small>6 étapes · avril — octobre</small></div>
+            <button type="button" aria-label="Refermer la vue circuit" onClick={() => setIsCircuitOpen(false)}><X /></button>
+          </header>
+          <div className="circuit-stage-list">
+            {SEASON_RACES.map((item, index) => {
+              const isSelected = item.id === selectedRace.id;
+              const statusLabel = item.status === "completed" ? "ARRIVÉE" : item.status === "selected" ? "COURSE DU JOUR" : "À VENIR";
+              return <div className="circuit-stage-wrap" key={item.id}>
+                <button type="button" className={`circuit-stage ${isSelected ? "selected" : ""} ${item.status}`} aria-pressed={isSelected} onClick={() => setSelectedRaceId(item.id)}>
+                  <span className="circuit-stage-number mono">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="circuit-stage-copy"><small>ÉTAPE {index + 1} · {item.dateLabel}</small><strong>{item.name}</strong><em>{item.locationName}</em></span>
+                  <span className="circuit-stage-state"><i />{statusLabel}</span>
+                </button>
+                {index < SEASON_RACES.length - 1 ? <div className="circuit-transfer" aria-hidden><i /><span>Ralliement · prochaine étape</span></div> : null}
+              </div>;
+            })}
+          </div>
+          <footer className="circuit-rail-foot"><Anchor /><div><span>Façade Atlantique</span><strong>6 champs de course reliés</strong></div><b className="mono">2026</b></footer>
+        </aside>
 
         <section className="selected-race-dossier" aria-live="polite">
           <div className="selected-race-date"><span>{selectedRace.dateLabel}</span><small>2026</small></div>
