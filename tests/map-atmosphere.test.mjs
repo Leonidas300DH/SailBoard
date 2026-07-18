@@ -29,6 +29,9 @@ test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () =>
   assert.match(seasonMap, /pitch: 52/);
   assert.match(courseMap, /pitch: 48/);
   assert.match(courseMap, /pitch: 42/);
+  assert.match(courseMap, /if \(!routeBounds\)/);
+  assert.match(courseMap, /stage-location-halo/);
+  assert.match(courseMap, /stage-location-dot/);
   assert.match(courseMap, /mapRef=\{mapRef\}/);
   assert.match(cameraDirector, /orientation: CameraOrientation/);
   assert.match(mapBootstrap, /pitch: initial\.pitch \?\? 0/);

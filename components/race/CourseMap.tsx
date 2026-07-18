@@ -74,6 +74,28 @@ export function CourseMap({
   const handleLoad = useCallback((map: MaplibreMap) => {
     attachGraticule(map);
 
+    // When the official route is still pending, keep the stage itself
+    // anchored on the map. The blue reticle describes the camera target;
+    // this acid point is the actual race location, consistent with SeasonMap.
+    if (!routeBounds) {
+      map.addSource("stage-location", {
+        type: "geojson",
+        data: { type: "Feature", properties: {}, geometry: { type: "Point", coordinates: center } },
+      });
+      map.addLayer({
+        id: "stage-location-halo",
+        type: "circle",
+        source: "stage-location",
+        paint: { "circle-radius": 15, "circle-color": RACE_ACCENT, "circle-opacity": 0.18 },
+      });
+      map.addLayer({
+        id: "stage-location-dot",
+        type: "circle",
+        source: "stage-location",
+        paint: { "circle-radius": 6, "circle-color": RACE_ACCENT, "circle-stroke-color": INK, "circle-stroke-width": 2 },
+      });
+    }
+
     map.addSource("course", { type: "geojson", data: geojson, promoteId: "id" });
     map.addLayer({
       id: "course-route-shadow",
@@ -160,7 +182,7 @@ export function CourseMap({
       map.fitBounds(routeBounds, { padding: { top: 96, right: 96, bottom: 110, left: 96 }, maxZoom: 13.5, duration: 0 });
       map.jumpTo({ pitch: 48, bearing: bearingAt(routeCoordinates, 0) - 12 });
     }
-  }, [geojson, routeBounds, routeCoordinates]);
+  }, [center, geojson, routeBounds, routeCoordinates]);
 
   const { mapRef, isReady } = useMapLibre(containerRef, {
     preset: "course",
