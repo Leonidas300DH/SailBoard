@@ -90,17 +90,17 @@ export function SeasonMap({
       paint: { "circle-radius": 4.5, "circle-color": "#ffffff", "circle-stroke-color": RACE_ACCENT, "circle-stroke-width": 2.5 },
     });
 
-    // Stage markers are DOM elements: WDT prism hexagons with native type —
-    // crisp, brand-true and impossible to miss on dark water.
+    // Stage markers are DOM elements: prism-coloured dots with native-type
+    // labels — crisp and unmistakable on dark water.
     void import("maplibre-gl").then(({ default: maplibregl }) => {
-      allRaces.forEach((race, index) => {
+      allRaces.forEach((race) => {
         const element = document.createElement("button");
         element.type = "button";
         element.className = "race-marker";
         element.setAttribute("aria-label", `${race.name}, ${race.dateLabel} 2026`);
         element.style.setProperty("--marker-color", race.color);
         element.style.setProperty("--marker-ink", wdtInk(race.color));
-        element.innerHTML = `<i>${index + 1}</i><span><strong>${race.shortName}</strong><small>${race.dateLabel}</small></span>`;
+        element.innerHTML = `<i aria-hidden></i><span><strong>${race.shortName}</strong><small>${race.dateLabel}</small></span>`;
         element.addEventListener("click", (event) => {
           event.stopPropagation();
           onSelectRef.current(race.id);

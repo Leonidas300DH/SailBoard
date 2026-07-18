@@ -20,20 +20,20 @@
   .hud-recenter span { display: none; }
 }
 
-/* Stage markers — WDT prism hexagons, one colour per event. */
-.race-marker { width: 34px; height: 34px; padding: 0; background: transparent; border: 0; cursor: pointer; pointer-events: auto; }
-.race-marker i { position: absolute; inset: 0; display: grid; place-items: center; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); background: var(--marker-color); color: var(--marker-ink); font: 700 13px var(--font-race), sans-serif; font-style: normal; transition: transform .2s ease; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .55)); }
+/* Stage markers — prism-coloured dots, one colour per event. */
+.race-marker { width: 22px; height: 22px; padding: 0; background: transparent; border: 0; cursor: pointer; pointer-events: auto; }
+.race-marker i { position: absolute; inset: 3px; border-radius: 50%; background: var(--marker-color); box-shadow: 0 0 0 2px rgba(242, 247, 249, .92), 0 0 14px color-mix(in srgb, var(--marker-color) 65%, transparent), 0 2px 6px rgba(0, 0, 0, .5); transition: transform .2s ease, box-shadow .2s ease; }
 .race-marker span { position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); display: grid; justify-items: center; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .18s ease; }
 .race-marker span strong { font: 700 12px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .03em; text-shadow: 0 1px 4px rgba(1, 10, 16, .95), 0 0 10px rgba(1, 10, 16, .8); }
 .race-marker span small { margin-top: 2px; color: #cfdce1; font: 500 9px var(--font-geist-mono), monospace; text-shadow: 0 1px 4px rgba(1, 10, 16, .95); }
-.race-marker:hover i { transform: scale(1.12); }
+.race-marker:hover i { transform: scale(1.2); }
 .race-marker:hover { z-index: 4; }
 .race-marker:hover span, .race-marker.selected span { opacity: 1; }
 .race-marker.selected { z-index: 3; }
-.race-marker.selected i { transform: scale(1.22); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--marker-color) 80%, transparent)) drop-shadow(0 2px 6px rgba(0, 0, 0, .55)); }
+.race-marker.selected i { transform: scale(1.35); box-shadow: 0 0 0 2px rgba(242, 247, 249, .95), 0 0 0 5px color-mix(in srgb, var(--race) 75%, transparent), 0 0 18px color-mix(in srgb, var(--marker-color) 80%, transparent); }
 .race-marker.selected span strong { color: var(--race); }
 
 @media (max-width: 760px) {
-  .race-marker { width: 28px; height: 28px; }
+  .race-marker { width: 20px; height: 20px; }
   .race-marker span strong { font-size: 10px; }
 }
