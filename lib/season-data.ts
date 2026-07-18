@@ -13,6 +13,8 @@ export type SeasonRace = {
   coordinates: [number, number];
   /** Public course page under /courses/[slug]. */
   slug: string;
+  /** Stage colour from the WDT six-colour prism. */
+  color: string;
   status: SeasonRaceStatus;
   winner?: string;
   result?: string;
@@ -22,9 +24,13 @@ export type SeasonRace = {
   route?: GeoJSON.Feature<GeoJSON.LineString>;
 };
 
-export const SEASON_RACES: SeasonRace[] = seasonSource.events.map((event) => ({
+/** The six stage colours of the WDT prism (charte octobre 2018). */
+export const WDT_PRISM = ["#009cde", "#0033a0", "#e4002b", "#efdf00", "#f6eb61", "#a09200"];
+
+export const SEASON_RACES: SeasonRace[] = seasonSource.events.map((event, index) => ({
   id: event.id,
   slug: event.slug,
+  color: WDT_PRISM[index % WDT_PRISM.length],
   name: event.name,
   shortName: event.shortName,
   date: event.startsOn,
@@ -39,4 +45,9 @@ export const SEASON_RACES: SeasonRace[] = seasonSource.events.map((event) => ({
 
 export function seasonRaceBySlug(slug: string): SeasonRace | undefined {
   return SEASON_RACES.find((race) => race.slug === slug);
+}
+
+/** Dark ink on the light prism colours, white on the dense ones. */
+export function wdtInk(color: string): string {
+  return ["#efdf00", "#f6eb61", "#009cde"].includes(color) ? "#25271f" : "#f2f7f9";
 }

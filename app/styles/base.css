@@ -12,10 +12,18 @@ button { cursor: pointer; }
 .acid { color: var(--acid); }
 .danger { color: var(--danger); }
 
-.brand { display: inline-grid; gap: 0; font: 800 25px/.78 var(--font-race), sans-serif; font-style: italic; letter-spacing: -.02em; text-transform: uppercase; }
-.brand span:last-child { color: var(--acid); }
+/* WDT logotype block — white plate with the charte's diagonal cut. */
+.wdt-block { position: relative; display: grid; grid-template-columns: 40px auto; align-items: center; gap: 9px; width: 100%; padding: 11px 20px 14px 12px; background: #fdfdfc; color: var(--wdt-black); }
+.wdt-hex { width: 40px; height: 40px; }
+.wdt-word { display: grid; line-height: 1; }
+.wdt-word strong { font: 700 21px/0.9 var(--font-race), sans-serif; letter-spacing: .01em; }
+.wdt-word small { margin-top: 3px; font: 300 7.5px/1.35 var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .32em; }
+.wdt-block-frieze { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; }
 
 /* WDT charte motifs — the 6-colour triangle frieze (50% tint, as specified)
    and the diagonal-cut block that frames the logotype. */
 .wdt-frieze { height: 9px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='12' viewBox='0 0 144 12'%3E%3Cg fill-opacity='.5'%3E%3Cpath d='M0 12 12 0l12 12z' fill='%23009cde'/%3E%3Cpath d='M24 12 36 0l12 12z' fill='%230033a0'/%3E%3Cpath d='M48 12 60 0l12 12z' fill='%23e4002b'/%3E%3Cpath d='M72 12 84 0l12 12z' fill='%23f6eb61'/%3E%3Cpath d='M96 12 108 0l12 12z' fill='%23efdf00'/%3E%3Cpath d='M120 12 132 0l12 12z' fill='%23a09200'/%3E%3C/g%3E%3C/svg%3E"); background-repeat: repeat-x; background-size: auto 100%; }
 .cut-right { clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); }
+/* Legacy wordmark still used on admin/sign-in gates. */
+.brand { display: inline-grid; gap: 0; font: 700 22px/.85 var(--font-race), sans-serif; font-style: italic; letter-spacing: -.01em; text-transform: uppercase; }
+.brand span:last-child { color: var(--acid); }

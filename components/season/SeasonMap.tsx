@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import type { GeoJSONSource, Map as MaplibreMap } from "maplibre-gl";
-import type { SeasonRace } from "@/lib/season-data";
-import { MAP_FONT } from "@/lib/map/style";
+import type { GeoJSONSource, Map as MaplibreMap, Marker } from "maplibre-gl";
+import { wdtInk, type SeasonRace } from "@/lib/season-data";
 import { bearingAt } from "@/lib/map/geo";
 import { attachGraticule } from "@/lib/map/graticule";
 import { useMapLibre } from "../map/useMapLibre";
@@ -11,7 +10,7 @@ import { useCameraDirector } from "../map/useCameraDirector";
 import { useRouteAnimation } from "../map/useRouteAnimation";
 import { MapHud } from "../map/MapHud";
 
-const RACE_ACCENT = "#e8ff29";
+const RACE_ACCENT = "#efdf00";
 const INK = "#010a10";
 
 export function SeasonMap({
@@ -38,16 +37,10 @@ export function SeasonMap({
     racesRef.current = races;
   }, [onSelect, races]);
 
+  const markersRef = useRef(new Map<string, Marker>());
+
   const handleLoad = useCallback((map: MaplibreMap) => {
     const allRaces = racesRef.current;
-    const points: GeoJSON.FeatureCollection<GeoJSON.Point> = {
-      type: "FeatureCollection",
-      features: allRaces.map((race) => ({
-        type: "Feature",
-        properties: { id: race.id, name: race.shortName, date: race.dateLabel, status: race.status },
-        geometry: { type: "Point", coordinates: race.coordinates },
-      })),
-    };
     const chronology: GeoJSON.Feature<GeoJSON.LineString> = {
       type: "Feature",
       properties: {},
@@ -102,46 +95,26 @@ export function SeasonMap({
       paint: { "circle-radius": 4.5, "circle-color": "#ffffff", "circle-stroke-color": RACE_ACCENT, "circle-stroke-width": 2.5 },
     });
 
-    map.addSource("season-races", { type: "geojson", data: points });
-    map.addLayer({
-      id: "race-location-halo",
-      type: "circle",
-      source: "season-races",
-      paint: { "circle-radius": 16, "circle-color": "#55e6c4", "circle-opacity": 0.14 },
-    });
-    map.addLayer({
-      id: "race-locations",
-      type: "circle",
-      source: "season-races",
-      paint: {
-        // Completed = solid white dot; upcoming = white ring. Both must read
-        // clearly against dark open water.
-        "circle-radius": 6.5,
-        "circle-color": ["match", ["get", "status"], "completed", "#f2f7f9", INK],
-        "circle-stroke-color": ["match", ["get", "status"], "completed", INK, "#f2f7f9"],
-        "circle-stroke-width": ["match", ["get", "status"], "completed", 2.5, 2],
-      },
-    });
-    map.addLayer({
-      id: "race-location-labels",
-      type: "symbol",
-      source: "season-races",
-      layout: {
-        "text-field": ["format", ["get", "name"], { "font-scale": 1 }, "\n", {}, ["get", "date"], { "font-scale": 0.76 }],
-        "text-size": 12,
-        "text-font": MAP_FONT,
-        "text-offset": [0, 1.45],
-        "text-anchor": "top",
-        "text-allow-overlap": false,
-      },
-      paint: { "text-color": "#f2f7f9", "text-halo-color": INK, "text-halo-width": 2 },
-    });
-
-    map.on("mouseenter", "race-locations", () => { map.getCanvas().style.cursor = "pointer"; });
-    map.on("mouseleave", "race-locations", () => { map.getCanvas().style.cursor = ""; });
-    map.on("click", "race-locations", (event) => {
-      const id = event.features?.[0]?.properties?.id;
-      if (typeof id === "string") onSelectRef.current(id);
+    // Stage markers are DOM elements: WDT prism hexagons with native type —
+    // crisp, brand-true and impossible to miss on dark water.
+    void import("maplibre-gl").then(({ default: maplibregl }) => {
+      allRaces.forEach((race, index) => {
+        const element = document.createElement("button");
+        element.type = "button";
+        element.className = "race-marker";
+        element.setAttribute("aria-label", `${race.name}, ${race.dateLabel} 2026`);
+        element.style.setProperty("--marker-color", race.color);
+        element.style.setProperty("--marker-ink", wdtInk(race.color));
+        element.innerHTML = `<i>${index + 1}</i><span><strong>${race.shortName}</strong><small>${race.dateLabel}</small></span>`;
+        element.addEventListener("click", (event) => {
+          event.stopPropagation();
+          onSelectRef.current(race.id);
+        });
+        const marker = new maplibregl.Marker({ element, anchor: "center" })
+          .setLngLat(race.coordinates)
+          .addTo(map);
+        markersRef.current.set(race.id, marker);
+      });
     });
   }, []);
 
@@ -168,23 +141,9 @@ export function SeasonMap({
     routeSource.setData(selectedRace.route ?? emptyCollection());
     animSource.setData(selectedRace.route ?? emptyCollection());
     if (!selectedRace.route) boatSource?.setData(emptyCollection());
-    const isSelected = ["==", ["get", "id"], selectedRace.id];
-    map.setPaintProperty("race-location-halo", "circle-color", ["case", isSelected, RACE_ACCENT, "#55e6c4"]);
-    map.setPaintProperty("race-location-halo", "circle-radius", ["case", isSelected, 24, 16]);
-    map.setPaintProperty("race-location-halo", "circle-opacity", ["case", isSelected, 0.22, 0.14]);
-    map.setPaintProperty("race-locations", "circle-radius", ["case", isSelected, 8.5, 6.5]);
-    map.setPaintProperty("race-locations", "circle-color", [
-      "case",
-      isSelected,
-      RACE_ACCENT,
-      ["match", ["get", "status"], "completed", "#f2f7f9", INK],
-    ]);
-    map.setPaintProperty("race-locations", "circle-stroke-color", [
-      "case",
-      isSelected,
-      INK,
-      ["match", ["get", "status"], "completed", INK, "#f2f7f9"],
-    ]);
+    markersRef.current.forEach((marker, raceId) => {
+      marker.getElement().classList.toggle("selected", raceId === selectedRace.id);
+    });
 
     const overview = (rightPadding: number) => {
       const longitudes = races.map((race) => race.coordinates[0]);

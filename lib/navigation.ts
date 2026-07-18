@@ -1,4 +1,4 @@
-import { ListOrdered, Map, Settings, Users, type LucideIcon } from "lucide-react";
+import { Map, Sailboat, Settings, Users, type LucideIcon } from "lucide-react";
 
 export type PublicSection = "season" | "course" | "rankings" | "sailors" | "admin";
 
@@ -14,7 +14,7 @@ export type NavItem = {
 export function publicNav(): NavItem[] {
   return [
     { id: "season", href: "/", label: "Saison", icon: Map },
-    { id: "rankings", href: "/classements", label: "Classements", icon: ListOrdered },
+    { id: "rankings", href: "/classements", label: "Bateaux", icon: Sailboat },
     { id: "sailors", href: "/classements?vue=individuel", label: "Marins", icon: Users },
     { id: "admin", href: "/admin", label: "Admin", icon: Settings },
   ];
