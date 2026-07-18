@@ -51,7 +51,8 @@ export function WindParticles({
     const observer = new ResizeObserver(resize);
     if (canvas.parentElement) observer.observe(canvas.parentElement);
 
-    const count = Math.min(460, Math.max(180, Math.round((width * height) / 3200)));
+    // A faint breath over the water, not a rain of streaks.
+    const count = Math.min(150, Math.max(70, Math.round((width * height) / 9000)));
     const particles: Particle[] = Array.from({ length: count }, () => spawn(width, height));
 
     let frame = 0;
@@ -62,16 +63,16 @@ export function WindParticles({
       const { direction, knots } = windRef.current;
       // Meteorological direction is where the wind comes FROM.
       const heading = ((direction + 180) * Math.PI) / 180;
-      const speed = 30 + knots * 3.6;
+      const speed = 14 + knots * 1.7;
       const vx = Math.sin(heading) * speed;
       const vy = -Math.cos(heading) * speed;
 
       context.globalCompositeOperation = "destination-out";
-      context.fillStyle = "rgba(0, 0, 0, 0.06)";
+      context.fillStyle = "rgba(0, 0, 0, 0.14)";
       context.fillRect(0, 0, width, height);
       context.globalCompositeOperation = "source-over";
-      context.strokeStyle = "rgba(220, 240, 248, 0.55)";
-      context.lineWidth = 1.2;
+      context.strokeStyle = "rgba(214, 236, 244, 0.3)";
+      context.lineWidth = 1;
       context.beginPath();
       for (const particle of particles) {
         const nx = particle.x + vx * delta;

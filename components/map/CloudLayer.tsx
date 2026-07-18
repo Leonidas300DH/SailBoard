@@ -3,12 +3,18 @@
 import { useEffect, useRef } from "react";
 import { prefersReducedMotion } from "./useMapLibre";
 
-const TILE = 512;
+const TILE = 768;
+
+function smoothstep(edge0: number, edge1: number, value: number) {
+  const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
 
 /**
- * Tileable fractal value-noise rendered once into an offscreen canvas: soft
- * white masses on a transparent background. Tileability lets the layer drift
- * forever with seamless wrapping.
+ * Tileable cloud field rendered once offscreen. Domain-warped fractal noise:
+ * a low-frequency warp field bends the sampling coordinates before the fbm
+ * lookup, which is what turns "blurry noise" into the stretched, organic
+ * masses real cloud decks have. Soft smoothstep shaping keeps edges feathered.
  */
 function buildCloudTile(): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
@@ -17,20 +23,15 @@ function buildCloudTile(): HTMLCanvasElement {
   const context = canvas.getContext("2d");
   if (!context) return canvas;
   const image = context.createImageData(TILE, TILE);
-  const octaves = [
-    { cells: 4, amp: 0.5 },
-    { cells: 8, amp: 0.26 },
-    { cells: 16, amp: 0.15 },
-    { cells: 32, amp: 0.09 },
-  ];
-  const grids = octaves.map((octave) => {
-    const grid = new Float32Array(octave.cells * octave.cells);
+
+  const makeGrid = (cells: number) => {
+    const grid = new Float32Array(cells * cells);
     for (let index = 0; index < grid.length; index += 1) grid[index] = Math.random();
     return grid;
-  });
+  };
   const sample = (grid: Float32Array, cells: number, u: number, v: number) => {
-    const x = u * cells;
-    const y = v * cells;
+    const x = ((u % 1) + 1) % 1 * cells;
+    const y = ((v % 1) + 1) % 1 * cells;
     const x0 = Math.floor(x) % cells;
     const y0 = Math.floor(y) % cells;
     const x1 = (x0 + 1) % cells;
@@ -45,21 +46,36 @@ function buildCloudTile(): HTMLCanvasElement {
     const d = grid[y1 * cells + x1];
     return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
   };
+
+  // Big, few structures: the lowest octave spans a third of the tile.
+  const octaves = [
+    { cells: 3, amp: 0.44, grid: makeGrid(3) },
+    { cells: 6, amp: 0.26, grid: makeGrid(6) },
+    { cells: 12, amp: 0.16, grid: makeGrid(12) },
+    { cells: 24, amp: 0.09, grid: makeGrid(24) },
+    { cells: 48, amp: 0.05, grid: makeGrid(48) },
+  ];
+  const warpU = makeGrid(4);
+  const warpV = makeGrid(4);
+
   for (let y = 0; y < TILE; y += 1) {
     for (let x = 0; x < TILE; x += 1) {
       const u = x / TILE;
       const v = y / TILE;
+      // Domain warp: bend coordinates before the fbm lookup.
+      const wu = u + (sample(warpU, 4, u, v) - 0.5) * 0.28;
+      const wv = v + (sample(warpV, 4, u, v) - 0.5) * 0.28;
       let noise = 0;
-      octaves.forEach((octave, index) => {
-        noise += sample(grids[index], octave.cells, u, v) * octave.amp;
-      });
-      // Soft threshold carves distinct masses out of the noise field.
-      const shaped = Math.min(1, Math.max(0, (noise - 0.52) * 3.1));
+      for (const { cells, amp, grid } of octaves) {
+        noise += sample(grid, cells, wu, wv) * amp;
+      }
+      // Feathered coverage: clear sky below .52, dense core near .78.
+      const density = smoothstep(0.52, 0.78, noise);
       const offset = (y * TILE + x) * 4;
-      image.data[offset] = 226;
-      image.data[offset + 1] = 238;
-      image.data[offset + 2] = 246;
-      image.data[offset + 3] = Math.round(shaped ** 1.5 * 255);
+      image.data[offset] = 238;
+      image.data[offset + 1] = 245;
+      image.data[offset + 2] = 250;
+      image.data[offset + 3] = Math.round(density ** 1.25 * 255);
     }
   }
   context.putImageData(image, 0, 0);
@@ -67,10 +83,11 @@ function buildCloudTile(): HTMLCanvasElement {
 }
 
 /**
- * Live-satellite illusion: two parallax cloud sheets drifting with the real
- * wind (direction + speed), coverage swelling slightly with the breeze.
- * Deliberately faint — ambiance under the HUD, never against readability.
- * Static frame under reduced motion.
+ * Discreet live-sky overlay: two parallax cloud decks drifting slowly with
+ * the real wind (a couple of px/s — a deck crosses the view in minutes).
+ * Their slightly diverging headings make the overlap evolve, so the sky
+ * changes shape instead of sliding as a frozen picture. Static under
+ * reduced motion.
  */
 export function CloudLayer({
   windDirection,
@@ -111,18 +128,17 @@ export function CloudLayer({
     if (canvas.parentElement) observer.observe(canvas.parentElement);
 
     const compact = window.innerWidth < 760;
-    // Back sheet: bigger, slower, fainter — cheap parallax depth.
     const sheets = (compact
-      ? [{ scale: 1.5, speed: 1, alpha: 1, x: 0, y: 0 }]
+      ? [{ scale: 2.2, speed: 1, alpha: 1, headingOffset: 0, x: 0, y: 0 }]
       : [
-        { scale: 2.1, speed: 0.55, alpha: 0.55, x: 0, y: 0 },
-        { scale: 1.25, speed: 1, alpha: 1, x: 130, y: 260 },
+        { scale: 3, speed: 0.55, alpha: 0.65, headingOffset: -6, x: 0, y: 0 },
+        { scale: 1.9, speed: 1, alpha: 1, headingOffset: 7, x: 310, y: 140 },
       ]);
 
     const render = () => {
       const { knots } = windRef.current;
-      // Coverage grows with the breeze — present enough to read as live sky.
-      const baseAlpha = 0.16 + Math.min(knots, 30) / 30 * 0.14;
+      // Quiet presence: 8% coverage in light air, 15% in a real breeze.
+      const baseAlpha = 0.08 + Math.min(knots, 30) / 30 * 0.07;
       context.clearRect(0, 0, width, height);
       for (const sheet of sheets) {
         const size = TILE * sheet.scale;
@@ -151,15 +167,15 @@ export function CloudLayer({
       const delta = Math.min(now - previous, 120) / 1000;
       previous = now;
       const { direction, knots } = windRef.current;
-      // Meteorological direction = where the wind comes FROM; clouds go with it.
-      const heading = ((direction + 180) * Math.PI) / 180;
-      const speed = 1.5 + knots * 0.32;
+      // Slow drift: ~1 px/s in light air, ~3 px/s in 20 knots.
+      const speed = 0.7 + Math.min(knots, 30) * 0.11;
       for (const sheet of sheets) {
+        const heading = ((direction + 180 + sheet.headingOffset) * Math.PI) / 180;
         sheet.x += Math.sin(heading) * speed * sheet.speed * delta;
         sheet.y += -Math.cos(heading) * speed * sheet.speed * delta;
       }
-      // Clouds do not need 60 fps — ~24 is invisible at this speed.
-      if (now - lastDraw < 40) return;
+      // At these speeds ~12 fps is indistinguishable from continuous.
+      if (now - lastDraw < 80) return;
       lastDraw = now;
       render();
     };
