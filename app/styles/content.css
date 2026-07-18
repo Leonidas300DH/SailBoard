@@ -57,13 +57,12 @@
 .standings-score.pending { color: #55707c; background: transparent; border-style: dashed; }
 .standings-total { color: var(--competitor-color); text-align: right; font-size: 14px; font-weight: 800; }
 .competitor-intel { position: relative; min-width: 0; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(circle at 85% 12%, color-mix(in srgb, var(--competitor-color) 14%, transparent), transparent 40%), linear-gradient(200deg, rgba(0, 51, 160, .16), transparent 45%), #041220; }
-.intel-frieze { flex: 0 0 auto; }
 .intel-overline { min-height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; color: var(--muted); border-bottom: 1px solid var(--line); font: 700 9px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .09em; }
 .intel-overline span:first-child { color: var(--competitor-color); }
 .intel-close { display: none; width: 36px; height: 36px; place-items: center; color: var(--text); border: 1px solid var(--line-strong); background: transparent; }
 .intel-close svg { width: 16px; height: 16px; }
 .intel-title { display: flex; align-items: center; gap: 16px; padding: 22px 20px 15px; }
-.intel-position { min-width: 74px; padding: 10px 16px 10px 12px; display: inline-block; color: var(--bg-deep); background: var(--competitor-color); clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); font: 700 40px/.85 var(--font-race), sans-serif; }
+.intel-position { color: var(--competitor-color); font: 700 52px/.8 var(--font-race), sans-serif; }
 .intel-position sup { font-size: 16px; }
 .intel-title h2 { margin: 0; font: 700 clamp(28px,3vw,44px)/.9 var(--font-race), sans-serif; text-transform: uppercase; }
 .intel-title p { margin: 7px 0 0; color: var(--muted); font-size: 11px; }

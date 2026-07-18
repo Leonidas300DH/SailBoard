@@ -106,7 +106,6 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
         </section>
 
         {selected ? <aside className={`competitor-intel ${isIntelOpen ? "mobile-open" : ""}`} style={{ "--competitor-color": selected.color } as React.CSSProperties} aria-label={`Détail de ${selected.name}`}>
-          <div className="wdt-frieze intel-frieze" aria-hidden />
           <div className="intel-overline"><span>{snapshotMeta ? "Classement provisoire" : "Sélection active"}</span><span className="mono">RANG · {selected.position.toString().padStart(2, "0")}</span><button className="intel-close" type="button" onClick={() => setIsIntelOpen(false)} aria-label="Fermer le détail"><X /></button></div>
           <div className="intel-title"><span className="intel-position">{selected.position}<sup>{selected.position === 1 ? "er" : "e"}</sup></span><div><h2>{selected.name}</h2><p>{selected.subtitle}</p></div></div>
           <div className="intel-score"><span>Total après {snapshotMeta?.completedRaces ?? selected.races ?? "—"} étapes</span><strong className="mono">{formatPoints(selected.points)}</strong><small>PTS</small></div>
