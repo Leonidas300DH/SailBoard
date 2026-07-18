@@ -91,6 +91,16 @@
 .intel-import-source > strong { font: 700 16px var(--font-race), sans-serif; text-transform: uppercase; }
 .intel-import-source > small { margin-top: 6px; color: var(--competitor-color); font: 700 9px var(--font-geist-mono), monospace; text-transform: uppercase; }
 .intel-import-source > p { margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.intel-breakdown { position: relative; z-index: 1; padding: 16px 18px 4px; }
+.intel-event-score { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+.intel-event-score > span { min-width: 0; display: flex; align-items: center; gap: 10px; }
+.intel-event-score > span > i { width: 22px; height: 22px; display: grid; place-items: center; flex: 0 0 auto; color: var(--competitor-color); border: 1px solid color-mix(in srgb, var(--competitor-color) 46%, var(--line)); font: 700 9px var(--font-geist-mono), monospace; font-style: normal; }
+.intel-event-score > span > span { min-width: 0; }
+.intel-event-score > span strong, .intel-event-score > span small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.intel-event-score > span strong { font: 700 11px var(--font-race), sans-serif; text-transform: uppercase; }
+.intel-event-score > span small { margin-top: 2px; color: var(--muted); font-size: 9px; }
+.intel-event-score > strong { color: var(--competitor-color); font-size: 14px; }
+.intel-event-score > strong.pending { color: var(--muted); }
 .control-empty-ranking { min-height: 18rem; display: grid; place-content: center; justify-items: center; gap: .55rem; color: var(--muted); text-align: center; }
 .control-empty-ranking svg { width: 1.5rem; height: 1.5rem; color: var(--acid); }
 .control-empty-ranking strong { color: var(--text); font: 700 18px var(--font-race), sans-serif; text-transform: uppercase; }

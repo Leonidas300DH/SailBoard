@@ -66,7 +66,7 @@ export function LeaderboardPanel({
     </div>
     <div className="leader-foot">
       <strong><ShieldCheck size={15} /> Résultats validés</strong>
-      <span>Barème championnat 2026 · version 1</span>
+      <span>World Diam Tour 2026 · le score le plus bas gagne</span>
     </div>
   </div>;
 }

@@ -38,6 +38,9 @@ export function RaceExperience({
   const hasResults = race.leaderboard.length > 0;
   const isUpcoming = race.status !== "completed";
   const weatherPending = isUpcoming && weather.reliability === "fallback";
+  const hasRoute = race.courseGeoJson.features.some(
+    (feature) => feature.properties?.kind === "route" && feature.geometry.type === "LineString" && feature.geometry.coordinates.length > 1,
+  );
   const raceDate = new Date(race.scheduledAt);
   const raceDateLabel = raceDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
 
@@ -64,11 +67,11 @@ export function RaceExperience({
           <div className="map-shade" aria-hidden />
           <WindParticles windDirection={weather.windDirection} windKnots={weather.windKnots} />
           <div className="map-caption" aria-label="Contexte de la course">
-            <span className="map-chip map-chip-status"><Radio aria-hidden />Parcours animé · Simulation</span>
+            <span className="map-chip map-chip-status"><Radio aria-hidden />{hasRoute ? "Parcours animé · Simulation" : "Tracé non publié"}</span>
             {weatherPending ? null : (
               <span className="map-chip map-chip-metric"><Wind aria-hidden />{weather.windKnots.toFixed(1)} ND · {Math.round(weather.windDirection)}° {weather.windLabel}</span>
             )}
-            <span className="map-chip map-chip-meta">{race.locationName} · parcours officiel</span>
+            <span className="map-chip map-chip-meta">{race.locationName} · aperçu cartographique</span>
           </div>
           <Link className="map-return" href="/"><ArrowLeft aria-hidden />Saison 2026</Link>
           <RaceConditions weather={weather} pending={weatherPending} />
@@ -89,29 +92,46 @@ export function RaceExperience({
       </div>
 
       <footer className="race-footer">
-        <button
-          type="button"
-          className="race-footer-play"
-          aria-label={isPlaying ? "Mettre l’animation du parcours en pause" : "Rejouer le parcours"}
-          onClick={() => setIsPlaying((value) => !value)}
-        >
-          {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
-        </button>
+        {hasRoute ? (
+          <button
+            type="button"
+            className="race-footer-play"
+            aria-label={isPlaying ? "Mettre l’animation du parcours en pause" : "Rejouer le parcours"}
+            onClick={() => setIsPlaying((value) => !value)}
+          >
+            {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
+          </button>
+        ) : null}
         <div className="race-footer-copy">
-          <strong>Animation du parcours officiel</strong>
-          <small>Simulation illustrative — aucune trace GPS des concurrents</small>
+          {hasRoute ? (
+            <>
+              <strong>Animation du tracé de l’étape</strong>
+              <small>Aperçu illustratif — aucune trace GPS des concurrents</small>
+            </>
+          ) : (
+            <>
+              <strong>Tracé officiel en attente</strong>
+              <small>Le parcours sera publié par la direction de course — la carte montre le plan d’eau</small>
+            </>
+          )}
         </div>
-        {hasResults ? (
+        {hasResults && leader?.elapsedSeconds != null ? (
           <div className="timeline-total">
             <span className="label">Temps vainqueur</span>
             <strong>{formatTime(leader?.elapsedSeconds ?? null)}</strong>
-            <small>{race.distanceNm.toFixed(1)} NM · {race.laps} tour{race.laps > 1 ? "s" : ""}</small>
+            <small>{race.distanceNm > 0 ? `${race.distanceNm.toFixed(1)} NM · ` : ""}{race.laps} tour{race.laps > 1 ? "s" : ""}</small>
+          </div>
+        ) : hasResults ? (
+          <div className="timeline-total">
+            <span className="label">Classement d’étape</span>
+            <strong>{race.leaderboard.length} équipes</strong>
+            <small>Places intégrées au classement général</small>
           </div>
         ) : (
           <div className="timeline-total">
             <span className="label">{isUpcoming ? "Départ" : "Course disputée"}</span>
             <strong className="race-footer-date">{raceDateLabel}</strong>
-            <small>{race.distanceNm.toFixed(1)} NM · parcours officiel</small>
+            <small>{race.distanceNm > 0 ? `${race.distanceNm.toFixed(1)} NM · ` : ""}{hasRoute ? "tracé indicatif" : "zone de course"}</small>
           </div>
         )}
       </footer>

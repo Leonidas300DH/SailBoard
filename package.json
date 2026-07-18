@@ -13,6 +13,8 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:local": "node --env-file=.env.local node_modules/drizzle-kit/bin.cjs migrate",
+    "db:import:wdt-2026": "node --env-file=.env.local scripts/import-wdt-2026.mjs",
     "auth:migrate": "npx auth@latest migrate --config lib/auth-server.ts --yes"
   },
   "dependencies": {

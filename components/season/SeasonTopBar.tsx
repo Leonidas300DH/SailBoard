@@ -16,7 +16,7 @@ export function SeasonTopBar({
   return <header className="season-ocean-top">
     <div className="season-top-id">
       <span className="status-dot status-dot--locked" aria-hidden />
-      <span>Championnat 2026 · 6 régates · Bretagne</span>
+      <span>World Diam Tour France 2026 · 6 étapes · façade Atlantique</span>
     </div>
     <button
       className={`circuit-toggle ${circuitOpen ? "active" : ""}`}

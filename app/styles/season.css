@@ -53,7 +53,7 @@
 .circuit-rail-foot span { color: var(--muted); font: 700 7px var(--font-race), sans-serif; text-transform: uppercase; }
 .circuit-rail-foot strong { margin-top: 4px; font: 700 11px var(--font-race), sans-serif; text-transform: uppercase; }
 .circuit-rail-foot b { color: var(--race); font-size: 13px; }
-.wind-particles { position: absolute; z-index: 2; inset: 0; pointer-events: none; opacity: .5; mix-blend-mode: screen; }
+.wind-particles { position: absolute; z-index: 2; inset: 0; pointer-events: none; opacity: .75; mix-blend-mode: screen; }
 /* Static fallback field — only when the particle canvas opts out. */
 .wind-field { position: absolute; z-index: 2; inset: 76px 0 24px; overflow: hidden; pointer-events: none; opacity: .5; display: none; }
 @media (max-width: 760px) {

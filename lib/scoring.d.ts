@@ -13,3 +13,10 @@ export function scoreCrew(
 ): Array<{ participantId: string; role: string; points: number }>;
 
 export function roundPoints(value: number): number;
+
+export function totalScores(scores: Array<number | null | undefined>): number;
+
+export function rankScores<T extends { points: number }>(
+  rows: T[],
+  direction: "high" | "low",
+): Array<T & { rank: number }>;

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { scoreBoat, scoreCrew } from "../lib/scoring.mjs";
+import { rankScores, scoreBoat, scoreCrew, totalScores } from "../lib/scoring.mjs";
 
 const rule = {
   direction: "high",
@@ -39,4 +39,18 @@ test("un instantané historique reste stable après évolution du barème", () =
   const nextVersion = { ...rule, positionPoints: { ...rule.positionPoints, "1": 25 } };
   assert.equal(scoreBoat(nextVersion, { position: 1, status: "classified" }), 25);
   assert.equal(scoreBoat(historicalSnapshot, { position: 1, status: "classified" }), initial);
+});
+
+test("calcule les totaux WDT et les rangs dans les deux sens", () => {
+  assert.equal(totalScores([1, 2, 5, 2, null, null]), 10);
+  assert.deepEqual(
+    rankScores([{ name: "A", points: 12 }, { name: "B", points: 16 }, { name: "C", points: 16 }], "high")
+      .map(({ name, rank }) => [name, rank]),
+    [["B", 1], ["C", 1], ["A", 3]],
+  );
+  assert.deepEqual(
+    rankScores([{ name: "A", points: 14 }, { name: "B", points: 10 }, { name: "C", points: 11 }], "low")
+      .map(({ name, rank }) => [name, rank]),
+    [["B", 1], ["C", 2], ["A", 3]],
+  );
 });

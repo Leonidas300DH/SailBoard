@@ -171,3 +171,32 @@ export const individualAwards = pgTable("individual_awards", {
   snapshotJson: text("snapshot_json").notNull(),
   createdAt: text("created_at").notNull(),
 }, (table) => [uniqueIndex("awards_result_participant_uq").on(table.resultId, table.participantId), index("awards_participant_idx").on(table.participantId)]);
+
+export const dataImports = pgTable("data_imports", {
+  id: text("id").primaryKey(),
+  seasonId: text("season_id").notNull().references(() => seasons.id),
+  sourceName: text("source_name").notNull(),
+  sourceHash: text("source_hash").notNull(),
+  status: text("status", { enum: ["completed", "failed"] }).notNull(),
+  summaryJson: text("summary_json").notNull(),
+  importedAt: text("imported_at").notNull(),
+}, (table) => [
+  uniqueIndex("data_imports_source_hash_uq").on(table.sourceHash),
+  index("data_imports_season_idx").on(table.seasonId),
+]);
+
+export const individualStageScores = pgTable("individual_stage_scores", {
+  id: text("id").primaryKey(),
+  raceId: text("race_id").notNull().references(() => races.id),
+  participantId: text("participant_id").notNull().references(() => participants.id),
+  boatId: text("boat_id").references(() => boats.id),
+  points: doublePrecision("points").notNull(),
+  sourceMode: text("source_mode").notNull(),
+  sourceJson: text("source_json").notNull(),
+  ...timestamps,
+}, (table) => [
+  uniqueIndex("individual_stage_scores_race_participant_uq").on(table.raceId, table.participantId),
+  index("individual_stage_scores_race_idx").on(table.raceId),
+  index("individual_stage_scores_participant_idx").on(table.participantId),
+  index("individual_stage_scores_boat_idx").on(table.boatId),
+]);

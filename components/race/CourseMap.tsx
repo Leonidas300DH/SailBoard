@@ -192,6 +192,11 @@ export function CourseMap({
 
   return <div className="season-map-frame">
     <div ref={containerRef} className="race-map" aria-label="Carte animée du parcours officiel" />
-    <MapHud mapRef={mapRef} isReady={isReady} onRecenter={recenter} />
+    <MapHud
+      mapRef={mapRef}
+      isReady={isReady}
+      target={routeBounds ? undefined : center}
+      onRecenter={routeBounds ? recenter : undefined}
+    />
   </div>;
 }

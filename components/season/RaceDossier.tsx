@@ -32,26 +32,28 @@ export function RaceDossier({
     ? "Jour de course"
     : race.winner
       ? `Vainqueur · ${race.winner}`
-      : race.status === "upcoming" ? "Engagements ouverts" : "Résultats validés";
+      : race.status === "upcoming" ? "Engagements ouverts" : race.result ?? "Résultats validés";
 
   return <section className="race-dossier" aria-live="polite">
-    <button
-      type="button"
-      className="race-dossier-play"
-      aria-label={isPlaying ? "Mettre l’animation du parcours en pause" : "Rejouer le parcours"}
-      onClick={onTogglePlay}
-    >
-      {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
-    </button>
+    {race.route ? (
+      <button
+        type="button"
+        className="race-dossier-play"
+        aria-label={isPlaying ? "Mettre l’animation du parcours en pause" : "Rejouer le parcours"}
+        onClick={onTogglePlay}
+      >
+        {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
+      </button>
+    ) : null}
     <div className="race-dossier-id">
       <Link className="race-dossier-title" href={`/courses/${race.slug}`} title={`Ouvrir ${race.name}`}>
         {race.name}
         <ChevronRight aria-hidden />
       </Link>
       <small>
-        {race.dateLabel} 2026 · {race.locationName} · <span className="mono">{race.distanceNm.toFixed(1)} NM</span> · {isToday
+        {race.dateLabel} 2026 · {race.locationName}{race.distanceNm > 0 ? <> · <span className="mono">{race.distanceNm.toFixed(1)} NM</span></> : null} · {isToday
           ? <span className="race-dossier-live">{status}</span>
-          : status}
+          : status}{race.route ? null : " · Tracé non publié"}
       </small>
     </div>
     {weather ? (

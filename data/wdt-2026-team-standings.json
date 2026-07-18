@@ -1,0 +1,21 @@
+{
+  "id": "wdt-2026-france-after-4-races-teams",
+  "competition": "WDT 2026 France",
+  "title": "Classement général",
+  "completedRaces": 4,
+  "totalRaces": 6,
+  "declaredClassifiedCount": 9,
+  "importedAt": "2026-07-18",
+  "source": "Classement WDT 2026.xlsx — feuille Clasement Team",
+  "rows": [
+    { "name": "CENTRE DE MEDIATION", "eventScores": [1, 2, 5, 2, null, null], "points": 10 },
+    { "name": "OPTEAMWORK", "eventScores": [2, 5, 1, 3, null, null], "points": 11 },
+    { "name": "AN AVEL BRAZ", "eventScores": [4, 3, 3, 4, null, null], "points": 14 },
+    { "name": "SAIL SPRINT", "eventScores": [5, 1, 4, 6, null, null], "points": 16 },
+    { "name": "CNA VOILE", "eventScores": [3, 6, 2, 7, null, null], "points": 18 },
+    { "name": "AFTER", "eventScores": [7, 7, 6, 1, null, null], "points": 21 },
+    { "name": "TEAM ROCHELAISE CAP FERRET", "eventScores": [7, 4, 6, 7, null, null], "points": 24 },
+    { "name": "FRENCH TOUCH", "eventScores": [7, 7, 6, 5, null, null], "points": 25 },
+    { "name": "SONIC", "eventScores": [6, 7, 6, 7, null, null], "points": 26 }
+  ]
+}

@@ -15,7 +15,9 @@ Supabase, OpenAI Sites, Cloudflare D1 et Sign in with ChatGPT ne font pas partie
 
 ## Expérience publique
 
-L’accueil « Season Ocean » relie six régates sur une carte satellite de la Bretagne. La timeline distingue les courses passées et à venir, pilote le zoom cartographique et anime un aperçu du parcours sélectionné. Un roadbook dépliable transforme le calendrier en circuit territorial : ses six étapes, statuts et liaisons sont synchronisés avec la carte et deviennent une feuille plein écran sur mobile. La fiche course synchronise carte, flotte, classement, rail concurrent et scrubber temporel.
+L’accueil « Season Ocean » relie les six étapes du World Diam Tour France 2026 sur une carte satellite de la façade Atlantique. La timeline distingue les quatre étapes disputées des deux rendez-vous à venir, pilote le zoom cartographique et anime un aperçu du tracé sélectionné. Un roadbook dépliable transforme le calendrier en circuit territorial : ses six étapes, statuts et liaisons sont synchronisés avec la carte et deviennent une feuille plein écran sur mobile. La fiche course synchronise carte, flotte, classement, rail concurrent et scrubber temporel.
+
+La page `/classements` publie deux classements provisoires calculés depuis `Classement WDT 2026.xlsx` : le classement des équipes additionne les places et favorise le total le plus bas ; le classement individuel additionne les points et favorise le total le plus élevé. Les résultats des étapes de septembre et octobre restent vides tant qu’ils ne sont pas publiés.
 
 Les conditions du jour sont demandées côté serveur à Open-Meteo puis mises en cache pendant 24 heures. Elles utilisent les modèles météo et marine disponibles pour la position et l’horaire de la course. Ce sont des données modélisées destinées à la lecture sportive et non à la navigation. Une valeur de démonstration explicite prend le relais si le fournisseur est indisponible.
 

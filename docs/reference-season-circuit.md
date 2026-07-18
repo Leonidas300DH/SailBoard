@@ -8,6 +8,8 @@ Capture fournie le 18 juillet 2026 et conservée dans le dépôt :
 
 La capture présente le calendrier 2026 du World Diam Tour France sous forme d’infographie : carte de la façade Atlantique, six étapes géolocalisées, ordre chronologique et liaisons de ralliement.
 
+Le calendrier intégré reprend exactement les six étapes fournies : Spi Ouest-France, Semaine de La Rochelle — Tour de l’île de Ré, YC Oléron Diam 24OD Cup, 4 Vents Cup, Trophée Diam 24OD YCCA et Challenge An Avel Braz. Les quatre premières sont terminées ; les étapes d’Arzon et de Saint-Philibert restent à venir.
+
 ## Ce qui est utile
 
 - comprendre immédiatement que le championnat est un circuit territorial ;

@@ -104,17 +104,19 @@ export function SeasonMap({
       id: "race-location-halo",
       type: "circle",
       source: "season-races",
-      paint: { "circle-radius": 14, "circle-color": RACE_ACCENT, "circle-opacity": 0.07 },
+      paint: { "circle-radius": 16, "circle-color": "#55e6c4", "circle-opacity": 0.14 },
     });
     map.addLayer({
       id: "race-locations",
       type: "circle",
       source: "season-races",
       paint: {
-        "circle-radius": 5,
-        "circle-color": ["match", ["get", "status"], "completed", "#d7e4e8", "upcoming", "#7f97a2", RACE_ACCENT],
-        "circle-stroke-color": INK,
-        "circle-stroke-width": 3,
+        // Completed = solid white dot; upcoming = white ring. Both must read
+        // clearly against dark open water.
+        "circle-radius": 6.5,
+        "circle-color": ["match", ["get", "status"], "completed", "#f2f7f9", INK],
+        "circle-stroke-color": ["match", ["get", "status"], "completed", INK, "#f2f7f9"],
+        "circle-stroke-width": ["match", ["get", "status"], "completed", 2.5, 2],
       },
     });
     map.addLayer({
@@ -151,22 +153,34 @@ export function SeasonMap({
   const { flyToTarget, flyToBounds } = useCameraDirector(mapRef, isReady);
 
   // Selection: swap route geometry, restyle markers, direct the camera.
+  // Races without an officially traced course show no line at all — the
+  // geometry is never invented.
   useEffect(() => {
     const map = mapRef.current;
     if (!isReady || !map) return;
     const routeSource = map.getSource("selected-route") as GeoJSONSource | undefined;
     const animSource = map.getSource("route-anim") as GeoJSONSource | undefined;
+    const boatSource = map.getSource("selected-boat") as GeoJSONSource | undefined;
     if (!routeSource || !animSource) return;
-    routeSource.setData(selectedRace.route);
-    animSource.setData(selectedRace.route);
-    map.setPaintProperty("race-location-halo", "circle-radius", ["case", ["==", ["get", "id"], selectedRace.id], 24, 14]);
-    map.setPaintProperty("race-location-halo", "circle-opacity", ["case", ["==", ["get", "id"], selectedRace.id], 0.2, 0.07]);
-    map.setPaintProperty("race-locations", "circle-radius", ["case", ["==", ["get", "id"], selectedRace.id], 8, 5]);
+    routeSource.setData(selectedRace.route ?? emptyCollection());
+    animSource.setData(selectedRace.route ?? emptyCollection());
+    if (!selectedRace.route) boatSource?.setData(emptyCollection());
+    const isSelected = ["==", ["get", "id"], selectedRace.id];
+    map.setPaintProperty("race-location-halo", "circle-color", ["case", isSelected, RACE_ACCENT, "#55e6c4"]);
+    map.setPaintProperty("race-location-halo", "circle-radius", ["case", isSelected, 24, 16]);
+    map.setPaintProperty("race-location-halo", "circle-opacity", ["case", isSelected, 0.22, 0.14]);
+    map.setPaintProperty("race-locations", "circle-radius", ["case", isSelected, 8.5, 6.5]);
     map.setPaintProperty("race-locations", "circle-color", [
       "case",
-      ["==", ["get", "id"], selectedRace.id],
+      isSelected,
       RACE_ACCENT,
-      ["match", ["get", "status"], "completed", "#d7e4e8", "#7f97a2"],
+      ["match", ["get", "status"], "completed", "#f2f7f9", INK],
+    ]);
+    map.setPaintProperty("race-locations", "circle-stroke-color", [
+      "case",
+      isSelected,
+      INK,
+      ["match", ["get", "status"], "completed", INK, "#f2f7f9"],
     ]);
 
     if (circuitOpen) {
@@ -179,12 +193,12 @@ export function SeasonMap({
         7.4,
       );
     } else {
-      const coordinates = selectedRace.route.geometry.coordinates;
+      const coordinates = selectedRace.route?.geometry.coordinates;
       flyToTarget({
         center: selectedRace.coordinates,
-        zoom: 10.4,
+        zoom: coordinates ? 10.4 : 10.8,
         pitch: 48,
-        bearing: bearingAt(coordinates, 0) - 18,
+        bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
       });
     }
   }, [circuitOpen, flyToBounds, flyToTarget, isReady, mapRef, races, selectedRace]);
@@ -192,8 +206,8 @@ export function SeasonMap({
   useRouteAnimation({
     mapRef,
     isReady,
-    coordinates: selectedRace.route.geometry.coordinates,
-    playing: isPlaying,
+    coordinates: selectedRace.route?.geometry.coordinates ?? [],
+    playing: isPlaying && Boolean(selectedRace.route),
     gradientLayerId: "route-anim",
     boatSourceId: "selected-boat",
   });
@@ -201,12 +215,12 @@ export function SeasonMap({
   const recenter = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
-    const coordinates = selectedRace.route.geometry.coordinates;
+    const coordinates = selectedRace.route?.geometry.coordinates;
     flyToTarget({
       center: selectedRace.coordinates,
-      zoom: 10.4,
+      zoom: coordinates ? 10.4 : 10.8,
       pitch: 48,
-      bearing: bearingAt(coordinates, 0) - 18,
+      bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
     });
   }, [flyToTarget, mapRef, selectedRace]);
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { RaceView } from "@/lib/domain";
 import { SEASON_RACES } from "@/lib/season-data";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
 import { AppShell } from "../shell/AppShell";
@@ -18,23 +17,19 @@ import { SeasonTimeline } from "./SeasonTimeline";
  * roadbook drawer (closed by default) and the time-proportional calendar.
  */
 export function SeasonControlRoom({
-  race,
-  weather,
   seasonWeather,
   nowIso,
 }: {
-  race: RaceView;
-  weather: RaceWeatherSnapshot;
   seasonWeather: Record<string, RaceWeatherSnapshot | null>;
   nowIso: string;
 }) {
-  const [selectedRaceId, setSelectedRaceId] = useState("trophee-golfe");
+  const [selectedRaceId, setSelectedRaceId] = useState("quatre-vents-cup");
   const [isPlaying, setIsPlaying] = useState(true);
   const [isCircuitOpen, setIsCircuitOpen] = useState(false);
 
   const now = useMemo(() => new Date(nowIso), [nowIso]);
   const selectedRace = useMemo(
-    () => SEASON_RACES.find((item) => item.id === selectedRaceId) ?? SEASON_RACES[2],
+    () => SEASON_RACES.find((item) => item.id === selectedRaceId) ?? SEASON_RACES[3],
     [selectedRaceId],
   );
   const pastCount = useMemo(
@@ -43,14 +38,12 @@ export function SeasonControlRoom({
   );
 
   // Real per-race conditions: archive for past races, forecast when in reach,
-  // null beyond the horizon. The reference race keeps its dedicated snapshot.
-  const selectedWeather: RaceWeatherSnapshot | null = selectedRace.id === "trophee-golfe"
-    ? weather
-    : seasonWeather[selectedRace.id] ?? null;
+  // null beyond the horizon.
+  const selectedWeather: RaceWeatherSnapshot | null = seasonWeather[selectedRace.id] ?? null;
 
   return <AppShell
     active="season"
-    raceSlug={race.slug}
+    raceSlug={selectedRace.slug}
     shellClassName="season-ocean-shell"
     navClassName="season-ocean-nav"
     navFooter={

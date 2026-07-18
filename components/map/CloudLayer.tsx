@@ -121,8 +121,8 @@ export function CloudLayer({
 
     const render = () => {
       const { knots } = windRef.current;
-      // Coverage grows gently with the breeze but stays discreet.
-      const baseAlpha = 0.09 + Math.min(knots, 30) / 30 * 0.09;
+      // Coverage grows with the breeze — present enough to read as live sky.
+      const baseAlpha = 0.16 + Math.min(knots, 30) / 30 * 0.14;
       context.clearRect(0, 0, width, height);
       for (const sheet of sheets) {
         const size = TILE * sheet.scale;
