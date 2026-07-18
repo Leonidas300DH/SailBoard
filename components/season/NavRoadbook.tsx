@@ -36,6 +36,7 @@ export function NavRoadbook({
           type="button"
           key={race.id}
           className={`nav-stage${race.id === selectedId ? " selected" : ""}`}
+          data-status={race.status}
           aria-pressed={race.id === selectedId}
           onClick={() => onSelect(race.id)}
         >
