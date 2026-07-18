@@ -7,12 +7,6 @@ import type { StagePodiumEntry } from "@/lib/wdt-profiles";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
 import { DecodeText } from "../map/DecodeText";
 
-const RELIABILITY_LABELS: Record<RaceWeatherSnapshot["reliability"], string> = {
-  archive: "Archive ERA5",
-  forecast: "Prévision",
-  fallback: "Reconstitution",
-};
-
 /**
  * Floating race HUD — appears only when a stage is picked on the map,
  * timeline or roadbook. Carries the identity, the real conditions and the
@@ -75,9 +69,6 @@ export function RaceHud({
         <span title="Mer"><Waves aria-hidden /><strong className="mono">{weather.waveHeight.toFixed(1)} M</strong></span>
         <span title="Marée"><Anchor aria-hidden /><strong className="mono">{weather.tideLabel}</strong></span>
         <span title="Eau"><Thermometer aria-hidden /><strong className="mono">{Math.round(weather.seaTemperature)}°C</strong></span>
-        <em className={`weather-badge weather-badge--${weather.reliability}`} title={weather.source}>
-          {RELIABILITY_LABELS[weather.reliability]}
-        </em>
       </div>
     ) : (
       <div className="race-hud-weather race-hud-weather--pending">

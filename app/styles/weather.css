@@ -1,7 +1,2 @@
-/* Reliability badge — provenance of the displayed conditions. */
-.weather-badge { margin-right: 7px; padding: 1px 6px; font-style: normal; font: 700 7px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .07em; }
-.weather-badge--archive { color: var(--hud); border: 1px solid rgba(85, 230, 196, .4); }
-.weather-badge--forecast { color: var(--race); border: 1px solid rgba(232, 255, 41, .4); }
-.weather-badge--fallback { color: var(--muted); border: 1px solid var(--line-strong); }
 .race-dossier-weather--pending small { color: var(--muted); font-size: 9px; }
 .race-dossier-weather--pending svg { color: var(--muted); }
