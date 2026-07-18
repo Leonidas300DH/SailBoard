@@ -5,6 +5,7 @@ import type { Map as MaplibreMap } from "maplibre-gl";
 import { Crosshair } from "lucide-react";
 import { formatDMS } from "@/lib/map/geo";
 import { graticuleStep } from "@/lib/map/graticule";
+import { DecodeText } from "./DecodeText";
 
 type EdgeLabel = { key: string; label: string; offset: number };
 
@@ -104,7 +105,7 @@ export function MapHud({
             <path d="M32 0v14M32 50v14M0 32h14M50 32h14" stroke="currentColor" strokeWidth="1" />
           </svg>
           {targetLabel && targetDms ? (
-            <span className="hud-reticle-tag mono">{targetLabel} · {targetDms.lat} {targetDms.lng}</span>
+            <span className="hud-reticle-tag mono"><DecodeText text={targetLabel} speed={14} delay={120} /> · {targetDms.lat} {targetDms.lng}</span>
           ) : null}
         </div>
       ) : null}

@@ -6,6 +6,8 @@ import { ArrowLeft, MapPin, Wind } from "lucide-react";
 import type { RaceView } from "@/lib/domain";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
 import { AppShell } from "../shell/AppShell";
+import { CountUpNumber } from "../map/CountUpNumber";
+import { DecodeText } from "../map/DecodeText";
 import { WindParticles } from "../map/WindParticles";
 import { CourseMap } from "./CourseMap";
 import { LeaderboardPanel } from "./LeaderboardPanel";
@@ -54,13 +56,13 @@ export function RaceExperience({
           <div className="map-shade" aria-hidden />
           <WindParticles windDirection={weather.windDirection} windKnots={weather.windKnots} />
           <div className="map-caption" aria-label="Contexte de l’étape">
-            <span className="map-chip map-chip-status"><MapPin aria-hidden />Plan d’eau · {isUpcoming ? "à venir" : "archive"}</span>
+            <span className="map-chip map-chip-status"><MapPin aria-hidden /><DecodeText text={`Plan d’eau · ${isUpcoming ? "à venir" : "archive"}`} speed={16} delay={120} /></span>
             {weatherPending ? null : (
-              <span className="map-chip map-chip-metric"><Wind aria-hidden />{weather.windKnots.toFixed(1)} ND · {Math.round(weather.windDirection)}° {weather.windLabel}</span>
+              <span className="map-chip map-chip-metric"><Wind aria-hidden /><CountUpNumber value={weather.windKnots} decimals={1} duration={640} delay={220} /> ND · <CountUpNumber value={Math.round(weather.windDirection)} duration={700} delay={260} />° <DecodeText text={weather.windLabel} speed={14} delay={300} /></span>
             )}
-            <span className="map-chip map-chip-meta">{race.locationName} · aperçu cartographique</span>
+            <span className="map-chip map-chip-meta"><DecodeText text={`${race.locationName} · aperçu cartographique`} speed={14} delay={340} /></span>
           </div>
-          <Link className="map-return" href="/"><ArrowLeft aria-hidden />Saison 2026</Link>
+          <Link className="map-return" href="/"><ArrowLeft aria-hidden /><DecodeText text="Saison 2026" speed={16} delay={260} /></Link>
           <RaceConditions weather={weather} pending={weatherPending} />
         </div>
 

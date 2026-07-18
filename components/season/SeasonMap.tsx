@@ -12,6 +12,21 @@ import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
 
 const INK = "#010a10";
+const LABEL_POSITIONS: Partial<Record<string, "top" | "right" | "left">> = {
+  "spi-ouest-france": "left",
+  "semaine-la-rochelle": "right",
+  "trophee-ycca": "right",
+  "challenge-an-avel-braz": "top",
+};
+
+// Several WDT stages share the same stretch of coast. At circuit scale their
+// exact coordinates collapse into a single hit target, so those markers are
+// spread by a few screen pixels while remaining anchored to their real place.
+const MARKER_OFFSETS: Partial<Record<string, [number, number]>> = {
+  "spi-ouest-france": [-32, 22],
+  "trophee-ycca": [30, 30],
+  "challenge-an-avel-braz": [32, -22],
+};
 
 export function SeasonMap({
   races,
@@ -93,13 +108,19 @@ export function SeasonMap({
         element.className = "race-marker";
         element.setAttribute("aria-label", `${race.name}, ${race.dateLabel} 2026`);
         element.dataset.status = race.status;
+        const labelPosition = LABEL_POSITIONS[race.id];
+        if (labelPosition) element.dataset.labelPosition = labelPosition;
         if (race.id === nextRaceId) element.classList.add("next");
         element.innerHTML = `<i aria-hidden="true">${raceIndex + 1}</i><span><strong>${race.shortName}</strong><small>${race.dateLabel}</small></span>`;
         element.addEventListener("click", (event) => {
           event.stopPropagation();
           onSelectRef.current(race.id);
         });
-        const marker = new maplibregl.Marker({ element, anchor: "center" })
+        const marker = new maplibregl.Marker({
+          element,
+          anchor: "center",
+          offset: MARKER_OFFSETS[race.id] ?? [0, 0],
+        })
           .setLngLat(race.coordinates)
           .addTo(map);
         markersRef.current.set(race.id, marker);

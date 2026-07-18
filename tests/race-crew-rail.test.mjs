@@ -17,8 +17,8 @@ test("affiche les équipages connus et masque les chronos absents", async () => 
   assert.match(wdt, /export function wdtTeamForParticipantEvent/);
   assert.match(wdt, /matchingTeams\.length !== 1/);
   assert.match(seasonView, /crew: wdtCrewForEvent\(team\.name, eventIndex\)/);
-  assert.match(rail, /hasTiming \? <div><span>Temps<\/span>/);
-  assert.match(rail, /hasTiming && gap != null \? <div><span>Écart 1er<\/span>/);
+  assert.match(rail, /hasTiming \? <div[^>]*><span><DecodeText text="Temps"/);
+  assert.match(rail, /hasTiming && gap != null \? <div[^>]*><span><DecodeText text="Écart 1er"/);
   assert.match(rail, /Équipage de l’étape/);
   assert.match(rail, /Composition non publiée/);
   assert.match(rail, /classements\?vue=individuel&selection=/);

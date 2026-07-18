@@ -1,7 +1,9 @@
 "use client";
 
 import { Sailboat, Trophy, Users, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, type CSSProperties } from "react";
+import { CountUpNumber } from "@/components/map/CountUpNumber";
+import { DecodeText } from "@/components/map/DecodeText";
 import {
   snapshotSlug,
   standingColor,
@@ -61,40 +63,41 @@ export function NavProfileHud({ selection, onClose, onSelect }: { selection: Nav
   const color = standingColor(row.rank);
 
   return <section
+    key={`${selection.type}-${selection.slug}`}
     className={`nav-profile-hud nav-profile-hud--${selection.type}`}
-    style={{ "--profile-color": color } as React.CSSProperties}
+    style={{ "--profile-color": color } as CSSProperties}
     role="dialog"
     aria-modal="false"
     aria-label={`HUD de ${displayName}`}
   >
     <header className="nav-profile-hud-head">
-      <span>{isTeam ? <Sailboat aria-hidden /> : <Users aria-hidden />}{isTeam ? "Équipage" : "Navigateur"}</span>
-      <span className="mono">RANG · {String(row.rank).padStart(2, "0")}</span>
+      <span>{isTeam ? <Sailboat aria-hidden /> : <Users aria-hidden />}<DecodeText text={isTeam ? "Équipage" : "Navigateur"} speed={18} delay={160} /></span>
+      <span className="mono"><DecodeText text={`RANG · ${String(row.rank).padStart(2, "0")}`} speed={16} delay={250} /></span>
       <button type="button" onClick={onClose} aria-label="Fermer le HUD"><X aria-hidden /></button>
     </header>
 
     <div className="nav-profile-hud-identity">
-      <span className="mono">{row.rank}<sup>{row.rank === 1 ? "er" : "e"}</sup></span>
-      <strong>{displayName}</strong>
-      <span className="nav-profile-hud-total mono">{row.points}<small>pts</small></span>
+      <span className="mono"><CountUpNumber value={row.rank} duration={480} delay={260} /><sup>{row.rank === 1 ? "er" : "e"}</sup></span>
+      <strong><DecodeText text={displayName} speed={18} delay={320} /></strong>
+      <span className="nav-profile-hud-total mono"><CountUpNumber value={row.points} decimals={Number.isInteger(row.points) ? 0 : 1} duration={760} delay={420} /><small>pts</small></span>
     </div>
 
     {isTeam ? <div className="nav-profile-hud-relations">
-      <span><Users aria-hidden />Équipage · 4 Vents</span>
-      {crew.length > 0 ? crew.map((member) => <button key={member.slug} type="button" onClick={() => onSelect({ type: "sailors", slug: member.slug })}>
-        <strong>{participantDisplayName(member.name)}</strong><small>{member.role}</small>
+      <span><Users aria-hidden /><DecodeText text="Équipage · 4 Vents" speed={16} delay={510} /></span>
+      {crew.length > 0 ? crew.map((member, memberIndex) => <button key={member.slug} type="button" style={{ "--hud-row": memberIndex } as CSSProperties} onClick={() => onSelect({ type: "sailors", slug: member.slug })}>
+        <strong><DecodeText text={participantDisplayName(member.name)} speed={16} delay={560 + memberIndex * 80} /></strong><small><DecodeText text={member.role} speed={14} delay={620 + memberIndex * 80} /></small>
       </button>) : <p>Composition non publiée</p>}
     </div> : <div className="nav-profile-hud-relations nav-profile-hud-relations--single">
-      <span><Sailboat aria-hidden />Équipage · 4 Vents</span>
-      {team ? <button type="button" onClick={() => onSelect({ type: "teams", slug: team.slug })}>
-        <strong>{teamDisplayName(team.name)}</strong><small>Navigateur</small>
+      <span><Sailboat aria-hidden /><DecodeText text="Équipage · 4 Vents" speed={16} delay={510} /></span>
+      {team ? <button type="button" style={{ "--hud-row": 0 } as CSSProperties} onClick={() => onSelect({ type: "teams", slug: team.slug })}>
+        <strong><DecodeText text={teamDisplayName(team.name)} speed={16} delay={560} /></strong><small><DecodeText text="Navigateur" speed={14} delay={620} /></small>
       </button> : <p>Affectation non publiée</p>}
     </div>}
 
     <div className="nav-profile-hud-stages" aria-label="Points des étapes courues">
-      <span><Trophy aria-hidden />Étapes</span>
-      {completedScores.map((score, index) => <span key={WDT_2026_EVENTS[index].id} title={WDT_2026_EVENTS[index].name}>
-        <small>E{index + 1}</small><strong className="mono">{score ?? "—"}</strong>
+      <span><Trophy aria-hidden /><DecodeText text="Étapes" speed={16} delay={760} /></span>
+      {completedScores.map((score, index) => <span key={WDT_2026_EVENTS[index].id} title={WDT_2026_EVENTS[index].name} style={{ "--hud-row": index } as CSSProperties}>
+        <small>E{index + 1}</small><strong className="mono">{score == null ? "—" : <CountUpNumber value={score} decimals={Number.isInteger(score) ? 0 : 1} duration={620} delay={810 + index * 90} />}</strong>
       </span>)}
     </div>
   </section>;
