@@ -9,6 +9,7 @@ import { useMapLibre } from "../map/useMapLibre";
 import { useCameraDirector } from "../map/useCameraDirector";
 import { useRouteAnimation } from "../map/useRouteAnimation";
 import { MapHud } from "../map/MapHud";
+import { CloudLayer } from "../map/CloudLayer";
 
 const RACE_ACCENT = "#e8ff29";
 const INK = "#010a10";
@@ -17,11 +18,15 @@ export function SeasonMap({
   races,
   selectedRace,
   isPlaying,
+  windDirection = 250,
+  windKnots = 12,
   onSelect,
 }: {
   races: SeasonRace[];
   selectedRace: SeasonRace | null;
   isPlaying: boolean;
+  windDirection?: number;
+  windKnots?: number;
   onSelect: (raceId: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -118,6 +123,7 @@ export function SeasonMap({
     center: compact ? [-3.05, 47.82] : [-3.05, 48.05],
     zoom: compact ? 6.45 : 6.85,
     minZoom: 6.2,
+    maxPitch: 65,
     onLoad: handleLoad,
   });
   const { flyToTarget, flyToBounds } = useCameraDirector(mapRef, isReady);
@@ -148,6 +154,7 @@ export function SeasonMap({
         [[Math.min(...longitudes), Math.min(...latitudes)], [Math.max(...longitudes), Math.max(...latitudes)]],
         isCompact ? 46 : { top: 96, right: 90, bottom: 150, left: 90 },
         7.4,
+        { pitch: isCompact ? 26 : 34, bearing: -8 },
       );
       return;
     }
@@ -156,7 +163,7 @@ export function SeasonMap({
     flyToTarget({
       center: selectedRace.coordinates,
       zoom: coordinates ? 10.4 : 10.8,
-      pitch: 48,
+      pitch: 52,
       bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
     });
   }, [flyToBounds, flyToTarget, isReady, mapRef, races, selectedRace]);
@@ -180,6 +187,7 @@ export function SeasonMap({
         [[Math.min(...longitudes), Math.min(...latitudes)], [Math.max(...longitudes), Math.max(...latitudes)]],
         { top: 96, right: 90, bottom: 150, left: 90 },
         7.4,
+        { pitch: map.getContainer().clientWidth < 760 ? 26 : 34, bearing: -8 },
       );
       return;
     }
@@ -187,13 +195,19 @@ export function SeasonMap({
     flyToTarget({
       center: selectedRace.coordinates,
       zoom: coordinates ? 10.4 : 10.8,
-      pitch: 48,
+      pitch: 52,
       bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
     });
   }, [flyToBounds, flyToTarget, mapRef, races, selectedRace]);
 
   return <div className="season-map-frame">
     <div ref={containerRef} className="race-map season-ocean-map" aria-label="Carte des étapes de la saison" />
+    <CloudLayer
+      windDirection={windDirection}
+      windKnots={windKnots}
+      mapRef={mapRef}
+      isReady={isReady}
+    />
     <MapHud
       mapRef={mapRef}
       isReady={isReady}

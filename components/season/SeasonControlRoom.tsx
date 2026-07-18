@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import { SEASON_RACES } from "@/lib/season-data";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
+import type { StagePodiumEntry } from "@/lib/wdt-profiles";
 import { AppShell } from "../shell/AppShell";
-import { CloudLayer } from "../map/CloudLayer";
 import { WindParticles } from "../map/WindParticles";
 import { SeasonMap } from "./SeasonMap";
 import { SeasonTopBar } from "./SeasonTopBar";
@@ -20,9 +20,11 @@ import { SeasonTimeline } from "./SeasonTimeline";
  */
 export function SeasonControlRoom({
   seasonWeather,
+  stagePodiums,
   nowIso,
 }: {
   seasonWeather: Record<string, RaceWeatherSnapshot | null>;
+  stagePodiums: Record<string, StagePodiumEntry[]>;
   nowIso: string;
 }) {
   const [selectedRaceId, setSelectedRaceId] = useState<string | null>(null);
@@ -49,15 +51,6 @@ export function SeasonControlRoom({
     active="season"
     shellClassName="season-ocean-shell"
     navClassName="season-ocean-nav"
-    navExtras={{
-      season: (
-        <NavRoadbook
-          races={SEASON_RACES}
-          selectedId={selectedRace?.id ?? null}
-          onSelect={setSelectedRaceId}
-        />
-      ),
-    }}
   >
     <section className="season-ocean-stage">
       <div className="season-map-canvas">
@@ -65,11 +58,9 @@ export function SeasonControlRoom({
           races={SEASON_RACES}
           selectedRace={selectedRace}
           isPlaying={isPlaying}
-          onSelect={setSelectedRaceId}
-        />
-        <CloudLayer
           windDirection={ambientWeather?.windDirection ?? 250}
           windKnots={ambientWeather?.windKnots ?? 12}
+          onSelect={setSelectedRaceId}
         />
         <div className="season-ocean-shade" aria-hidden />
         <WindParticles
@@ -88,6 +79,7 @@ export function SeasonControlRoom({
           <RaceHud
             race={selectedRace}
             index={selectedIndex}
+            podium={stagePodiums[selectedRace.id] ?? []}
             weather={selectedWeather}
             isPlaying={isPlaying}
             isToday={new Date(`${selectedRace.date}T00:00:00`).toDateString() === now.toDateString()}
@@ -103,6 +95,13 @@ export function SeasonControlRoom({
         now={now}
         onSelect={setSelectedRaceId}
       />
+      <div className="season-mobile-stages">
+        <NavRoadbook
+          races={SEASON_RACES}
+          selectedId={selectedRace?.id ?? null}
+          onSelect={setSelectedRaceId}
+        />
+      </div>
     </section>
   </AppShell>;
 }

@@ -44,9 +44,4 @@
 .nav-stage.selected .nav-stage-copy strong { color: #ff4055; }
 .nav-stage.selected .nav-stage-hex, .nav-stage.selected[data-status="completed"] .nav-stage-hex { color: #fff; background: var(--danger); }
 
-@media (max-width: 1050px) {
-  .nav-roadbook { display: none; }
-}
-@media (max-width: 760px) {
-  .nav-roadbook { display: none; }
-}
+

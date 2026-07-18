@@ -1,32 +1,54 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
+import type { Map as MaplibreMap } from "maplibre-gl";
 import { prefersReducedMotion } from "./useMapLibre";
 
-const TILE = 768;
+const TILE = 640;
+const ATLANTIC_ANCHOR: [number, number] = [-3.05, 48.05];
+
+type CloudSheet = {
+  scale: number;
+  speed: number;
+  alpha: number;
+  headingOffset: number;
+  altitude: number;
+  parallax: number;
+  x: number;
+  y: number;
+};
 
 function smoothstep(edge0: number, edge1: number, value: number) {
   const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
   return t * t * (3 - 2 * t);
 }
 
+function seededRandom(seed: number) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
 /**
- * Tileable cloud field rendered once offscreen. Domain-warped fractal noise:
- * a low-frequency warp field bends the sampling coordinates before the fbm
- * lookup, which is what turns "blurry noise" into the stretched, organic
- * masses real cloud decks have. Soft smoothstep shaping keeps edges feathered.
+ * Deterministic, tileable cloud field. The low-frequency domain warp bends
+ * the fractal sampling coordinates into broad Atlantic cloud banks rather
+ * than a repeated blurred-noise texture. Determinism prevents the sky from
+ * changing whenever React remounts the map.
  */
-function buildCloudTile(): HTMLCanvasElement {
+function buildCloudTile(seed: number): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.width = TILE;
   canvas.height = TILE;
   const context = canvas.getContext("2d");
   if (!context) return canvas;
   const image = context.createImageData(TILE, TILE);
+  const random = seededRandom(seed);
 
   const makeGrid = (cells: number) => {
     const grid = new Float32Array(cells * cells);
-    for (let index = 0; index < grid.length; index += 1) grid[index] = Math.random();
+    for (let index = 0; index < grid.length; index += 1) grid[index] = random();
     return grid;
   };
   const sample = (grid: Float32Array, cells: number, u: number, v: number) => {
@@ -47,7 +69,6 @@ function buildCloudTile(): HTMLCanvasElement {
     return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
   };
 
-  // Big, few structures: the lowest octave spans a third of the tile.
   const octaves = [
     { cells: 3, amp: 0.44, grid: makeGrid(3) },
     { cells: 6, amp: 0.26, grid: makeGrid(6) },
@@ -62,39 +83,54 @@ function buildCloudTile(): HTMLCanvasElement {
     for (let x = 0; x < TILE; x += 1) {
       const u = x / TILE;
       const v = y / TILE;
-      // Domain warp: bend coordinates before the fbm lookup.
-      const wu = u + (sample(warpU, 4, u, v) - 0.5) * 0.28;
-      const wv = v + (sample(warpV, 4, u, v) - 0.5) * 0.28;
+      const wu = u + (sample(warpU, 4, u, v) - 0.5) * 0.3;
+      const wv = v + (sample(warpV, 4, u, v) - 0.5) * 0.3;
       let noise = 0;
-      for (const { cells, amp, grid } of octaves) {
-        noise += sample(grid, cells, wu, wv) * amp;
-      }
-      // Feathered coverage: clear sky below .52, dense core near .78.
-      const density = smoothstep(0.52, 0.78, noise);
+      for (const { cells, amp, grid } of octaves) noise += sample(grid, cells, wu, wv) * amp;
+
+      const density = smoothstep(0.5, 0.79, noise);
+      const core = density ** 1.18;
       const offset = (y * TILE + x) * 4;
-      image.data[offset] = 238;
-      image.data[offset + 1] = 245;
-      image.data[offset + 2] = 250;
-      image.data[offset + 3] = Math.round(density ** 1.25 * 255);
+      image.data[offset] = Math.round(207 + core * 41);
+      image.data[offset + 1] = Math.round(224 + core * 27);
+      image.data[offset + 2] = Math.round(235 + core * 18);
+      image.data[offset + 3] = Math.round(core * 255);
     }
   }
   context.putImageData(image, 0, 0);
   return canvas;
 }
 
+function buildSheets(compact: boolean): CloudSheet[] {
+  if (compact) {
+    return [
+      { scale: 2.5, speed: 0.52, alpha: 0.56, headingOffset: -5, altitude: 0.35, parallax: 0.74, x: 0, y: 0 },
+      { scale: 1.7, speed: 0.92, alpha: 0.72, headingOffset: 7, altitude: 0.7, parallax: 0.58, x: 310, y: 140 },
+    ];
+  }
+  return [
+    { scale: 3.2, speed: 0.38, alpha: 0.42, headingOffset: -9, altitude: 0.18, parallax: 0.86, x: 0, y: 0 },
+    { scale: 2.25, speed: 0.68, alpha: 0.58, headingOffset: 2, altitude: 0.5, parallax: 0.7, x: 330, y: 170 },
+    { scale: 1.55, speed: 1, alpha: 0.7, headingOffset: 11, altitude: 0.86, parallax: 0.52, x: 580, y: 410 },
+  ];
+}
+
 /**
- * Discreet live-sky overlay: two parallax cloud decks drifting slowly with
- * the real wind (a couple of px/s — a deck crosses the view in minutes).
- * Their slightly diverging headings make the overlap evolve, so the sky
- * changes shape instead of sliding as a frozen picture. Static under
- * reduced motion.
+ * Multi-deck atmosphere inspired by Dropfleet's procedural cloud canvas.
+ * Each deck has its own altitude and camera parallax. Map pitch compresses
+ * the decks toward the horizon while altitude separates them vertically;
+ * bearing and pan keep the texture anchored to the chart instead of the UI.
  */
 export function CloudLayer({
   windDirection,
   windKnots,
+  mapRef,
+  isReady = true,
 }: {
   windDirection: number;
   windKnots: number;
+  mapRef?: RefObject<MaplibreMap | null>;
+  isReady?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const windRef = useRef({ direction: windDirection, knots: windKnots });
@@ -106,85 +142,117 @@ export function CloudLayer({
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
-    if (!canvas || !context) return;
+    const map = mapRef?.current ?? null;
+    if (!canvas || !context || (mapRef && (!map || !isReady))) return;
 
-    const tile = buildCloudTile();
+    const tile = buildCloudTile(2026);
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const compact = (map?.getContainer().clientWidth ?? canvas.parentElement?.clientWidth ?? window.innerWidth) < 760;
+    const sheets = buildSheets(compact);
+    const reduceMotion = prefersReducedMotion();
     let width = 0;
     let height = 0;
+    let frame = 0;
+    let previous = performance.now();
+    let lastDraw = 0;
+
     const resize = () => {
       const parent = canvas.parentElement;
       if (!parent) return;
       width = parent.clientWidth;
       height = parent.clientHeight;
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
+      canvas.width = Math.max(1, Math.round(width * dpr));
+      canvas.height = Math.max(1, Math.round(height * dpr));
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
-    resize();
-    const observer = new ResizeObserver(resize);
-    if (canvas.parentElement) observer.observe(canvas.parentElement);
 
-    const compact = window.innerWidth < 760;
-    const sheets = (compact
-      ? [{ scale: 2.2, speed: 1, alpha: 1, headingOffset: 0, x: 0, y: 0 }]
-      : [
-        { scale: 3, speed: 0.55, alpha: 0.65, headingOffset: -6, x: 0, y: 0 },
-        { scale: 1.9, speed: 1, alpha: 1, headingOffset: 7, x: 310, y: 140 },
-      ]);
+    const drawSheet = (sheet: CloudSheet, baseAlpha: number) => {
+      const pitch = map?.getPitch() ?? 0;
+      const pitchRadians = pitch * Math.PI / 180;
+      const bearingRadians = (map?.getBearing() ?? 0) * Math.PI / 180;
+      const anchor = map?.project(ATLANTIC_ANCHOR) ?? { x: 0, y: 0 };
+      const zoomScale = Math.min(1.5, Math.max(0.82, 2 ** (((map?.getZoom() ?? 7) - 7) * 0.055)));
+      const size = TILE * sheet.scale * zoomScale;
+      const horizonCompression = Math.max(0.55, 1 - pitch / 108);
+      const altitudeLift = -Math.sin(pitchRadians) * sheet.altitude * Math.min(height * 0.18, 150);
+      const originX = sheet.x + anchor.x * sheet.parallax;
+      const originY = sheet.y + anchor.y * sheet.parallax;
+      const overscan = Math.hypot(width, height) * 0.72 + size;
+
+      context.save();
+      context.translate(width / 2, height / 2 + altitudeLift);
+      context.rotate(-bearingRadians);
+      context.scale(1, horizonCompression);
+      context.translate(-width / 2, -height / 2);
+      context.globalAlpha = baseAlpha * sheet.alpha * (1 + Math.sin(pitchRadians) * 0.2);
+      context.shadowColor = `rgba(185, 215, 230, ${0.1 + sheet.altitude * 0.08})`;
+      context.shadowBlur = 10 + sheet.altitude * 12;
+      context.shadowOffsetY = 8 + sheet.altitude * 12;
+
+      const startX = -overscan - ((originX % size) + size) % size;
+      const startY = -overscan - ((originY % size) + size) % size;
+      const endX = width + overscan;
+      const endY = height + overscan;
+      for (let x = startX; x < endX; x += size) {
+        for (let y = startY; y < endY; y += size) context.drawImage(tile, x, y, size, size);
+      }
+      context.restore();
+    };
 
     const render = () => {
       const { knots } = windRef.current;
-      // Quiet presence: 8% coverage in light air, 15% in a real breeze.
-      const baseAlpha = 0.08 + Math.min(knots, 30) / 30 * 0.07;
+      const baseAlpha = 0.07 + Math.min(knots, 30) / 30 * 0.065;
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
-      for (const sheet of sheets) {
-        const size = TILE * sheet.scale;
-        const ox = ((sheet.x % size) + size) % size;
-        const oy = ((sheet.y % size) + size) % size;
-        context.globalAlpha = baseAlpha * sheet.alpha;
-        for (let x = -ox; x < width; x += size) {
-          for (let y = -oy; y < height; y += size) {
-            context.drawImage(tile, x, y, size, size);
-          }
-        }
-      }
+      context.globalCompositeOperation = "screen";
+      for (const sheet of sheets) drawSheet(sheet, baseAlpha);
+      context.globalCompositeOperation = "source-over";
       context.globalAlpha = 1;
     };
 
-    if (prefersReducedMotion()) {
-      render();
-      return () => observer.disconnect();
-    }
-
-    let frame = 0;
-    let previous = performance.now();
-    let lastDraw = 0;
-    const tick = (now: number) => {
-      frame = requestAnimationFrame(tick);
-      const delta = Math.min(now - previous, 120) / 1000;
-      previous = now;
+    const advanceWind = (delta: number) => {
       const { direction, knots } = windRef.current;
-      // Slow drift: ~1 px/s in light air, ~3 px/s in 20 knots.
-      const speed = 0.7 + Math.min(knots, 30) * 0.11;
+      const speed = 0.55 + Math.min(knots, 30) * 0.085;
       for (const sheet of sheets) {
         const heading = ((direction + 180 + sheet.headingOffset) * Math.PI) / 180;
         sheet.x += Math.sin(heading) * speed * sheet.speed * delta;
         sheet.y += -Math.cos(heading) * speed * sheet.speed * delta;
       }
-      // At these speeds ~12 fps is indistinguishable from continuous.
-      if (now - lastDraw < 80) return;
+    };
+
+    const tick = (now: number) => {
+      frame = requestAnimationFrame(tick);
+      const delta = Math.min(now - previous, 120) / 1000;
+      previous = now;
+      advanceWind(delta);
+      if (now - lastDraw < 50) return;
       lastDraw = now;
       render();
     };
-    frame = requestAnimationFrame(tick);
+
+    resize();
+    render();
+    const observer = new ResizeObserver(() => {
+      resize();
+      render();
+    });
+    if (canvas.parentElement) observer.observe(canvas.parentElement);
+
+    if (reduceMotion) {
+      map?.on("move", render);
+      map?.on("resize", render);
+    } else {
+      frame = requestAnimationFrame(tick);
+    }
+
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      map?.off("move", render);
+      map?.off("resize", render);
     };
-  }, []);
+  }, [isReady, mapRef]);
 
   return <canvas ref={canvasRef} className="cloud-layer" aria-hidden />;
 }

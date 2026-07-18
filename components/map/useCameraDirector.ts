@@ -11,6 +11,11 @@ export type CameraTarget = {
   bearing?: number;
 };
 
+export type CameraOrientation = {
+  pitch?: number;
+  bearing?: number;
+};
+
 /**
  * Cinematic camera pilot. Programmatic moves use flyTo with pitch/bearing;
  * as soon as the user drags (movestart with an originalEvent), the director
@@ -49,7 +54,12 @@ export function useCameraDirector(mapRef: RefObject<MaplibreMap | null>, isReady
     map.flyTo({ ...camera, duration: 2200, curve: 1.35, essential: true });
   }, [mapRef]);
 
-  const flyToBounds = useCallback((bounds: [[number, number], [number, number]], padding: number | { top: number; right: number; bottom: number; left: number }, maxZoom?: number) => {
+  const flyToBounds = useCallback((
+    bounds: [[number, number], [number, number]],
+    padding: number | { top: number; right: number; bottom: number; left: number },
+    maxZoom?: number,
+    orientation: CameraOrientation = {},
+  ) => {
     const map = mapRef.current;
     if (!map) return;
     userDroveRef.current = false;
@@ -57,10 +67,16 @@ export function useCameraDirector(mapRef: RefObject<MaplibreMap | null>, isReady
     const camera = map.cameraForBounds(bounds, { padding, maxZoom });
     if (!camera) return;
     if (prefersReducedMotion()) {
-      map.jumpTo({ ...camera, pitch: 0, bearing: 0 });
+      map.jumpTo({ ...camera, pitch: orientation.pitch ?? 0, bearing: orientation.bearing ?? 0 });
       return;
     }
-    map.easeTo({ ...camera, pitch: 0, bearing: 0, duration: 1100, essential: true });
+    map.easeTo({
+      ...camera,
+      pitch: orientation.pitch ?? 0,
+      bearing: orientation.bearing ?? 0,
+      duration: 1100,
+      essential: true,
+    });
   }, [mapRef]);
 
   return { flyToTarget, flyToBounds, userDroveRef };

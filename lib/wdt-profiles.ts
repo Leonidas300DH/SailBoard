@@ -78,3 +78,20 @@ export function wdtParticipantProfile(slug: string) {
     race: latestRace(history),
   };
 }
+
+export type StagePodiumEntry = { place: number; name: string; slug: string };
+
+/** Top finishers of each completed stage, from the official workbook. */
+export function stagePodiums(limit = 3): Record<string, StagePodiumEntry[]> {
+  const result: Record<string, StagePodiumEntry[]> = {};
+  WDT_2026_EVENTS.forEach((event, index) => {
+    if (event.status !== "completed") return;
+    result[event.id] = wdt2026TeamSnapshot.rows
+      .map((team) => ({ name: team.name, slug: snapshotSlug(team.name), score: team.eventScores[index] }))
+      .filter((entry): entry is { name: string; slug: string; score: number } => entry.score != null)
+      .sort((left, right) => left.score - right.score)
+      .slice(0, limit)
+      .map((entry) => ({ place: entry.score, name: entry.name, slug: entry.slug }));
+  });
+  return result;
+}

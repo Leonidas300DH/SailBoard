@@ -3,12 +3,13 @@
 import { useCallback, useMemo, useRef } from "react";
 import type { Map as MaplibreMap } from "maplibre-gl";
 import { MAP_FONT } from "@/lib/map/style";
-import { markThresholds } from "@/lib/map/geo";
+import { bearingAt, markThresholds } from "@/lib/map/geo";
 import { attachGraticule } from "@/lib/map/graticule";
 import { useMapLibre } from "../map/useMapLibre";
 import { useCameraDirector } from "../map/useCameraDirector";
 import { useRouteAnimation } from "../map/useRouteAnimation";
 import { MapHud } from "../map/MapHud";
+import { CloudLayer } from "../map/CloudLayer";
 
 const RACE_ACCENT = "#e8ff29";
 const INK = "#010a10";
@@ -23,10 +24,14 @@ export function CourseMap({
   center,
   geojson,
   isPlaying,
+  windDirection = 250,
+  windKnots = 12,
 }: {
   center: [number, number];
   geojson: GeoJSON.FeatureCollection;
   isPlaying: boolean;
+  windDirection?: number;
+  windKnots?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const litCountRef = useRef(-1);
@@ -153,6 +158,7 @@ export function CourseMap({
 
     if (routeBounds) {
       map.fitBounds(routeBounds, { padding: { top: 96, right: 96, bottom: 110, left: 96 }, maxZoom: 13.5, duration: 0 });
+      map.jumpTo({ pitch: 48, bearing: bearingAt(routeCoordinates, 0) - 12 });
     }
   }, [geojson, routeBounds, routeCoordinates]);
 
@@ -160,6 +166,7 @@ export function CourseMap({
     preset: "course",
     center,
     zoom: 11.7,
+    maxPitch: 65,
     onLoad: handleLoad,
   });
   const { flyToBounds } = useCameraDirector(mapRef, isReady);
@@ -187,11 +194,19 @@ export function CourseMap({
   });
 
   const recenter = useCallback(() => {
-    if (routeBounds) flyToBounds(routeBounds, { top: 96, right: 96, bottom: 110, left: 96 }, 13.5);
-  }, [flyToBounds, routeBounds]);
+    if (routeBounds) {
+      flyToBounds(
+        routeBounds,
+        { top: 96, right: 96, bottom: 110, left: 96 },
+        13.5,
+        { pitch: 48, bearing: bearingAt(routeCoordinates, 0) - 12 },
+      );
+    }
+  }, [flyToBounds, routeBounds, routeCoordinates]);
 
   return <div className="season-map-frame">
     <div ref={containerRef} className="race-map" aria-label="Carte animée du parcours officiel" />
+    <CloudLayer windDirection={windDirection} windKnots={windKnots} mapRef={mapRef} isReady={isReady} />
     <MapHud
       mapRef={mapRef}
       isReady={isReady}

@@ -6,7 +6,6 @@ import { ArrowLeft, Pause, Play, Radio, Wind } from "lucide-react";
 import type { RaceView } from "@/lib/domain";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
 import { AppShell } from "../shell/AppShell";
-import { CloudLayer } from "../map/CloudLayer";
 import { WindParticles } from "../map/WindParticles";
 import { CourseMap } from "./CourseMap";
 import { LeaderboardPanel } from "./LeaderboardPanel";
@@ -61,8 +60,7 @@ export function RaceExperience({
     <section className="race-stage">
       <div className={`race-main ${isRailExpanded ? "rail-expanded" : ""}`}>
         <div className="map-wrap">
-          <CourseMap center={race.center} geojson={race.courseGeoJson} isPlaying={isPlaying} />
-          <CloudLayer windDirection={weather.windDirection} windKnots={weather.windKnots} />
+          <CourseMap center={race.center} geojson={race.courseGeoJson} isPlaying={isPlaying} windDirection={weather.windDirection} windKnots={weather.windKnots} />
           <div className="map-shade" aria-hidden />
           <WindParticles windDirection={weather.windDirection} windKnots={weather.windKnots} />
           <div className="map-caption" aria-label="Contexte de l’étape">

@@ -1,7 +1,7 @@
 /* Tactical HUD — DOM overlay over the map: graticule labels, reticle, readout. */
 .season-map-frame { position: absolute; inset: 0; }
-/* Procedural clouds drifting with the real wind — under shade and HUD. */
-.cloud-layer { position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen; filter: blur(14px); }
+/* Camera-linked atmospheric decks — over the chart, under shade and HUD. */
+.cloud-layer { position: absolute; inset: 0; z-index: 1; display: block; pointer-events: none; mix-blend-mode: screen; filter: blur(5px) contrast(1.04) saturate(.72); opacity: .94; contain: strict; will-change: contents; }
 .map-hud { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; color: var(--hud); }
 .hud-edge-label { position: absolute; padding: 1px 5px; background: rgba(1, 10, 16, .62); color: var(--hud-dim); font-size: 9px; letter-spacing: .08em; }
 .hud-edge-label--lat { left: 0; transform: translateY(-50%); border-left: 2px solid var(--grid-line); }

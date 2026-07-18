@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Anchor, ChevronRight, CloudOff, Gauge, Pause, Play, Thermometer, Waves, Wind, X } from "lucide-react";
 import type { SeasonRace } from "@/lib/season-data";
+import type { StagePodiumEntry } from "@/lib/wdt-profiles";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
 
 const RELIABILITY_LABELS: Record<RaceWeatherSnapshot["reliability"], string> = {
@@ -19,6 +20,7 @@ const RELIABILITY_LABELS: Record<RaceWeatherSnapshot["reliability"], string> = {
 export function RaceHud({
   race,
   index,
+  podium = [],
   weather,
   isPlaying,
   isToday = false,
@@ -27,6 +29,7 @@ export function RaceHud({
 }: {
   race: SeasonRace;
   index: number;
+  podium?: StagePodiumEntry[];
   weather: RaceWeatherSnapshot | null;
   isPlaying: boolean;
   isToday?: boolean;
@@ -52,6 +55,17 @@ export function RaceHud({
       </div>
       <button type="button" className="race-hud-close" aria-label="Refermer la fiche" onClick={onClose}><X /></button>
     </header>
+
+    {podium.length > 0 ? (
+      <div className="race-hud-podium" aria-label="Premiers de l’étape">
+        {podium.map((entry) => (
+          <Link key={entry.slug} href={`/bateaux/${entry.slug}`} className="race-hud-podium-row">
+            <b className="mono">{entry.place}</b>
+            <span>{entry.name}</span>
+          </Link>
+        ))}
+      </div>
+    ) : null}
 
     {weather ? (
       <div className="race-hud-weather" aria-label="Conditions météo du jour de l’étape">
