@@ -15,12 +15,12 @@ const OFF = "rgba(0, 0, 0, 0)";
  * head at `progress`, nothing beyond. Stops are kept strictly increasing —
  * MapLibre rejects unsorted interpolate expressions.
  */
-export function cometExpression(progress: number): unknown[] {
+export function cometExpression(progress: number, trailColor = TRAIL, wakeColor = WAKE): unknown[] {
   const p = Math.min(0.999, Math.max(0.002, progress));
   const tail = Math.max(0.001, p - 0.1);
   const stops: Array<[number, string]> = [
-    [0, WAKE],
-    [tail, TRAIL],
+    [0, wakeColor],
+    [tail, trailColor],
     [p, HEAD],
     [Math.min(0.9995, p + 0.0005), OFF],
   ];
@@ -34,8 +34,8 @@ export function cometExpression(progress: number): unknown[] {
   return expression;
 }
 
-export function fullTrackExpression(): unknown[] {
-  return ["interpolate", ["linear"], ["line-progress"], 0, TRAIL, 1, TRAIL];
+export function fullTrackExpression(trailColor = TRAIL): unknown[] {
+  return ["interpolate", ["linear"], ["line-progress"], 0, trailColor, 1, trailColor];
 }
 
 /**
@@ -53,6 +53,8 @@ export function useRouteAnimation({
   gradientLayerId,
   boatSourceId,
   onProgress,
+  trailColor = TRAIL,
+  wakeColor = WAKE,
 }: {
   mapRef: RefObject<MaplibreMap | null>;
   isReady: boolean;
@@ -62,6 +64,8 @@ export function useRouteAnimation({
   gradientLayerId: string;
   boatSourceId?: string;
   onProgress?: (progress: number) => void;
+  trailColor?: string;
+  wakeColor?: string;
 }) {
   const progressRef = useRef(0.72);
   const distances = useMemo(() => cumulativeDistances(coordinates), [coordinates]);
@@ -76,7 +80,7 @@ export function useRouteAnimation({
 
     const apply = (progress: number) => {
       if (map.getLayer(gradientLayerId)) {
-        map.setPaintProperty(gradientLayerId, "line-gradient", cometExpression(progress), { validate: false });
+        map.setPaintProperty(gradientLayerId, "line-gradient", cometExpression(progress, trailColor, wakeColor), { validate: false });
       }
       if (boatSourceId) {
         const source = map.getSource(boatSourceId) as GeoJSONSource | undefined;
@@ -91,7 +95,7 @@ export function useRouteAnimation({
 
     if (prefersReducedMotion()) {
       if (map.getLayer(gradientLayerId)) {
-        map.setPaintProperty(gradientLayerId, "line-gradient", fullTrackExpression(), { validate: false });
+        map.setPaintProperty(gradientLayerId, "line-gradient", fullTrackExpression(trailColor), { validate: false });
       }
       onProgressRef.current?.(1);
       return;
@@ -114,7 +118,7 @@ export function useRouteAnimation({
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [boatSourceId, coordinates, distances, durationMs, gradientLayerId, isReady, mapRef, playing]);
+  }, [boatSourceId, coordinates, distances, durationMs, gradientLayerId, isReady, mapRef, playing, trailColor, wakeColor]);
 
   return progressRef;
 }

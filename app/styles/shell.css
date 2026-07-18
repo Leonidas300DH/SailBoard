@@ -37,14 +37,16 @@
 .nav-stage:hover { background: rgba(214, 232, 239, .05); }
 .nav-stage.selected { background: rgba(255, 31, 38, .09); border-left-color: var(--danger); }
 .nav-stage-hex { width: 18px; height: 18px; display: grid; place-items: center; padding-bottom: 2px; border-radius: 50%; color: var(--bg-deep); background: var(--race); font: 700 9px/1 var(--font-race), sans-serif; font-style: normal; }
-.nav-stage[data-status="completed"] .nav-stage-hex { background: #a4b800; }
+.nav-stage[data-status="completed"] .nav-stage-hex { background: var(--past-race); }
 .nav-stage-copy { min-width: 0; }
 .nav-stage-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 11px var(--font-race), sans-serif; text-transform: uppercase; }
 .nav-stage-copy small { display: block; margin-top: 1px; color: var(--muted); font-size: 8px; }
 .nav-stage-state { color: var(--muted); font: 600 7px var(--font-race), sans-serif; font-style: normal; text-transform: uppercase; letter-spacing: .05em; }
+.nav-stage-state.completed { color: var(--past-race); }
 .nav-stage-state.upcoming { opacity: .55; }
 .nav-stage.selected .nav-stage-copy strong { color: var(--danger); }
 .nav-stage.selected .nav-stage-hex, .nav-stage.selected[data-status="completed"] .nav-stage-hex { color: #fff; background: var(--danger); }
+.nav-stage.selected .nav-stage-state { color: var(--danger); }
 
 
 

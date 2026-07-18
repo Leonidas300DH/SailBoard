@@ -11,7 +11,9 @@ import { useRouteAnimation } from "../map/useRouteAnimation";
 import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
 
-const RACE_ACCENT = "#e8ff29";
+const SELECTED_RACE = "#ff1e1e";
+const SELECTED_TRAIL = "rgba(255, 30, 30, 0.9)";
+const SELECTED_WAKE = "rgba(255, 30, 30, 0.22)";
 const INK = "#010a10";
 
 export function SeasonMap({
@@ -69,7 +71,7 @@ export function SeasonMap({
       id: "selected-route-track",
       type: "line",
       source: "selected-route",
-      paint: { "line-color": RACE_ACCENT, "line-width": 1.6, "line-opacity": 0.4, "line-dasharray": [1.5, 2.2] },
+      paint: { "line-color": SELECTED_RACE, "line-width": 1.6, "line-opacity": 0.45, "line-dasharray": [1.5, 2.2] },
     });
 
     map.addSource("route-anim", { type: "geojson", lineMetrics: true, data: emptyCollection() });
@@ -86,17 +88,17 @@ export function SeasonMap({
       id: "selected-boat-halo",
       type: "circle",
       source: "selected-boat",
-      paint: { "circle-radius": 13, "circle-color": RACE_ACCENT, "circle-opacity": 0.18 },
+      paint: { "circle-radius": 13, "circle-color": SELECTED_RACE, "circle-opacity": 0.2 },
     });
     map.addLayer({
       id: "selected-boat",
       type: "circle",
       source: "selected-boat",
-      paint: { "circle-radius": 4.5, "circle-color": "#ffffff", "circle-stroke-color": RACE_ACCENT, "circle-stroke-width": 2.5 },
+      paint: { "circle-radius": 4.5, "circle-color": "#ffffff", "circle-stroke-color": SELECTED_RACE, "circle-stroke-width": 2.5 },
     });
 
     // Stage markers are DOM elements: sober dots with native-type labels —
-    // white for sailed stages, ringed for upcoming, yellow when selected.
+    // cyan for sailed stages, acid yellow for upcoming, red when selected.
     void import("maplibre-gl").then(({ default: maplibregl }) => {
       const nextRaceId = allRaces.find((race) => race.status === "upcoming")?.id;
       allRaces.forEach((race) => {
@@ -179,6 +181,8 @@ export function SeasonMap({
     playing: isPlaying && Boolean(selectedRace?.route),
     gradientLayerId: "route-anim",
     boatSourceId: "selected-boat",
+    trailColor: SELECTED_TRAIL,
+    wakeColor: SELECTED_WAKE,
   });
 
   const recenter = useCallback(() => {
