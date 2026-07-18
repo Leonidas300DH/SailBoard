@@ -10,7 +10,6 @@ import { useCameraDirector } from "../map/useCameraDirector";
 import { useSeasonChronologyAnimation } from "../map/useSeasonChronologyAnimation";
 import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
-import { useAdaptiveTerrain } from "../map/useAdaptiveTerrain";
 
 const INK = "#010a10";
 const LABEL_POSITIONS: Partial<Record<string, "top" | "right" | "left">> = {
@@ -138,11 +137,9 @@ export function SeasonMap({
     bearing: -8,
     minZoom: 6.2,
     maxPitch: 65,
-    terrain: !compact,
     onLoad: handleLoad,
   });
   const { flyToTarget, flyToBounds } = useCameraDirector(mapRef, isReady);
-  useAdaptiveTerrain(mapRef, isReady, selectedRace?.id);
 
   useSeasonChronologyAnimation({ mapRef, isReady, legs: chronologyLegs });
 

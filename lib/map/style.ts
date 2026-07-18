@@ -1,5 +1,4 @@
 import type { StyleSpecification } from "maplibre-gl";
-import { TERRAIN_SOURCE, TERRAIN_SOURCE_ID } from "./terrain";
 
 const IGN_TILES = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}";
 
@@ -15,7 +14,7 @@ const RASTER_PRESETS: Record<IgnStylePreset, Record<string, number>> = {
   editor: { "raster-saturation": -0.15, "raster-contrast": 0.18, "raster-brightness-max": 0.7 },
 };
 
-export function buildIgnStyle(preset: IgnStylePreset, terrain = false): StyleSpecification {
+export function buildIgnStyle(preset: IgnStylePreset): StyleSpecification {
   return {
     version: 8,
     // Symbol layers with text-field silently render nothing without a glyph endpoint.
@@ -28,9 +27,7 @@ export function buildIgnStyle(preset: IgnStylePreset, terrain = false): StyleSpe
         maxzoom: IGN_MAX_ZOOM,
         attribution: "© IGN / Géoplateforme",
       },
-      ...(terrain ? { [TERRAIN_SOURCE_ID]: TERRAIN_SOURCE } : {}),
     },
-    ...(terrain ? { terrain: { source: TERRAIN_SOURCE_ID, exaggeration: 1.12 } } : {}),
     layers: [
       {
         id: "ign",

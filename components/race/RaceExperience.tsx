@@ -52,7 +52,7 @@ export function RaceExperience({
     <section className="race-stage">
       <div className={`race-main ${isRailExpanded ? "rail-expanded" : ""}`}>
         <div className="map-wrap">
-          <CourseMap center={race.center} stageId={race.eventSlug} windDirection={weather.windDirection} windKnots={weather.windKnots} />
+          <CourseMap center={race.center} windDirection={weather.windDirection} windKnots={weather.windKnots} />
           <div className="map-shade" aria-hidden />
           <WindParticles windDirection={weather.windDirection} windKnots={weather.windKnots} />
           <div className="map-caption" aria-label="Contexte de l’étape">
