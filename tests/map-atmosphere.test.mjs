@@ -5,7 +5,7 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 
 test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () => {
-  const [cloudLayer, seasonMap, chronology, chronologyAnimation, courseMap, cameraDirector, mapBootstrap] = await Promise.all([
+  const [cloudLayer, seasonMap, chronology, chronologyAnimation, courseMap, cameraDirector, mapBootstrap, mapStyle, terrain, adaptiveTerrain] = await Promise.all([
     readFile(new URL("components/map/CloudLayer.tsx", root), "utf8"),
     readFile(new URL("components/season/SeasonMap.tsx", root), "utf8"),
     readFile(new URL("lib/map/season-chronology.ts", root), "utf8"),
@@ -13,6 +13,9 @@ test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () =>
     readFile(new URL("components/race/CourseMap.tsx", root), "utf8"),
     readFile(new URL("components/map/useCameraDirector.ts", root), "utf8"),
     readFile(new URL("components/map/useMapLibre.ts", root), "utf8"),
+    readFile(new URL("lib/map/style.ts", root), "utf8"),
+    readFile(new URL("lib/map/terrain.ts", root), "utf8"),
+    readFile(new URL("components/map/useAdaptiveTerrain.ts", root), "utf8"),
   ]);
 
   assert.match(cloudLayer, /buildSheets/);
@@ -29,6 +32,8 @@ test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () =>
   assert.match(seasonMap, /maxPitch: 65/);
   assert.match(seasonMap, /pitch: isCompact \? 26 : 34/);
   assert.match(seasonMap, /pitch: 52/);
+  assert.match(seasonMap, /terrain: !compact/);
+  assert.match(seasonMap, /useAdaptiveTerrain\(mapRef, isReady, selectedRace\?\.id\)/);
   assert.match(seasonMap, /season-chronology-depth/);
   assert.match(seasonMap, /season-flow-glint/);
   assert.match(seasonMap, /"line-width": 1\.15/);
@@ -42,10 +47,20 @@ test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () =>
   assert.match(chronologyAnimation, /startedAt \?\?= now/);
   assert.match(chronologyAnimation, /prefersReducedMotion/);
   assert.match(courseMap, /pitch: 42/);
+  assert.match(courseMap, /terrain: terrainEnabled/);
+  assert.match(courseMap, /useAdaptiveTerrain\(mapRef, isReady, stageId\)/);
   assert.match(courseMap, /stage-location-halo/);
   assert.match(courseMap, /stage-location-dot/);
   assert.doesNotMatch(courseMap, /route-anim|course-route|useRouteAnimation/);
   assert.match(courseMap, /mapRef=\{mapRef\}/);
   assert.match(cameraDirector, /orientation: CameraOrientation/);
   assert.match(mapBootstrap, /pitch: initial\.pitch \?\? 0/);
+  assert.match(mapBootstrap, /maxZoom: initial\.maxZoom \?\? MAX_INTERACTIVE_ZOOM/);
+  assert.match(mapStyle, /TERRAIN_SOURCE_ID/);
+  assert.match(terrain, /maxzoom: 15/);
+  assert.match(terrain, /elevation-tiles-prod\/terrarium/);
+  assert.match(terrain, /MAX_INTERACTIVE_ZOOM = 14/);
+  assert.match(terrain, /MAX_TERRAIN_ZOOM = 12\.25/);
+  assert.match(adaptiveTerrain, /map\.getZoom\(\) > MAX_TERRAIN_ZOOM/);
+  assert.match(adaptiveTerrain, /map\.setTerrain\(null\)/);
 });

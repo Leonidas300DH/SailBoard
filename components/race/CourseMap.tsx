@@ -6,6 +6,7 @@ import { attachGraticule } from "@/lib/map/graticule";
 import { useMapLibre } from "../map/useMapLibre";
 import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
+import { useAdaptiveTerrain } from "../map/useAdaptiveTerrain";
 
 const SELECTED_RACE = "#ff1e1e";
 const INK = "#010a10";
@@ -16,14 +17,17 @@ const INK = "#010a10";
  */
 export function CourseMap({
   center,
+  stageId,
   windDirection = 250,
   windKnots = 12,
 }: {
   center: [number, number];
+  stageId: string;
   windDirection?: number;
   windKnots?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const terrainEnabled = typeof window !== "undefined" && window.innerWidth >= 760;
 
   const handleLoad = useCallback((map: MaplibreMap) => {
     attachGraticule(map);
@@ -52,8 +56,10 @@ export function CourseMap({
     pitch: 42,
     bearing: -10,
     maxPitch: 65,
+    terrain: terrainEnabled,
     onLoad: handleLoad,
   });
+  useAdaptiveTerrain(mapRef, isReady, stageId);
 
   return <div className="season-map-frame">
     <div ref={containerRef} className="race-map" aria-label="Carte satellite du plan d’eau" />

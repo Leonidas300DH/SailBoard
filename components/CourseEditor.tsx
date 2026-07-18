@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, Flag, LocateFixed, MapPin, Navigation, Save, Search
 import type { CourseMark, CourseMarkType, RaceView, RoundingSide } from "@/lib/domain";
 import { buildIgnStyle } from "@/lib/map/style";
 import { installBackgroundRafShim } from "./map/useMapLibre";
+import { MAX_INTERACTIVE_ZOOM } from "@/lib/map/terrain";
 
 type MapLibre = typeof import("maplibre-gl");
 type Tool = CourseMarkType | null;
@@ -80,6 +81,7 @@ export function CourseEditor({ race, onSaved }: { race: RaceView; onSaved: () =>
         container: containerRef.current,
         center: race.center,
         zoom: 11.4,
+        maxZoom: MAX_INTERACTIVE_ZOOM,
         attributionControl: false,
         style: buildIgnStyle("editor"),
       });

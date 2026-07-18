@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { Map as MaplibreMap } from "maplibre-gl";
 import { buildIgnStyle, type IgnStylePreset } from "@/lib/map/style";
+import { MAX_INTERACTIVE_ZOOM } from "@/lib/map/terrain";
 
 export type MapLibreOptions = {
   preset: IgnStylePreset;
@@ -11,7 +12,9 @@ export type MapLibreOptions = {
   pitch?: number;
   bearing?: number;
   minZoom?: number;
+  maxZoom?: number;
   maxPitch?: number;
+  terrain?: boolean;
   interactive?: boolean;
   onLoad?: (map: MaplibreMap) => void;
 };
@@ -69,10 +72,11 @@ export function useMapLibre(containerRef: RefObject<HTMLDivElement | null>, opti
         pitch: initial.pitch ?? 0,
         bearing: initial.bearing ?? 0,
         minZoom: initial.minZoom,
+        maxZoom: initial.maxZoom ?? MAX_INTERACTIVE_ZOOM,
         maxPitch: initial.maxPitch ?? 60,
         attributionControl: false,
         interactive: initial.interactive ?? true,
-        style: buildIgnStyle(initial.preset),
+        style: buildIgnStyle(initial.preset, initial.terrain ?? false),
       });
       mapRef.current = map;
       map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-left");
