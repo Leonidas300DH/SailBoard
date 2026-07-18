@@ -117,4 +117,28 @@
   .nav-context-all { min-height: 35px; }
 }
 
+/* Keep all championship context visible on short desktop viewports. The rail
+   remains generous on large displays, but uses its vertical space more like a
+   race control when the available height drops below a typical laptop panel. */
+@media (min-width: 1051px) and (max-height: 780px) {
+  .side-brand { min-height: 64px; padding-block: 8px; }
+  .nav-stack { padding-top: 4px; padding-bottom: 8px; }
+
+  .nav-rich-row > .nav-link { min-height: 46px; }
+  .nav-context { margin-left: 14px; padding-left: 14px; }
+  .nav-context--race { padding-top: 0; padding-bottom: 3px; }
+  .nav-next-race { min-height: 58px; padding-block: 3px; }
+  .nav-next-copy { gap: 2px; }
+
+  .nav-ranking-tree { padding-top: 0; }
+  .nav-ranking-tree > .nav-group-title { min-height: 44px; padding-block: 5px; }
+  .nav-rich-row--sub > .nav-sublink,
+  .nav-rich-row--sub > .nav-disclosure { min-height: 36px; }
+  .nav-context--podium { padding-top: 1px; padding-bottom: 2px; }
+  .nav-podium-row { min-height: 25px; }
+  .nav-context-all { min-height: 24px; padding-top: 0; }
+
+  .nav-admin-slot .nav-link { min-height: 48px; }
+}
+
 .nav-stage.next:not(.selected) .nav-stage-hex { animation: nextGlow 1.9s ease-in-out infinite; }

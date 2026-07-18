@@ -88,10 +88,10 @@ function PodiumPreview({
 }
 
 export function ChampionshipNav({ active, extras }: { active: PublicSection; extras?: NavExtras }) {
-  const [seasonOpen, setSeasonOpen] = useState(true);
-  const [teamsOpen, setTeamsOpen] = useState(true);
-  const [sailorsOpen, setSailorsOpen] = useState(true);
   const seasonActive = active === "season" || active === "course";
+  const [seasonOpen, setSeasonOpen] = useState(seasonActive);
+  const [teamsOpen, setTeamsOpen] = useState(active !== "sailors");
+  const [sailorsOpen, setSailorsOpen] = useState(active !== "rankings");
 
   return <nav className="nav-stack" aria-label="Sections principales">
     <div className="nav-slot nav-rich-section">

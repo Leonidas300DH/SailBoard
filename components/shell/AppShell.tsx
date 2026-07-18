@@ -27,7 +27,7 @@ export function AppShell({
       <Link className="side-brand" href="/" aria-label="Accueil SailBoard">
         <span className="brand"><span>SailBoard</span><span>Race</span></span>
       </Link>
-      <ChampionshipNav active={active} extras={navExtras} />
+      <ChampionshipNav key={active} active={active} extras={navExtras} />
       {navFooter}
     </aside>
     {children}

@@ -1,3 +1,116 @@
+# Design QA — fiches équipage et navigateur
+
+## Périmètre
+
+- Vérité visuelle de l’état défaillant : `docs/audit/01-team-profile-current.png` et `docs/audit/02-sailor-profile-current.png`, capturées sur la production avant correction.
+- Implémentation desktop : `docs/audit/02-team-profile-redesign-desktop.png` et `docs/audit/03-sailor-profile-redesign-desktop.png` — 1440 × 800.
+- Implémentation mobile : `docs/audit/04-team-profile-redesign-mobile.png` et `docs/audit/05-sailor-profile-redesign-mobile.png` — 390 × 844.
+- Routes : `/bateaux/centre-de-mediation` puis `/participants/cahierc-pierre` via le membre cliquable.
+- États : fiche équipage avec membres visibles ; fiche navigateur avec attribution et historique.
+
+## Comparaison finale
+
+| Surface | État défaillant | Implémentation finale | Verdict |
+|---|---|---|---|
+| Typographie | Noms géants coupés par la carte et la colonne de données | Noms complets, échelle responsive et rang secondaire | Corrigé |
+| Espacement et rythme | Trois colonnes concurrentes, carte dominante, historique repoussé | Deux zones prioritaires puis carte panoramique peu profonde | Corrigé |
+| Couleurs et tokens | Palette SailBoard cohérente mais accents concurrents | Palette et couleur d’équipage conservées ; action principale jaune SailBoard | Conforme |
+| Images et actifs | Satellite IGN surdimensionné | Même fond IGN, utilisé comme contexte de la dernière étape | Conforme |
+| Copie et données | Métriques vides et tirets sans utilité | Champs absents masqués ; score, équipage et attribution explicites | Corrigé |
+| Interaction | Destination cliquable mais page résultante inexploitable | Équipier cliquable, dossier navigateur lisible, retour étape et équipage accessibles | Validé |
+| Responsive | Coupes desktop et chevauchement rôle/points | Aucun débordement à 390 px ; historique reflué selon le type de profil | Validé |
+
+## Historique QA
+
+### Passage 1 — bloqué
+
+- [P1] La fiche équipage coupe le nom dans une grille en trois colonnes et donne la priorité à la carte.
+- [P1] La fiche navigateur reproduit la même structure, coupe le nom et crée une grande zone cartographique vide.
+- [P2] Des mesures de temps absentes occupent de l’espace sous forme de tirets.
+- [P2] Le rail ne reflète pas le contexte de la destination ouverte.
+
+### Corrections structurelles
+
+- Identité et télémétrie placées en tête ; carte en bande panoramique en dessous.
+- Score, rang, équipage et attribution rapprochés de leur contexte métier.
+- Mesures conditionnelles et navigation latérale contextuelle.
+- Même système de composants pour les deux profils, sans uniformiser leurs contenus propres.
+
+### Passage 2 — bloqué
+
+- [P2] Le rôle « Navigateur » chevauchait les points sur desktop et créait un débordement horizontal sur mobile.
+
+### Correction et passage final — validé
+
+- Modificateur de grille dédié à l’historique navigateur.
+- À 390 × 844, `document.documentElement.scrollWidth === document.documentElement.clientWidth === 390` sur les deux routes.
+- À 1440 × 800, les noms, les scores, les membres et l’historique sont lisibles sans coupe ni chevauchement.
+- Le clic Centre de Médiation → Cahierc Pierre aboutit sur la bonne route.
+- La comparaison de l’état production et des deux profils corrigés a été effectuée dans une même entrée visuelle, puis complétée par les vues mobiles focalisées.
+- Aucun avertissement ni erreur applicative relevé dans la console des deux routes.
+
+## Contrôles techniques
+
+- `npm run lint` : réussi.
+- `npm test` : 14 tests réussis.
+- `npm run build` : réussi.
+
+final result: passed
+
+---
+
+# Design QA — rail championnat compact en hauteur
+
+## Périmètre
+
+- Vérité visuelle source : `/var/folders/vc/3dmscl8d4rd_t9gqggky7m9r0000gn/T/codex-clipboard-6f12a2b3-639b-443f-8395-af3ae803ea39.png` — rail ouvert qui nécessite un défilement vertical.
+- Implémentation navigateur : `docs/qa/sidebar-compact-176x594.png` — recadrage du rail à sa largeur produit de 176 px.
+- Route : `http://localhost:4173/`.
+- Viewport vérifié : 1440 × 632, ainsi qu’un écran court de 1200 × 556.
+- État : Saison, prochaine course, podium Équipages et podium Navigateurs dépliés ; Admin visible.
+
+## Comparaison finale
+
+| Surface | Source | Implémentation finale | Verdict |
+|---|---|---|---|
+| Typographie | Hiérarchie lisible mais très espacée | Familles, tailles, graisses et casse inchangées ; seule la respiration verticale est réduite | Conforme |
+| Espacement et rythme | Bloc marque de 92 px et sections ouvertes plus hautes que le viewport | Marque à 64 px sur écran court, course à 58 px, lignes de podium à 25 px | Corrigé |
+| Couleurs et tokens | Bleu nuit, jaune actif et cyan classement | Palette et états existants strictement conservés | Conforme |
+| Images et actifs | Logo typographique et icônes existantes | Aucun actif modifié ou remplacé | Conforme |
+| Copie et contenu | Prochaine course et deux podiums complets | Même contenu, mêmes liens et mêmes scores | Conforme |
+| Interaction | Sections dépliables | Repli et réouverture du podium Équipages validés avec mise à jour de `aria-expanded` | Validé |
+
+## Historique QA
+
+### Passage 1 — bloqué
+
+- [P2] Après une première densification, le rail conservait 14 px de débordement sur un viewport réellement court de 1200 × 556 (`scrollHeight: 500`, `clientHeight: 486`).
+
+### Corrections
+
+- Réduction adaptative du bloc marque de 92 à 64 px uniquement sous 780 px de hauteur.
+- Course suivante ramenée à 58 px sans réduire les tailles de texte.
+- Lignes de podium ramenées à 25 px et liens « Classement » à 24 px.
+- Titres et disclosures rapprochés tout en conservant leurs interactions natives.
+
+### Passage final — validé
+
+- Sur 1200 × 556, le rail ne défile plus : `scrollHeight === clientHeight === 492`.
+- Les trois sections ouvertes et Admin restent visibles dans le même viewport.
+- La comparaison source / implémentation a été réalisée dans une même entrée visuelle ; le contenu, les couleurs, les icônes et la hiérarchie restent identiques.
+- Le recadrage du composant entier suffit comme comparaison focalisée : aucune image métier ni zone de détail supplémentaire n’est concernée.
+- Aucun message d’application en console ; les deux erreurs observées proviennent exclusivement d’une extension Chrome et non de SailBoard.
+
+## Contrôles techniques
+
+- `npm run lint` : réussi.
+- `npm test` : 14 tests réussis.
+- `npm run build` : réussi.
+
+final result: passed
+
+---
+
 # Design QA — dossier équipage d’une étape
 
 ## Périmètre
