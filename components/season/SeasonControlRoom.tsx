@@ -11,7 +11,7 @@ import { SeasonMap } from "./SeasonMap";
 import { SeasonTopBar } from "./SeasonTopBar";
 import { CircuitRail } from "./CircuitRail";
 import { RaceDossier } from "./RaceDossier";
-import { SeasonTimeline, type TimelineLeader } from "./SeasonTimeline";
+import { SeasonTimeline } from "./SeasonTimeline";
 
 /**
  * Season home orchestrator: full-bleed tactical map, compact race dossier,
@@ -19,13 +19,11 @@ import { SeasonTimeline, type TimelineLeader } from "./SeasonTimeline";
  */
 export function SeasonControlRoom({
   race,
-  leaders,
   weather,
   seasonWeather,
   nowIso,
 }: {
   race: RaceView;
-  leaders: TimelineLeader[];
   weather: RaceWeatherSnapshot;
   seasonWeather: Record<string, RaceWeatherSnapshot | null>;
   nowIso: string;
@@ -113,8 +111,6 @@ export function SeasonControlRoom({
         races={SEASON_RACES}
         selectedId={selectedRace.id}
         now={now}
-        leaders={leaders}
-        weatherByRace={seasonWeather}
         onSelect={setSelectedRaceId}
       />
     </section>

@@ -16,6 +16,5 @@ export default async function Home() {
     weather={weather}
     seasonWeather={seasonWeather}
     nowIso={new Date().toISOString()}
-    leaders={data.boats.map((row) => ({ id: String(row.id), name: String(row.name), slug: String(row.slug), points: Number(row.points), color: String(row.color) }))}
   />;
 }

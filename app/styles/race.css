@@ -2,6 +2,7 @@
 .race-main.rail-expanded { grid-template-columns: minmax(0, 1fr) min(610px, 52vw); }
 .map-wrap { position: relative; min-height: 570px; overflow: hidden; background: #0b3043; }
 .race-map { position: absolute; inset: 0; }
+.race-map .maplibregl-ctrl-top-left { margin-top: 52px; }
 .race-map .maplibregl-ctrl-group { background: rgba(1,17,27,.9); border-radius: 2px; box-shadow: none; border: 1px solid var(--line-strong); }
 .race-map .maplibregl-ctrl button { filter: invert(1); }
 .race-map .maplibregl-ctrl-attrib { background: rgba(0,12,20,.78); color: #bac9d0; }
@@ -69,8 +70,8 @@
 .rail-profile-link svg { width: 15px; transform: rotate(180deg); }
 
 .race-footer { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 14px 24px; background: rgba(1, 12, 19, .98); border-top: 1px solid var(--line); }
-.race-footer-play { width: 46px; height: 46px; display: grid; place-items: center; color: var(--bg-deep); background: var(--race); border: 0; transition: background .2s ease; }
-.race-footer-play:hover { background: #f2ff70; }
+.race-footer-play { width: 42px; height: 42px; display: grid; place-items: center; color: var(--race); background: transparent; border: 1px solid rgba(232, 255, 41, .45); transition: .2s ease; }
+.race-footer-play:hover { color: var(--bg-deep); background: var(--race); border-color: var(--race); }
 .race-footer-play svg { width: 18px; fill: currentColor; }
 .race-footer-copy strong { display: block; font: 700 13px var(--font-race), sans-serif; text-transform: uppercase; }
 .race-footer-copy small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }

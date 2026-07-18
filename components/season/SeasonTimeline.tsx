@@ -1,12 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
-import { CalendarDays, ChevronRight, Trophy, Waves, Wind } from "lucide-react";
 import type { SeasonRace } from "@/lib/season-data";
-import type { RaceWeatherSnapshot } from "@/lib/weather";
-
-export type TimelineLeader = { id: string; name: string; slug: string; points: number; color: string };
 
 type RaceTiming = "past" | "today" | "future";
 
@@ -27,23 +22,19 @@ function timingOf(raceDate: string, now: Date): RaceTiming {
 }
 
 /**
- * Season calendar as a time-proportional rail: node position encodes the real
- * date, a cursor marks today, selection drives the tactical map. On mobile the
- * same nodes become a scroll-snapped horizontal rail.
+ * The season as a single slim rail: node position encodes the real date, a
+ * cursor marks today, selection drives the tactical map. Nothing else — the
+ * selected race's details live in the dossier bar, not here.
  */
 export function SeasonTimeline({
   races,
   selectedId,
   now,
-  leaders,
-  weatherByRace = {},
   onSelect,
 }: {
   races: SeasonRace[];
   selectedId: string;
   now: Date;
-  leaders: TimelineLeader[];
-  weatherByRace?: Record<string, RaceWeatherSnapshot | null>;
   onSelect: (raceId: string) => void;
 }) {
   const railRef = useRef<HTMLDivElement>(null);
@@ -102,32 +93,6 @@ export function SeasonTimeline({
   };
 
   return <section className="season-timeline" aria-label="Calendrier des courses 2026">
-    <header className="timeline-head">
-      <div className="timeline-title">
-        <CalendarDays aria-hidden />
-        <div>
-          <span>Calendrier 2026</span>
-          <strong>{String(selectedIndex + 1).padStart(2, "0")} / {String(races.length).padStart(2, "0")} · {races[selectedIndex]?.shortName}</strong>
-        </div>
-      </div>
-      <div className="timeline-championship" aria-label="Tête du championnat">
-        <span className="timeline-championship-label"><Trophy aria-hidden /> Championnat</span>
-        {leaders.slice(0, 3).map((leader, index) => (
-          <Link
-            key={leader.id}
-            href={`/bateaux/${leader.slug}`}
-            className="timeline-champ-chip"
-            style={{ "--competitor-color": leader.color } as React.CSSProperties}
-          >
-            <b className="mono">{index + 1}</b>
-            <strong>{leader.name}</strong>
-            <small className="mono">{leader.points.toFixed(1)}</small>
-          </Link>
-        ))}
-        <Link href="/classements" className="timeline-champ-all">Classement <ChevronRight aria-hidden /></Link>
-      </div>
-    </header>
-
     <div className="timeline-rail" ref={railRef} onKeyDown={handleKeyDown}>
       <div className="timeline-canvas">
         <div className="timeline-axis" aria-hidden>
@@ -161,17 +126,8 @@ export function SeasonTimeline({
           >
             <span className="timeline-node-marker mono"><i />{index + 1}</span>
             <span className="timeline-node-copy">
-              <small>{race.dateLabel} · {race.locationName}</small>
               <strong>{race.shortName}</strong>
-              <em>{race.winner ? `${race.winner} · ${race.result}` : race.result}</em>
-              {(() => {
-                const snapshot = weatherByRace[race.id];
-                if (!snapshot || timing === "future") return null;
-                return <span className="timeline-node-weather mono">
-                  <Wind aria-hidden />{snapshot.windKnots.toFixed(0)} ND
-                  <Waves aria-hidden />{snapshot.waveHeight.toFixed(1)} M
-                </span>;
-              })()}
+              <small className="mono">{race.dateLabel}</small>
             </span>
           </button>;
         })}

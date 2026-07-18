@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Flag, Map } from "lucide-react";
 
+/** One slim strip: context on the left, the two actions on the right. */
 export function SeasonTopBar({
   circuitOpen,
   onToggleCircuit,
@@ -13,13 +14,9 @@ export function SeasonTopBar({
   exploreHref: string;
 }) {
   return <header className="season-ocean-top">
-    <div>
-      <span>Championnat 2026</span>
-      <strong>La saison en mouvement</strong>
-    </div>
-    <div className="season-top-meta">
-      <span className="status-dot status-dot--locked" />
-      <span>6 régates · Bretagne</span>
+    <div className="season-top-id">
+      <span className="status-dot status-dot--locked" aria-hidden />
+      <span>Championnat 2026 · 6 régates · Bretagne</span>
     </div>
     <button
       className={`circuit-toggle ${circuitOpen ? "active" : ""}`}
@@ -31,7 +28,7 @@ export function SeasonTopBar({
       <Map aria-hidden />
       <span>{circuitOpen ? "Refermer" : "Vue circuit"}</span>
     </button>
-    <Link className="button primary season-primary-action" href={exploreHref}>
+    <Link className="button season-primary-action" href={exploreHref}>
       <Flag aria-hidden />
       Explorer la course
     </Link>

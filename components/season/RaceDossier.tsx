@@ -11,8 +11,8 @@ const RELIABILITY_LABELS: Record<RaceWeatherSnapshot["reliability"], string> = {
 };
 
 /**
- * Compact mission card for the selected race: identity, playback control and
- * a single-row weather strip fed by real archive/forecast data.
+ * Broadcast lower-third for the selected race: one slim bar — playback,
+ * identity, real conditions. The map stays the hero.
  */
 export function RaceDossier({
   race,
@@ -25,66 +25,54 @@ export function RaceDossier({
   isPlaying: boolean;
   onTogglePlay: () => void;
 }) {
+  const status = race.winner
+    ? `Vainqueur · ${race.winner}`
+    : race.status === "upcoming" ? "Engagements ouverts" : "Résultats validés";
+
   return <section className="race-dossier" aria-live="polite">
-    <header className="race-dossier-head">
-      <div className="race-dossier-date">
-        <strong>{race.dateLabel}</strong>
-        <small className="mono">2026</small>
-      </div>
-      <div className="race-dossier-identity">
-        <span>{race.locationName} · {race.status === "upcoming" ? "À venir" : "Résultats validés"}</span>
-        <h1>{race.name}</h1>
-        <div className="race-dossier-meta mono">
-          <span>{race.distanceNm.toFixed(1)} NM</span>
-          <span>{race.winner ? `Vainqueur · ${race.winner}` : "Engagements ouverts"}</span>
-        </div>
-      </div>
-      <button
-        type="button"
-        className={`race-dossier-play${isPlaying ? " playing" : ""}`}
-        aria-label={isPlaying ? "Mettre l’animation du parcours en pause" : "Rejouer le parcours"}
-        onClick={onTogglePlay}
-      >
-        {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
-      </button>
-    </header>
+    <button
+      type="button"
+      className="race-dossier-play"
+      aria-label={isPlaying ? "Mettre l’animation du parcours en pause" : "Rejouer le parcours"}
+      onClick={onTogglePlay}
+    >
+      {isPlaying ? <Pause aria-hidden /> : <Play aria-hidden />}
+    </button>
+    <div className="race-dossier-id">
+      <strong className="race-dossier-title">{race.name}</strong>
+      <small>{race.dateLabel} 2026 · {race.locationName} · <span className="mono">{race.distanceNm.toFixed(1)} NM</span> · {status}</small>
+    </div>
     {weather ? (
       <div className="race-dossier-weather" aria-label="Conditions météo du jour de la course">
-        <span className="race-dossier-weather-cell">
+        <span className="race-dossier-weather-cell" title="Vent">
           <Wind aria-hidden />
-          <strong className="mono">{weather.windKnots.toFixed(1)} ND</strong>
-          <small className="mono">{Math.round(weather.windDirection)}° {weather.windLabel}</small>
+          <strong className="mono">{weather.windKnots.toFixed(1)} ND · {Math.round(weather.windDirection)}° {weather.windLabel}</strong>
         </span>
-        <span className="race-dossier-weather-cell">
+        <span className="race-dossier-weather-cell" title="Rafales">
           <Gauge aria-hidden />
           <strong className="mono">{Math.round(weather.gustKnots)} ND</strong>
-          <small>Rafales</small>
         </span>
-        <span className="race-dossier-weather-cell">
+        <span className="race-dossier-weather-cell" title="Hauteur de mer">
           <Waves aria-hidden />
           <strong className="mono">{weather.waveHeight.toFixed(1)} M</strong>
-          <small>Mer</small>
         </span>
-        <span className="race-dossier-weather-cell">
+        <span className="race-dossier-weather-cell" title="Marée">
           <Anchor aria-hidden />
           <strong className="mono">{weather.tideLabel}</strong>
-          <small>Marée</small>
         </span>
-        <span className="race-dossier-weather-cell">
+        <span className="race-dossier-weather-cell" title="Température de l’eau">
           <Thermometer aria-hidden />
           <strong className="mono">{Math.round(weather.seaTemperature)}°C</strong>
-          <small>Eau</small>
         </span>
-        <small className="race-dossier-source">
-          <em className={`weather-badge weather-badge--${weather.reliability}`}>{RELIABILITY_LABELS[weather.reliability]}</em>
-          {weather.source}
-        </small>
+        <em className={`weather-badge weather-badge--${weather.reliability}`} title={weather.source}>
+          {RELIABILITY_LABELS[weather.reliability]}
+        </em>
       </div>
     ) : (
-      <div className="race-dossier-weather race-dossier-weather--pending" aria-label="Conditions météo indisponibles">
+      <div className="race-dossier-weather race-dossier-weather--pending">
         <span className="race-dossier-weather-cell">
           <CloudOff aria-hidden />
-          <small>Conditions réelles publiées à l’approche de la course · prévision à J-15</small>
+          <small>Conditions réelles à J-15</small>
         </span>
       </div>
     )}
