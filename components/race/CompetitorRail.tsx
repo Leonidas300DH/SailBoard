@@ -21,9 +21,10 @@ export function CompetitorRail({
   leader?: LeaderboardRow;
   onClose: () => void;
 }) {
-  const gap = selected.elapsedSeconds && leader?.elapsedSeconds
+  const gap = selected.elapsedSeconds != null && leader?.elapsedSeconds != null
     ? selected.elapsedSeconds - leader.elapsedSeconds
-    : 0;
+    : null;
+  const hasTiming = selected.elapsedSeconds != null;
 
   return <section
     id="selected-boat-rail"
@@ -42,23 +43,22 @@ export function CompetitorRail({
         <small className="mono">{selected.sailNumber}</small>
       </div>
     </div>
-    <div className="rail-crew-summary">{selected.crew.map((member) => member.name).join(" · ")}</div>
-    <div className="rail-metrics">
-      <div><span>Temps</span><strong className="mono">{formatTime(selected.elapsedSeconds)}</strong></div>
-      <div><span>Écart 1er</span><strong className="mono">{gap ? `+${formatTime(gap)}` : "—"}</strong></div>
+    <div className={`rail-metrics ${hasTiming ? "" : "rail-metrics--single"}`}>
+      {hasTiming ? <div><span>Temps</span><strong className="mono">{formatTime(selected.elapsedSeconds)}</strong></div> : null}
+      {hasTiming && gap != null ? <div><span>Écart 1er</span><strong className="mono">{gap === 0 ? "En tête" : `+${formatTime(gap)}`}</strong></div> : null}
       <div><span>Points WDT</span><strong className="mono">{selected.points.toFixed(1)}</strong></div>
     </div>
     <div className="rail-crew-points">
-      <span className="rail-section-label">Points des navigateurs</span>
-      {selected.crew.map((member) => (
+      <span className="rail-section-label">Équipage de l’étape</span>
+      {selected.crew.length > 0 ? selected.crew.map((member) => (
         <Link key={member.id} href={`/participants/${member.slug}`}>
           <span>
             <strong>{member.name}</strong>
             <small>{member.role}</small>
           </span>
-          <span className="mono">{(member.points ?? selected.points).toFixed(1)} PTS</span>
+          {member.points != null ? <span className="mono">{member.points.toFixed(1)} PTS</span> : null}
         </Link>
-      ))}
+      )) : <div className="rail-crew-empty"><strong>Composition non publiée</strong><span>La source officielle ne permet pas d’associer ces navigateurs sans ambiguïté.</span></div>}
     </div>
   </section>;
 }

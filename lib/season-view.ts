@@ -1,6 +1,6 @@
 import type { RaceView } from "./domain";
 import type { SeasonRace } from "./season-data";
-import { snapshotSlug, standingColor, WDT_2026_EVENTS, wdt2026TeamSnapshot } from "./wdt-2026";
+import { snapshotSlug, standingColor, WDT_2026_EVENTS, wdt2026TeamSnapshot, wdtCrewForEvent } from "./wdt-2026";
 
 /**
  * Minimal RaceView for a season race that has no database record yet: the
@@ -24,7 +24,7 @@ export function seasonRacePreview(race: SeasonRace): RaceView {
       status: "classified" as const,
       elapsedSeconds: null,
       points: score,
-      crew: [],
+      crew: wdtCrewForEvent(team.name, eventIndex),
     }));
 
   return {

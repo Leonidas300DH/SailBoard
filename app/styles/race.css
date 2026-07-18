@@ -49,11 +49,12 @@
 .rail-boat-identity strong, .rail-boat-identity small { display: block; }
 .rail-boat-identity strong { font: 700 28px/.9 var(--font-race), sans-serif; text-transform: uppercase; }
 .rail-boat-identity small { margin-top: 8px; color: var(--muted); font-size: 9px; }
-.rail-crew-summary { min-height: 44px; padding: 0 18px 13px; color: #c2d0d6; border-bottom: 1px solid var(--line); font: 600 12px/1.45 var(--font-race), sans-serif; }
 .rail-metrics { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
 .rail-metrics > div { min-width: 0; padding: 14px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .rail-metrics > div:nth-child(2) { border-right: 0; }
 .rail-metrics > div:last-child { grid-column: 1 / -1; border: 0; }
+.rail-metrics--single { display: block; }
+.rail-metrics--single > div:last-child { padding-block: 12px; }
 .rail-metrics span, .rail-metrics strong { display: block; }
 .rail-metrics span, .rail-section-label { color: var(--muted); font: 700 8px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .08em; }
 .rail-metrics strong { margin-top: 7px; font-size: 16px; }
@@ -63,9 +64,13 @@
 .rail-crew-points a { min-height: 44px; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; border-bottom: 1px solid var(--line); }
 .rail-crew-points a:hover { color: var(--boat-color); }
 .rail-crew-points strong, .rail-crew-points small { display: block; }
-.rail-crew-points strong { font: 650 13px var(--font-race), sans-serif; }
+.rail-crew-points a > span:first-child { min-width: 0; }
+.rail-crew-points strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 650 13px var(--font-race), sans-serif; }
 .rail-crew-points small { margin-top: 2px; color: var(--muted); font: 700 8px var(--font-race), sans-serif; text-transform: uppercase; }
 .rail-crew-points > a > .mono { color: var(--boat-color); font-size: 11px; font-weight: 800; }
+.rail-crew-empty { margin-top: 10px; padding: 14px; border-left: 2px solid var(--line-strong); background: rgba(255,255,255,.025); }
+.rail-crew-empty strong { color: #c8d4d9; font: 700 12px var(--font-race), sans-serif; text-transform: uppercase; }
+.rail-crew-empty span { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.45; }
 .rail-profile-link { min-height: 52px; margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; color: #07131a; background: var(--boat-color); font: 800 11px var(--font-race), sans-serif; text-transform: uppercase; }
 .rail-profile-link svg { width: 15px; transform: rotate(180deg); }
 

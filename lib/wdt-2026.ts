@@ -77,3 +77,31 @@ export function standingColor(rank: number) {
   if (rank <= 10) return "#36baff";
   return "#7894a0";
 }
+
+/**
+ * The official workbook does not name each stage crew directly. It does,
+ * however, expose a reversible score scale: an individual score of 6 belongs
+ * to the team on 1 point, 5 to the team on 2 points, and so on. We only expose
+ * an assignment when that team score occurs once during the stage. This is the
+ * same conservative rule used by the database importer; ambiguous crews stay
+ * unpublished instead of being invented.
+ */
+export function wdtCrewForEvent(teamName: string, eventIndex: number) {
+  const team = wdt2026TeamSnapshot.rows.find((row) => row.name === teamName);
+  const teamScore = team?.eventScores[eventIndex];
+  if (teamScore == null || teamScore <= 0) return [];
+
+  const matchingTeams = wdt2026TeamSnapshot.rows.filter((row) => row.eventScores[eventIndex] === teamScore);
+  const expectedIndividualScore = 7 - teamScore;
+  if (matchingTeams.length !== 1 || expectedIndividualScore <= 0) return [];
+
+  return wdt2026IndividualSnapshot.rows
+    .filter((row) => row.eventScores[eventIndex] === expectedIndividualScore)
+    .map((row) => ({
+      id: `wdt-2026-${WDT_2026_EVENTS[eventIndex]?.id ?? eventIndex}-${snapshotSlug(row.name)}`,
+      name: row.name,
+      slug: snapshotSlug(row.name),
+      role: "Navigateur",
+      points: expectedIndividualScore,
+    }));
+}
