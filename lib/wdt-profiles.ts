@@ -70,7 +70,7 @@ export function wdtParticipantProfile(slug: string) {
     ...entry,
     boatName: "Équipage WDT",
     boatSlug: undefined,
-    role: "Coureur classé",
+    role: "Navigateur classé",
   }));
   return {
     participant: { name: row.name, slug, nationality: "FRA" },

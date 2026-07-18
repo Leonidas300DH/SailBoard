@@ -10,12 +10,15 @@ export function AppShell({
   shellClassName,
   navClassName,
   navFooter,
+  navExtras,
   children,
 }: {
   active: PublicSection;
   shellClassName?: string;
   navClassName?: string;
   navFooter?: ReactNode;
+  /** Rendered right below the matching nav item — e.g. the season roadbook. */
+  navExtras?: Partial<Record<PublicSection, ReactNode>>;
   children: ReactNode;
 }) {
   return <main className={`public-shell${shellClassName ? ` ${shellClassName}` : ""}`}>
@@ -39,10 +42,13 @@ export function AppShell({
       </Link>
       <nav className="nav-stack">
         {publicNav().map(({ id, href, label, icon: Icon }) => (
-          <Link key={id} href={href} aria-label={label} className={`nav-link ${active === id ? "active" : ""}`}>
-            <Icon aria-hidden />
-            <span>{label}</span>
-          </Link>
+          <div key={id} className="nav-slot">
+            <Link href={href} aria-label={label} className={`nav-link ${active === id ? "active" : ""}`}>
+              <Icon aria-hidden />
+              <span>{label}</span>
+            </Link>
+            {navExtras?.[id] ?? null}
+          </div>
         ))}
       </nav>
       {navFooter}

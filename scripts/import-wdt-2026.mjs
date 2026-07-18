@@ -215,7 +215,7 @@ function databaseRows(sources, importedAt) {
           participant_id: participantId,
           role: "Navigateur",
           source_mode: "inferred_from_official_workbook",
-          source_json: JSON.stringify({ importId, sourceHash, mapping, note: "Affectation déduite uniquement lorsque la correspondance points-équipe est unique." }),
+          source_json: JSON.stringify({ importId, sourceHash, mapping, note: "Affectation déduite uniquement lorsque la correspondance entre les points et l’équipage est unique." }),
           ...timestamps,
         });
       }

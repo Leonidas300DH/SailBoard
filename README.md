@@ -1,6 +1,6 @@
 # SailBoard
 
-Application web responsive de gestion et de suivi du World Diam Tour. Le produit distingue les saisons, les étapes du circuit et les courses ou manches disputées dans chaque étape. L’administration couvre les bateaux (équipes), les compositions d’équipage, les navigateurs, les résultats et les barèmes versionnés.
+Application web responsive de gestion et de suivi du World Diam Tour. Le produit distingue les saisons, les étapes du circuit et les courses ou manches disputées dans chaque étape. L’administration couvre les bateaux, les équipages, les navigateurs, les résultats et les barèmes versionnés.
 
 ## Socle technique
 
@@ -17,7 +17,7 @@ Supabase, OpenAI Sites, Cloudflare D1 et Sign in with ChatGPT ne font pas partie
 
 L’accueil « Season Ocean » relie les six étapes du World Diam Tour France 2026 sur une carte satellite de la façade Atlantique. La timeline distingue les quatre étapes disputées des deux rendez-vous à venir, pilote le zoom cartographique et anime un aperçu du tracé sélectionné. Un roadbook dépliable transforme le calendrier en circuit territorial : ses six étapes, statuts et liaisons sont synchronisés avec la carte et deviennent une feuille plein écran sur mobile. La fiche course synchronise carte, flotte, classement, rail concurrent et scrubber temporel.
 
-La page `/classements` publie deux classements provisoires calculés depuis PostgreSQL : le classement des équipes additionne les places et favorise le total le plus bas ; le classement individuel additionne les points et favorise le total le plus élevé. `Classement WDT 2026.xlsx` reste la source officielle importée et la copie JSON sert uniquement de repli si la base est indisponible. Les résultats des étapes de septembre et octobre restent vides tant qu’ils ne sont pas publiés.
+La page `/classements` publie deux classements provisoires calculés depuis PostgreSQL : le classement des équipages additionne les points de championnat et favorise le total le plus bas ; le classement individuel des navigateurs additionne les points et favorise le total le plus élevé. `Classement WDT 2026.xlsx` reste la source officielle importée et la copie JSON sert uniquement de repli si la base est indisponible. Les résultats des étapes de septembre et octobre restent vides tant qu’ils ne sont pas publiés.
 
 Les conditions du jour sont demandées côté serveur à Open-Meteo puis mises en cache pendant 24 heures. Elles utilisent les modèles météo et marine disponibles pour la position et l’horaire de la course. Ce sont des données modélisées destinées à la lecture sportive et non à la navigation. Une valeur de démonstration explicite prend le relais si le fournisseur est indisponible.
 
@@ -52,7 +52,7 @@ npm run db:import:wdt-2026
 npm run db:verify:wdt-2026
 ```
 
-L’import est transactionnel et relançable sans doublon. Il enregistre la saison, ses six étapes, les neuf bateaux (équipes), les 43 coureurs, les points de championnat par étape, les compositions d’équipage pouvant être établies sans ambiguïté et une empreinte SHA-256 de la source. Une nouvelle version du classeur crée une nouvelle trace d’import ; un réimport identique actualise la trace existante.
+L’import est transactionnel et relançable sans doublon. Il enregistre la saison, ses six étapes, les neuf équipages, les 43 navigateurs, les points de championnat par étape, les compositions d’équipage pouvant être établies sans ambiguïté et une empreinte SHA-256 de la source. Une nouvelle version du classeur crée une nouvelle trace d’import ; un réimport identique actualise la trace existante.
 
 Créer ensuite un client Google OAuth de type application web avec ces URI de redirection :
 
@@ -76,6 +76,6 @@ Les mutations d’administration vérifient l’identité et le rôle côté ser
 ## Notes produit
 
 - [`docs/replay-data-model.md`](docs/replay-data-model.md) décrit les données nécessaires aux trois niveaux de replay, de la simulation à la trace GPS.
-- [`docs/domain-language-wdt.md`](docs/domain-language-wdt.md) fixe le vocabulaire métier : étapes, manches, bateaux, équipes, équipages et navigateurs.
+- [`docs/domain-language-wdt.md`](docs/domain-language-wdt.md) fixe le vocabulaire métier : étapes, manches, bateaux, équipages et navigateurs.
 - [`docs/reference-season-circuit.md`](docs/reference-season-circuit.md) conserve la référence du calendrier et les décisions de traduction visuelle SailBoard.
 - [`docs/reference-wdt-2026-individual-standings.md`](docs/reference-wdt-2026-individual-standings.md) documente le classement individuel provisoire après quatre étapes et ses anomalies de source.

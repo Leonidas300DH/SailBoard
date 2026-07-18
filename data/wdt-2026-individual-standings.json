@@ -6,7 +6,7 @@
   "totalRaces": 6,
   "declaredClassifiedCount": 43,
   "importedAt": "2026-07-18",
-  "source": "Classement WDT 2026.xlsx — feuille Classement coureurs",
+  "source": "Classement WDT 2026.xlsx — feuille du classement individuel",
   "rows": [
     { "name": "CHAMPANHAC Benoît", "eventScores": [6, 5, 0, 6, null, null], "points": 17 },
     { "name": "BOUVIER Vincent", "eventScores": [5, 2, 5, 4, null, null], "points": 16 },

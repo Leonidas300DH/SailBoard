@@ -16,22 +16,17 @@ const INK = "#010a10";
 export function SeasonMap({
   races,
   selectedRace,
-  circuitOpen,
   isPlaying,
   onSelect,
 }: {
   races: SeasonRace[];
-  selectedRace: SeasonRace;
-  circuitOpen: boolean;
+  selectedRace: SeasonRace | null;
   isPlaying: boolean;
   onSelect: (raceId: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const onSelectRef = useRef(onSelect);
   const racesRef = useRef(races);
-  // Landing view is the whole circuit — the cinematic dive only happens once
-  // the visitor explicitly picks a race.
-  const hasEnteredRef = useRef(false);
   useEffect(() => {
     onSelectRef.current = onSelect;
     racesRef.current = races;
@@ -138,55 +133,26 @@ export function SeasonMap({
     const animSource = map.getSource("route-anim") as GeoJSONSource | undefined;
     const boatSource = map.getSource("selected-boat") as GeoJSONSource | undefined;
     if (!routeSource || !animSource) return;
-    routeSource.setData(selectedRace.route ?? emptyCollection());
-    animSource.setData(selectedRace.route ?? emptyCollection());
-    if (!selectedRace.route) boatSource?.setData(emptyCollection());
+    routeSource.setData(selectedRace?.route ?? emptyCollection());
+    animSource.setData(selectedRace?.route ?? emptyCollection());
+    if (!selectedRace?.route) boatSource?.setData(emptyCollection());
     markersRef.current.forEach((marker, raceId) => {
-      marker.getElement().classList.toggle("selected", raceId === selectedRace.id);
+      marker.getElement().classList.toggle("selected", raceId === selectedRace?.id);
     });
 
-    const overview = (rightPadding: number) => {
+    if (!selectedRace) {
+      // No selection = the whole circuit. This is also the landing view.
       const longitudes = races.map((race) => race.coordinates[0]);
       const latitudes = races.map((race) => race.coordinates[1]);
       const isCompact = map.getContainer().clientWidth < 760;
       flyToBounds(
         [[Math.min(...longitudes), Math.min(...latitudes)], [Math.max(...longitudes), Math.max(...latitudes)]],
-        isCompact ? 46 : { top: 96, right: rightPadding, bottom: 150, left: 90 },
+        isCompact ? 46 : { top: 96, right: 90, bottom: 150, left: 90 },
         7.4,
       );
-    };
-
-    if (!hasEnteredRef.current) {
-      hasEnteredRef.current = true;
-      overview(circuitOpen ? 400 : 90);
       return;
     }
 
-    if (circuitOpen) {
-      overview(400);
-    } else {
-      const coordinates = selectedRace.route?.geometry.coordinates;
-      flyToTarget({
-        center: selectedRace.coordinates,
-        zoom: coordinates ? 10.4 : 10.8,
-        pitch: 48,
-        bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
-      });
-    }
-  }, [circuitOpen, flyToBounds, flyToTarget, isReady, mapRef, races, selectedRace]);
-
-  useRouteAnimation({
-    mapRef,
-    isReady,
-    coordinates: selectedRace.route?.geometry.coordinates ?? [],
-    playing: isPlaying && Boolean(selectedRace.route),
-    gradientLayerId: "route-anim",
-    boatSourceId: "selected-boat",
-  });
-
-  const recenter = useCallback(() => {
-    const map = mapRef.current;
-    if (!map) return;
     const coordinates = selectedRace.route?.geometry.coordinates;
     flyToTarget({
       center: selectedRace.coordinates,
@@ -194,15 +160,46 @@ export function SeasonMap({
       pitch: 48,
       bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
     });
-  }, [flyToTarget, mapRef, selectedRace]);
+  }, [flyToBounds, flyToTarget, isReady, mapRef, races, selectedRace]);
+
+  useRouteAnimation({
+    mapRef,
+    isReady,
+    coordinates: selectedRace?.route?.geometry.coordinates ?? [],
+    playing: isPlaying && Boolean(selectedRace?.route),
+    gradientLayerId: "route-anim",
+    boatSourceId: "selected-boat",
+  });
+
+  const recenter = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (!selectedRace) {
+      const longitudes = races.map((race) => race.coordinates[0]);
+      const latitudes = races.map((race) => race.coordinates[1]);
+      flyToBounds(
+        [[Math.min(...longitudes), Math.min(...latitudes)], [Math.max(...longitudes), Math.max(...latitudes)]],
+        { top: 96, right: 90, bottom: 150, left: 90 },
+        7.4,
+      );
+      return;
+    }
+    const coordinates = selectedRace.route?.geometry.coordinates;
+    flyToTarget({
+      center: selectedRace.coordinates,
+      zoom: coordinates ? 10.4 : 10.8,
+      pitch: 48,
+      bearing: coordinates ? bearingAt(coordinates, 0) - 18 : 0,
+    });
+  }, [flyToBounds, flyToTarget, mapRef, races, selectedRace]);
 
   return <div className="season-map-frame">
     <div ref={containerRef} className="race-map season-ocean-map" aria-label="Carte tactique des courses de la saison" />
     <MapHud
       mapRef={mapRef}
       isReady={isReady}
-      target={selectedRace.coordinates}
-      targetLabel={selectedRace.shortName}
+      target={selectedRace?.coordinates}
+      targetLabel={selectedRace?.shortName}
       onRecenter={recenter}
     />
   </div>;

@@ -33,7 +33,7 @@ export function SeasonTimeline({
   onSelect,
 }: {
   races: SeasonRace[];
-  selectedId: string;
+  selectedId: string | null;
   now: Date;
   onSelect: (raceId: string) => void;
 }) {
@@ -55,6 +55,7 @@ export function SeasonTimeline({
   const selectedIndex = races.findIndex((race) => race.id === selectedId);
 
   useEffect(() => {
+    if (!selectedId) return;
     const node = nodeRefs.current.get(selectedId);
     const rail = railRef.current;
     if (!node || !rail) return;
@@ -121,7 +122,7 @@ export function SeasonTimeline({
             style={{ "--pos": `${position(raceTime)}%`, "--node-color": race.color, "--node-ink": wdtInk(race.color) } as React.CSSProperties}
             aria-label={`${race.name}, ${race.dateLabel} 2026, ${race.locationName}`}
             aria-pressed={isSelected}
-            tabIndex={isSelected ? 0 : -1}
+            tabIndex={isSelected || (!selectedId && index === 0) ? 0 : -1}
             onClick={() => onSelect(race.id)}
           >
             <span className="timeline-node-marker mono"><i />{index + 1}</span>

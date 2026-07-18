@@ -55,7 +55,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
     <div className="control-body">
       <section className="control-kpis" aria-label="Résumé du championnat">
         <div><span>Leader provisoire</span><strong>{rows[0]?.name ?? "—"}</strong><small>{rows[0] ? formatPoints(rows[0].points) : "0"} points</small></div>
-        <div><span>Plateau</span><strong className="mono">{String(snapshotMeta?.totalClassified ?? rows.length).padStart(2, "0")}</strong><small>{mode === "individual" ? "coureurs classés" : "équipes classées"}</small></div>
+        <div><span>Plateau</span><strong className="mono">{String(snapshotMeta?.totalClassified ?? rows.length).padStart(2, "0")}</strong><small>{mode === "individual" ? "navigateurs classés" : "équipages classés"}</small></div>
         <div><span>Règle de classement</span><strong>{snapshotMeta?.scoreDirection === "low" ? "Score minimum" : "Score maximum"}</strong><small>{snapshotMeta?.scoringLabel ?? "instantané verrouillé"}</small></div>
         <div><span>{snapshotMeta ? "Étapes courues" : "Dernière manche"}</span><strong className="mono">{snapshotMeta ? `${String(snapshotMeta.completedRaces).padStart(2, "0")} / ${String(snapshotMeta.totalRaces).padStart(2, "0")}` : "06 / 06"}</strong><small>{snapshotMeta?.sourceLabel ?? eventName}</small></div>
       </section>
@@ -67,7 +67,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
               <Link className={mode === "boats" ? "active" : ""} href="/classements?vue=bateaux">Bateaux</Link>
               <Link className={mode === "individual" ? "active" : ""} href="/classements?vue=individuel">Individuel</Link>
             </div>
-            <label className="control-search"><Search aria-hidden /><span className="sr-only">Filtrer</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={mode === "individual" ? "Rechercher un coureur" : "Rechercher une équipe"} /></label>
+            <label className="control-search"><Search aria-hidden /><span className="sr-only">Filtrer</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={mode === "individual" ? "Rechercher un navigateur" : "Rechercher un équipage"} /></label>
           </div>
           <div
             className="standings-head standings-grid"
@@ -83,7 +83,7 @@ export function ChampionshipControlRoom({ mode, rows, raceSlug, eventName, snaps
             <span className="standings-total-label">Total</span>
           </div>
           <div className="control-ranking-list">
-            {filtered.length === 0 ? <div className="control-empty-ranking"><Search aria-hidden /><strong>{mode === "individual" ? "Aucun coureur trouvé" : "Aucune équipe trouvée"}</strong><span>Essayez une autre recherche.</span></div> : null}
+            {filtered.length === 0 ? <div className="control-empty-ranking"><Search aria-hidden /><strong>{mode === "individual" ? "Aucun navigateur trouvé" : "Aucun équipage trouvé"}</strong><span>Essayez une autre recherche.</span></div> : null}
             {filtered.map((row) => (
               <button
                 key={row.id}

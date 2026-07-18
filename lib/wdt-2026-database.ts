@@ -97,7 +97,7 @@ async function readDatabaseSnapshots(): Promise<Wdt2026Snapshots> {
   const teamRows = rowsFromScores(teamResult.rows, "low");
   const individualRows = rowsFromScores(individualResult.rows, "high");
   if (teamRows.length !== 9 || individualRows.length !== 43) {
-    throw new Error(`Import WDT incomplet dans la base (${teamRows.length} équipes, ${individualRows.length} coureurs).`);
+    throw new Error(`Import WDT incomplet dans la base (${teamRows.length} équipages, ${individualRows.length} navigateurs).`);
   }
   const importMeta = importResult.rows[0];
   if (!importMeta) throw new Error("Aucun import WDT terminé n’est enregistré.");

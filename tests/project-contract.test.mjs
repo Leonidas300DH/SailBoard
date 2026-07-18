@@ -43,7 +43,7 @@ test("intègre l’instantané individuel WDT 2026 avec les scores par étape", 
   assert.equal(snapshot.rows.find((row) => row.name === "ELY Bastien")?.points, 2);
 });
 
-test("intègre le classement WDT 2026 des équipes en low point", async () => {
+test("intègre le classement WDT 2026 des équipages en low point", async () => {
   const snapshot = JSON.parse(await readFile(new URL("data/wdt-2026-team-standings.json", root), "utf8"));
   assert.equal(snapshot.completedRaces, 4);
   assert.equal(snapshot.totalRaces, 6);

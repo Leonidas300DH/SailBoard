@@ -62,19 +62,19 @@ try {
   const actualTeams = new Map(expectedTeams.rows.map((row) => [row.name, Array(season.events.length).fill(null)]));
   for (const row of teamResult.rows) actualTeams.get(row.name)[eventIndex.get(row.stage_slug)] = row.points === null ? null : Number(row.points);
   for (const expected of expectedTeams.rows) {
-    assertEqual(JSON.stringify(actualTeams.get(expected.name)), JSON.stringify(expected.eventScores), `Scores équipe ${expected.name}`);
+    assertEqual(JSON.stringify(actualTeams.get(expected.name)), JSON.stringify(expected.eventScores), `Scores équipage ${expected.name}`);
   }
 
   const actualIndividuals = new Map(expectedIndividuals.rows.map((row) => [row.name, Array(season.events.length).fill(null)]));
   for (const row of individualResult.rows) actualIndividuals.get(row.name)[eventIndex.get(row.stage_slug)] = row.points === null ? null : Number(row.points);
   for (const expected of expectedIndividuals.rows) {
-    assertEqual(JSON.stringify(actualIndividuals.get(expected.name)), JSON.stringify(expected.eventScores), `Scores coureur ${expected.name}`);
+    assertEqual(JSON.stringify(actualIndividuals.get(expected.name)), JSON.stringify(expected.eventScores), `Scores navigateur ${expected.name}`);
   }
 
   const counts = countsResult.rows[0];
   assertEqual(counts.events, 6, "Étapes");
-  assertEqual(counts.teams, 9, "Équipes");
-  assertEqual(counts.sailors, 43, "Coureurs");
+  assertEqual(counts.teams, 9, "Équipages");
+  assertEqual(counts.sailors, 43, "Navigateurs");
   assertEqual(counts.stage_team_results, 54, "Résultats de bateau par étape");
   assertEqual(counts.stage_individual_scores, 258, "Scores individuels par étape");
   console.log(JSON.stringify({ verified: true, ...counts, teamLeader: { name: expectedTeams.rows[0].name, points: expectedTeams.rows[0].points }, individualLeader: { name: expectedIndividuals.rows[0].name, points: expectedIndividuals.rows[0].points } }, null, 2));

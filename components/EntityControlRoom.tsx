@@ -35,7 +35,7 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
           <div className="entity-score"><span>Score championnat</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
           <div className="entity-badges"><span><ShieldCheck /> Résultats certifiés</span><span><Activity /> {history.length} manche{history.length > 1 ? "s" : ""} disputée{history.length > 1 ? "s" : ""}</span></div>
         </div>
-        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName === race.name ? race.eventName : `${race.eventName} · ${race.name}`}</small></div></div>
+        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{race.eventName === race.name ? race.eventName : `${race.eventName} · ${race.name}`}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Dernière manche</span><span className="mono">OFFICIEL</span></div>
           <div className="telemetry-position"><span>Position</span><strong>{current?.position ?? "—"}<sup>e</sup></strong></div>
@@ -65,7 +65,7 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
           <div className="entity-score"><span>Capital individuel</span><strong className="mono">{total.toFixed(1)}</strong><small>points officiels</small></div>
           <div className="entity-badges"><span><ShieldCheck /> Profil vérifié</span><span><Activity /> {history.length} manche{history.length > 1 ? "s" : ""} disputée{history.length > 1 ? "s" : ""}</span></div>
         </div>
-        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} circuitOpen={false} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
+        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Implantation des courses disputées</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
         <div className="entity-telemetry">
           <div className="intel-overline"><span>Attribution individuelle</span><span className="mono">RÈGLE · V1</span></div>
           <div className="telemetry-position"><span>Points de la manche</span><strong>{latest?.points.toFixed(1) ?? "0.0"}<sup>pts</sup></strong></div>

@@ -123,7 +123,7 @@ export function RaceExperience({
         ) : hasResults ? (
           <div className="timeline-total">
             <span className="label">Classement d’étape</span>
-            <strong>{race.leaderboard.length} équipes</strong>
+            <strong>{race.leaderboard.length} équipages</strong>
             <small>Places intégrées au classement général</small>
           </div>
         ) : (

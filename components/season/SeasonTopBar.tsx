@@ -1,36 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { Flag, Map } from "lucide-react";
-
-/** One slim strip: context on the left, the two actions on the right. */
-export function SeasonTopBar({
-  circuitOpen,
-  onToggleCircuit,
-  exploreHref,
-}: {
-  circuitOpen: boolean;
-  onToggleCircuit: () => void;
-  exploreHref: string;
-}) {
+/** One quiet context line — every action lives in the HUD, rail or timeline. */
+export function SeasonTopBar() {
   return <header className="season-ocean-top">
     <div className="season-top-id">
       <span className="status-dot status-dot--locked" aria-hidden />
       <span>World Diam Tour France 2026 · 6 étapes · façade Atlantique</span>
     </div>
-    <button
-      className={`circuit-toggle ${circuitOpen ? "active" : ""}`}
-      type="button"
-      aria-expanded={circuitOpen}
-      aria-controls="season-circuit"
-      onClick={onToggleCircuit}
-    >
-      <Map aria-hidden />
-      <span>{circuitOpen ? "Refermer" : "Vue circuit"}</span>
-    </button>
-    <Link className="button season-primary-action" href={exploreHref}>
-      <Flag aria-hidden />
-      Explorer la course
-    </Link>
   </header>;
 }
