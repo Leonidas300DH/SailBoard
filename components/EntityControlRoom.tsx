@@ -3,12 +3,9 @@
 import Link from "next/link";
 import { Activity, ChevronRight, Flag, Gauge, Radio, ShieldCheck, Trophy, Users } from "lucide-react";
 import { ControlShell } from "./shell/AppShell";
-import { SeasonMap } from "./season/SeasonMap";
 import type { RaceView } from "@/lib/domain";
-import { SEASON_RACES } from "@/lib/season-data";
 
 type HistoryRow = { raceName: string; raceSlug: string; eventName: string; date: string; position: number | null; points: number; status?: string; boatName?: string; boatSlug?: string; role?: string };
-const ignoreRaceSelection = () => undefined;
 
 function RecordList({ rows, participant }: { rows: HistoryRow[]; participant?: boolean }) {
   return <div className={`entity-ledger${participant ? " entity-ledger--participant" : ""}`}>
@@ -24,7 +21,6 @@ function RecordList({ rows, participant }: { rows: HistoryRow[]; participant?: b
 export function BoatControlRoom({ boat, history, race }: { boat: { name: string; slug: string; model: string; sailNumber: string; color: string }; history: HistoryRow[]; race: RaceView }) {
   const current = race.leaderboard.find((row) => row.boatSlug === boat.slug);
   const total = history.reduce((sum, row) => sum + row.points, 0);
-  const disputed = SEASON_RACES.find((item) => item.name === race.eventName) ?? SEASON_RACES[2];
   return <ControlShell active="rankings" raceSlug={race.slug} eventName={race.eventName} title={boat.name} eyebrow="Fiche équipage · championnat 2026">
     <div className="entity-control-body" style={{ "--competitor-color": boat.color } as React.CSSProperties}>
       <section className="entity-hero-grid">
@@ -40,7 +36,7 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
           </div>
         </div>
         <div className="entity-telemetry">
-          <div className="intel-overline"><span>Dernière étape · {race.eventName}</span><span className="mono">OFFICIEL</span></div>
+          <div className="intel-overline"><span>Dernière étape · {race.eventName} · {race.locationName}</span><span className="mono">OFFICIEL</span></div>
           <div className="entity-stage-summary">
             <div className="telemetry-position"><span>Points de l’étape</span><strong>{current?.points.toFixed(1) ?? "0.0"}<sup>pts</sup></strong></div>
             <div className="entity-stage-metric"><Trophy /><span>Total saison</span><strong className="mono">{total.toFixed(1)}</strong></div>
@@ -50,7 +46,6 @@ export function BoatControlRoom({ boat, history, race }: { boat: { name: string;
           <div className="entity-crew-list">{current?.crew.map((member) => <Link href={`/participants/${member.slug}`} key={member.id}><span>{member.name}</span><small>{member.role} · {(member.points ?? current.points).toFixed(1)} pts</small><ChevronRight /></Link>)}</div>
           <Link className="intel-primary-link" href={`/courses/${race.slug}`}>Voir l’étape <Flag /></Link>
         </div>
-        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Dernière étape disputée</span><strong>{race.locationName}</strong><small>{race.eventName === race.name ? race.eventName : `${race.eventName} · ${race.name}`}</small></div></div>
       </section>
       <section className="entity-record-panel"><div className="control-panel-head"><div><span className="panel-kicker">Journal sportif</span><h3>Historique des étapes</h3></div><span className="mono muted">{history.length.toString().padStart(2, "0")} ENTRÉE</span></div><RecordList rows={history} /></section>
     </div>
@@ -61,7 +56,6 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
   const total = history.reduce((sum, row) => sum + row.points, 0);
   const latest = history[0];
   const currentEntry = race.leaderboard.find((entry) => entry.crew.some((member) => member.slug === participant.slug));
-  const disputed = SEASON_RACES.find((item) => item.name === race.eventName) ?? SEASON_RACES[2];
   return <ControlShell active="sailors" raceSlug={race.slug} eventName={race.eventName} title={participant.name} eyebrow="Fiche navigateur · classement individuel">
     <div className="entity-control-body" style={{ "--competitor-color": currentEntry?.color ?? "var(--acid)" } as React.CSSProperties}>
       <section className="entity-hero-grid participant-grid">
@@ -77,14 +71,17 @@ export function ParticipantControlRoom({ participant, history, race }: { partici
           </div>
         </div>
         <div className="entity-telemetry">
-          <div className="intel-overline"><span>Attribution individuelle</span><span className="mono">RÈGLE · V1</span></div>
-          <div className="telemetry-position"><span>Points de l’étape</span><strong>{latest?.points.toFixed(1) ?? "0.0"}<sup>pts</sup></strong></div>
-          <div className="allocation-track"><i style={{ width: `${Math.min(100, (latest?.points ?? 0) / 18 * 100)}%` }} /></div>
-          <p className="allocation-note">Points individuels publiés pour cette étape selon le barème officiel du championnat.</p>
-          {latest?.boatSlug ? <Link className="assignment-link" href={`/bateaux/${latest.boatSlug}`}><span><small>Équipage de l’étape</small><strong>{latest.boatName}</strong></span><ChevronRight /></Link> : null}
+          <div className="intel-overline"><span>Attribution individuelle · {race.eventName} · {race.locationName}</span><span className="mono">OFFICIEL</span></div>
+          <div className="entity-participant-summary">
+            <div className="telemetry-position"><span>Points de l’étape</span><strong>{latest?.points.toFixed(1) ?? "0.0"}<sup>pts</sup></strong></div>
+            <div className="allocation-context">
+              <div className="allocation-track"><i style={{ width: `${Math.min(100, (latest?.points ?? 0) / 18 * 100)}%` }} /></div>
+              <p className="allocation-note">Attribution publiée selon le barème officiel WDT.</p>
+              {latest?.boatSlug ? <Link className="assignment-link" href={`/bateaux/${latest.boatSlug}`}><span><small>Équipage de l’étape</small><strong>{latest.boatName}</strong></span><ChevronRight /></Link> : null}
+            </div>
+          </div>
           <Link className="intel-primary-link" href={`/courses/${race.slug}`}>Voir l’étape <Flag /></Link>
         </div>
-        <div className="entity-map-panel"><SeasonMap races={[disputed]} selectedRace={disputed} isPlaying={false} onSelect={ignoreRaceSelection} /><div className="map-shade global-map-shade" /><div className="entity-map-label"><span>Dernière étape disputée</span><strong>{race.locationName}</strong><small>{latest?.boatName ?? "—"} · {latest?.role ?? "—"}</small></div></div>
       </section>
       <section className="entity-record-panel"><div className="control-panel-head"><div><span className="panel-kicker">Journal individuel</span><h3>Équipages et points par étape</h3></div><span className="mono muted">TRAÇABILITÉ COMPLÈTE</span></div><RecordList rows={history} participant /></section>
     </div>

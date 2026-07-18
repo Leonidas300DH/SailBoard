@@ -90,17 +90,20 @@
   .intel-title h2 { font-size: 34px; }
   .entity-control-body { padding: 10px; display: block; }
   .entity-hero-grid { display: flex; flex-direction: column; }
-  .entity-identity { min-height: 260px; padding: 18px; border-right: 0; border-bottom: 1px solid var(--line); }
-  .entity-identity h2 { max-width: none; margin-top: 22px; font-size: clamp(34px,12vw,48px); overflow-wrap: normal; }
-  .entity-identity-footer { padding-top: 18px; align-items: flex-end; }
+  .entity-identity { min-height: 185px; padding: 14px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .entity-identity h2 { max-width: none; margin-top: 15px; font-size: clamp(30px,10vw,40px); overflow-wrap: normal; }
+  .entity-identity-footer { padding-top: 12px; align-items: flex-end; }
   .entity-badges { justify-items: end; }
   .entity-badges span { width: fit-content; }
-  .entity-map-panel { height: 38vh; height: 38dvh; min-height: 260px; max-height: 340px; border-bottom: 0; }
   .entity-telemetry { display: flex; }
   .entity-telemetry > .intel-section-title { display: flex; }
   .entity-stage-summary { grid-template-columns: 1fr 1fr; }
   .entity-stage-summary > :nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line); border-right: 0; }
-  .entity-crew-list { padding: 0 18px 12px; border-left: 0; }
+  .entity-crew-list { grid-template-columns: 1fr; padding: 0 12px 7px; border-left: 0; }
+  .entity-crew-list a { min-height: 34px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .entity-participant-summary { grid-template-columns: 110px minmax(0,1fr); }
+  .allocation-context { grid-template-columns: 1fr; padding: 10px 12px; }
+  .assignment-link { grid-column: 1; grid-row: auto; min-height: 44px; margin-top: 8px; }
   .entity-record-panel { margin-top: 10px; }
   .entity-ledger-head { display: none; }
   .entity-ledger-row { grid-template-columns: 1fr 56px; padding: 12px; }

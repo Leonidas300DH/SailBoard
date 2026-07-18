@@ -2,9 +2,8 @@
 
 ## Périmètre
 
-- Vérité visuelle de l’état défaillant : `docs/audit/01-team-profile-current.png` et `docs/audit/02-sailor-profile-current.png`, capturées sur la production avant correction.
-- Implémentation desktop : `docs/audit/02-team-profile-redesign-desktop.png` et `docs/audit/03-sailor-profile-redesign-desktop.png` — 1440 × 800.
-- Implémentation mobile : `docs/audit/04-team-profile-redesign-mobile.png` et `docs/audit/05-sailor-profile-redesign-mobile.png` — 390 × 844.
+- État de production rejeté après la première correction : `docs/audit/06-sailor-profile-too-tall.png` — zone haute mesurée à 541 px.
+- Implémentation finale : `docs/audit/08-sailor-profile-compact-final.png` et `docs/audit/09-team-profile-compact-final.png` — viewport navigateur 1280 × 720.
 - Routes : `/bateaux/centre-de-mediation` puis `/participants/cahierc-pierre` via le membre cliquable.
 - États : fiche équipage avec membres visibles ; fiche navigateur avec attribution et historique.
 
@@ -13,9 +12,9 @@
 | Surface | État défaillant | Implémentation finale | Verdict |
 |---|---|---|---|
 | Typographie | Noms géants coupés par la carte et la colonne de données | Noms complets, échelle responsive et rang secondaire | Corrigé |
-| Espacement et rythme | Trois colonnes concurrentes, carte dominante, historique repoussé | Deux zones prioritaires puis carte panoramique peu profonde | Corrigé |
+| Espacement et rythme | Profil et carte occupent 541 px ; l’historique commence à 649 px | Bande profil de 176 px ; l’historique commence à 284 px | Corrigé — −67 % |
 | Couleurs et tokens | Palette SailBoard cohérente mais accents concurrents | Palette et couleur d’équipage conservées ; action principale jaune SailBoard | Conforme |
-| Images et actifs | Satellite IGN surdimensionné | Même fond IGN, utilisé comme contexte de la dernière étape | Conforme |
+| Images et actifs | Carte satellite sans fonction prioritaire sur une fiche | Carte supprimée des profils ; elle reste réservée aux pages de course | Corrigé |
 | Copie et données | Métriques vides et tirets sans utilité | Champs absents masqués ; score, équipage et attribution explicites | Corrigé |
 | Interaction | Destination cliquable mais page résultante inexploitable | Équipier cliquable, dossier navigateur lisible, retour étape et équipage accessibles | Validé |
 | Responsive | Coupes desktop et chevauchement rôle/points | Aucun débordement à 390 px ; historique reflué selon le type de profil | Validé |
@@ -29,24 +28,26 @@
 - [P2] Des mesures de temps absentes occupent de l’espace sous forme de tirets.
 - [P2] Le rail ne reflète pas le contexte de la destination ouverte.
 
-### Corrections structurelles
+### Première correction — rejetée après mise en production
 
 - Identité et télémétrie placées en tête ; carte en bande panoramique en dessous.
 - Score, rang, équipage et attribution rapprochés de leur contexte métier.
 - Mesures conditionnelles et navigation latérale contextuelle.
-- Même système de composants pour les deux profils, sans uniformiser leurs contenus propres.
+- Malgré la disparition des coupes, la zone profil + carte mesure encore 541 px et reste majoritairement vide.
 
 ### Passage 2 — bloqué
 
 - [P2] Le rôle « Navigateur » chevauchait les points sur desktop et créait un débordement horizontal sur mobile.
 
-### Correction et passage final — validé
+### Correction finale — validée
 
 - Modificateur de grille dédié à l’historique navigateur.
-- À 390 × 844, `document.documentElement.scrollWidth === document.documentElement.clientWidth === 390` sur les deux routes.
-- À 1440 × 800, les noms, les scores, les membres et l’historique sont lisibles sans coupe ni chevauchement.
+- Carte entièrement supprimée des fiches équipage et navigateur.
+- Identité, score, rang, attribution et membres regroupés dans une bande de 176 px.
+- La zone haute passe de 541 à 176 px, soit une réduction mesurée de 67 %.
+- À 1280 × 720, les quatre lignes d’historique sont visibles sans défilement sur les deux profils.
 - Le clic Centre de Médiation → Cahierc Pierre aboutit sur la bonne route.
-- La comparaison de l’état production et des deux profils corrigés a été effectuée dans une même entrée visuelle, puis complétée par les vues mobiles focalisées.
+- La comparaison de l’état production et de l’implémentation compacte a été effectuée dans une même entrée visuelle pour chaque profil.
 - Aucun avertissement ni erreur applicative relevé dans la console des deux routes.
 
 ## Contrôles techniques

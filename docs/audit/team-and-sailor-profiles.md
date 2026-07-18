@@ -27,24 +27,30 @@ Capture : `docs/audit/02-sailor-profile-current.png`
 - L’attribution individuelle manque de lien visuel avec l’équipage concerné.
 - Les colonnes « rôle » et « points » entrent en collision lorsque leur largeur diminue.
 
-## Étape 3 — architecture commune corrigée
+## Étape 3 — première correction, encore trop haute
+
+**État : rejeté après mise en production.**
+
+Capture : `docs/audit/06-sailor-profile-too-tall.png`
+
+- Les coupes et chevauchements ont disparu, mais la carte reste envahissante.
+- La zone profil + carte mesure 541 px et l’historique ne commence qu’à 649 px sur un viewport de 720 px.
+- La structure est plus propre, mais le volume affiché ne correspond pas à la faible quantité de données.
+
+## Étape 4 — version compacte
 
 **État final : sain.**
 
-Captures desktop :
+Captures :
 
-- `docs/audit/02-team-profile-redesign-desktop.png`
-- `docs/audit/03-sailor-profile-redesign-desktop.png`
-
-Captures mobile :
-
-- `docs/audit/04-team-profile-redesign-mobile.png`
-- `docs/audit/05-sailor-profile-redesign-mobile.png`
+- `docs/audit/08-sailor-profile-compact-final.png`
+- `docs/audit/09-team-profile-compact-final.png`
 
 Corrections appliquées :
 
-- Grille principale ramenée à deux zones utiles : identité et données de l’étape.
-- Carte déplacée sous ces données et limitée à une bande panoramique de contexte.
+- Grille principale limitée à deux zones utiles : identité et données de l’étape.
+- Carte supprimée des deux profils ; les parcours restent consultables sur les pages de course.
+- Zone haute ramenée de 541 à 176 px, soit 67 % de réduction.
 - Noms complets rendus visibles avec une échelle typographique responsive.
 - Score, rang et état de publication regroupés sans décor numérique géant.
 - Membres de l’équipage immédiatement visibles et cliquables depuis la fiche bateau.
@@ -55,16 +61,16 @@ Corrections appliquées :
 
 ## Vérifications
 
-- Desktop : 1440 × 800, sans coupe ni chevauchement.
-- Mobile : 390 × 844, `scrollWidth === clientWidth` sur les deux profils.
+- Desktop : 1280 × 720, sans coupe ni chevauchement.
+- Les quatre entrées d’historique sont visibles sans défilement.
 - Parcours vérifié : Centre de Médiation → Cahierc Pierre.
 - Les noms des membres restent des liens et le bouton d’étape reste accessible.
-- Les cartes IGN chargent après leur délai réseau normal et ne bloquent aucun contenu.
 
 ## Accessibilité et limites de preuve
 
 - La hiérarchie de titres, les liens natifs et les libellés des disclosures sont conservés.
 - Aucun texte essentiel n’est porté uniquement par la couleur.
-- L’audit couvre la structure, le responsive, le clic principal et les erreurs navigateur ; il ne constitue pas un audit WCAG exhaustif au lecteur d’écran.
+- Cette passe de densification a été recapturée et mesurée sur le viewport desktop 1280 × 720 ; aucune nouvelle capture mobile n’a été acceptée, l’override du navigateur n’ayant pas modifié son viewport dans cette session.
+- L’audit couvre la structure desktop, le clic principal et les erreurs navigateur ; il ne constitue pas un audit WCAG exhaustif au lecteur d’écran.
 
 final result: passed
