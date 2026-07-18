@@ -27,3 +27,6 @@
   .timeline-canvas { min-width: 720px; margin: 0 18px; }
 }
 
+
+.timeline-node.next:not(.selected) .timeline-node-marker { animation: nextGlow 1.9s ease-in-out infinite; }
+.timeline-node.next:not(.selected) .timeline-node-marker::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--race); pointer-events: none; animation: nextPing 1.9s ease-out infinite; }

@@ -53,6 +53,7 @@ export function SeasonTimeline({
   const position = (time: number) => ((time - span.start) / (span.end - span.start)) * 100;
   const todayPct = position(now.getTime());
   const selectedIndex = races.findIndex((race) => race.id === selectedId);
+  const nextRaceId = races.find((race) => timingOf(race.date, now) !== "past")?.id ?? null;
 
   useEffect(() => {
     if (!selectedId) return;
@@ -118,7 +119,7 @@ export function SeasonTimeline({
               if (node) nodeRefs.current.set(race.id, node);
               else nodeRefs.current.delete(race.id);
             }}
-            className={`timeline-node ${timing}${isSelected ? " selected" : ""}`}
+            className={`timeline-node ${timing}${isSelected ? " selected" : ""}${race.id === nextRaceId ? " next" : ""}`}
             style={{ "--pos": `${position(raceTime)}%` } as React.CSSProperties}
             aria-label={`${race.name}, ${race.dateLabel} 2026, ${race.locationName}`}
             aria-pressed={isSelected}

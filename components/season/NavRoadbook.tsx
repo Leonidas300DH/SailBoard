@@ -18,6 +18,7 @@ export function NavRoadbook({
   onSelect: (raceId: string) => void;
 }) {
   const [open, setOpen] = useState(true);
+  const nextRaceId = races.find((race) => race.status === "upcoming")?.id ?? null;
 
   return <div className="nav-roadbook">
     <button
@@ -35,7 +36,7 @@ export function NavRoadbook({
         <button
           type="button"
           key={race.id}
-          className={`nav-stage${race.id === selectedId ? " selected" : ""}`}
+          className={`nav-stage${race.id === selectedId ? " selected" : ""}${race.id === nextRaceId ? " next" : ""}`}
           data-status={race.status}
           aria-pressed={race.id === selectedId}
           onClick={() => onSelect(race.id)}

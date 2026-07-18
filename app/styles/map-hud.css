@@ -38,3 +38,7 @@
   .race-marker { width: 20px; height: 20px; }
   .race-marker span strong { font-size: 10px; }
 }
+
+/* Next upcoming stage — pulsing beacon. */
+.race-marker.next:not(.selected) i { animation: nextGlow 1.9s ease-in-out infinite; }
+.race-marker.next:not(.selected)::after { content: ""; position: absolute; inset: 1px; border-radius: 50%; border: 2px solid var(--race); pointer-events: none; animation: nextPing 1.9s ease-out infinite; }

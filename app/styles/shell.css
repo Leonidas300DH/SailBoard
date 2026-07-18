@@ -57,3 +57,5 @@
 .nav-sublink svg { flex: 0 0 auto; width: 15px; height: 15px; stroke-width: 1.8; }
 .nav-sublink:hover { color: var(--text); }
 .nav-sublink.active { color: var(--acid); border-left-color: var(--acid); background: rgba(232, 255, 41, .06); }
+
+.nav-stage.next:not(.selected) .nav-stage-hex { animation: nextGlow 1.9s ease-in-out infinite; }

@@ -15,3 +15,7 @@ button { cursor: pointer; }
 
 .brand { display: inline-grid; gap: 0; overflow: hidden; font: 700 19px/.9 var(--font-race), sans-serif; font-style: italic; letter-spacing: -.01em; text-transform: uppercase; }
 .brand span:last-child { color: var(--acid); }
+
+/* The next upcoming stage breathes until it becomes the selection. */
+@keyframes nextGlow { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.45); } }
+@keyframes nextPing { 0% { transform: scale(.7); opacity: .85; } 70% { transform: scale(2); opacity: 0; } 100% { transform: scale(2); opacity: 0; } }

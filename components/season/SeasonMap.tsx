@@ -98,12 +98,14 @@ export function SeasonMap({
     // Stage markers are DOM elements: sober dots with native-type labels —
     // white for sailed stages, ringed for upcoming, yellow when selected.
     void import("maplibre-gl").then(({ default: maplibregl }) => {
+      const nextRaceId = allRaces.find((race) => race.status === "upcoming")?.id;
       allRaces.forEach((race) => {
         const element = document.createElement("button");
         element.type = "button";
         element.className = "race-marker";
         element.setAttribute("aria-label", `${race.name}, ${race.dateLabel} 2026`);
         element.dataset.status = race.status;
+        if (race.id === nextRaceId) element.classList.add("next");
         element.innerHTML = `<i aria-hidden></i><span><strong>${race.shortName}</strong><small>${race.dateLabel}</small></span>`;
         element.addEventListener("click", (event) => {
           event.stopPropagation();
