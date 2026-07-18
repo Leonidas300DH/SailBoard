@@ -1,3 +1,63 @@
+# Design QA — dossier équipage d’une étape
+
+## Périmètre
+
+- Vérité visuelle source : `/var/folders/vc/3dmscl8d4rd_t9gqggky7m9r0000gn/T/codex-clipboard-2206ca26-7be9-4436-b7c3-79d6186663a1.png` — 2586 × 1382, dossier ouvert sur Centre de Mediation.
+- Capture production desktop : `docs/qa/race-crew-desktop-final.png` — 1280 × 720.
+- Capture production mobile : `docs/qa/race-crew-mobile-final.png` — 390 × 844.
+- Comparaison ciblée source / production : `docs/qa/race-crew-comparison.png` — 600 × 720.
+- Route : `https://sailboard-three.vercel.app/courses/spi-ouest-france`.
+- État : Centre de Mediation sélectionné, rail ouvert, résultats validés.
+
+## Comparaison finale
+
+| Surface | Source | Implémentation finale | Verdict |
+|---|---|---|---|
+| Typographie | Identité du bateau forte, mais aucun navigateur visible | Identité conservée ; trois noms complets sur une ligne, rôle et points tabulaires | Corrigé |
+| Espacement et rythme | Deux grandes cases de chronométrage vides puis un grand vide | Un bloc points compact suivi immédiatement de l’équipage | Corrigé |
+| Couleurs et tokens | Bleu nuit, jaune acide, séparateurs techniques | Tokens SailBoard et couleur de sélection conservés | Conforme |
+| Images et actifs | Carte satellite IGN | Carte et actifs inchangés ; aucun substitut graphique ajouté | Conforme |
+| Copie et contenu | « Temps » et « Écart 1er » affichés sans données | Champs absents lorsqu’aucun chrono officiel n’existe ; libellé « Équipage de l’étape » explicite | Corrigé |
+| Responsive | État source desktop uniquement | Rail lisible à 1280 px et 390 px, sans débordement horizontal | Validé |
+
+## Historique QA
+
+### Passage 1 — bloqué
+
+- [P1] Le clic ouvrait un dossier sans membres alors que les affectations WDT déductibles sans ambiguïté existaient déjà dans la base et dans la logique d’import.
+- [P2] « Temps » et « Écart 1er » affichaient des tirets alors que le classeur WDT ne fournit aucun chrono.
+- [P2] Le rail répétait les noms dans un résumé vide de fonction avant la liste individuelle.
+
+### Corrections
+
+- Branchement des affectations d’étape connues selon la même règle conservatrice que l’import PostgreSQL : une association n’est affichée que lorsque la correspondance de score est unique.
+- Suppression conditionnelle complète des métriques de temps absentes.
+- Remplacement du résumé dupliqué par trois lignes de navigateurs cliquables avec rôle et points individuels.
+- État explicite « Composition non publiée » pour les associations ambiguës, sans inventer d’équipage.
+
+### Passage 2 — bloqué sur mobile
+
+- [P2] À 390 px, le pied de page conservait une grille prévue pour le bouton d’animation absent et créait un débordement horizontal après ouverture du rail.
+
+### Correction et passage final — validé
+
+- La grille du pied de page dépend maintenant de la présence réelle du bouton d’animation.
+- À 390 × 844, `document.scrollWidth === innerWidth`, le rail et le résumé d’étape restent entièrement accessibles.
+- À 1280 × 720, le clic sélectionne Centre de Mediation et affiche CHAMPANHAC Benoît, BOIS François et BOURGES Laurent ; « Temps » et « Écart 1er » sont absents.
+- La comparaison ciblée côte à côte confirme la conservation de la hiérarchie visuelle et la suppression de l’espace mort.
+- Aucun avertissement ni erreur de console sur les scénarios desktop et mobile.
+
+## Contrôles techniques
+
+- `npm run lint` : réussi.
+- `npm test` : 13 tests réussis.
+- `npm run build` : réussi.
+- Base WDT : 69 affectations d’équipage inférées de manière non ambiguë et vérifiées.
+
+final result: passed
+
+---
+
 # Design QA — roadbook de saison SailBoard
 
 ## Périmètre
