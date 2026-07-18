@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { wdtInk, type SeasonRace } from "@/lib/season-data";
+import type { SeasonRace } from "@/lib/season-data";
 
 /**
  * The season roadbook folded into the left rail: six stages under the
- * "Saison" entry, each wearing its prism hexagon. Selecting a stage drives
- * the map and opens the race HUD.
+ * "Saison" entry. Selecting a stage drives the map and opens the race HUD.
  */
 export function NavRoadbook({
   races,
@@ -39,7 +38,6 @@ export function NavRoadbook({
           className={`nav-stage${race.id === selectedId ? " selected" : ""}`}
           aria-pressed={race.id === selectedId}
           onClick={() => onSelect(race.id)}
-          style={{ "--stage-color": race.color, "--stage-ink": wdtInk(race.color) } as React.CSSProperties}
         >
           <i className="nav-stage-hex">{index + 1}</i>
           <span className="nav-stage-copy">

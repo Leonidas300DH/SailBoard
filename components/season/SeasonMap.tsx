@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import type { GeoJSONSource, Map as MaplibreMap, Marker } from "maplibre-gl";
-import { wdtInk, type SeasonRace } from "@/lib/season-data";
+import type { SeasonRace } from "@/lib/season-data";
 import { bearingAt } from "@/lib/map/geo";
 import { attachGraticule } from "@/lib/map/graticule";
 import { useMapLibre } from "../map/useMapLibre";
@@ -90,16 +90,15 @@ export function SeasonMap({
       paint: { "circle-radius": 4.5, "circle-color": "#ffffff", "circle-stroke-color": RACE_ACCENT, "circle-stroke-width": 2.5 },
     });
 
-    // Stage markers are DOM elements: prism-coloured dots with native-type
-    // labels — crisp and unmistakable on dark water.
+    // Stage markers are DOM elements: sober dots with native-type labels —
+    // white for sailed stages, ringed for upcoming, yellow when selected.
     void import("maplibre-gl").then(({ default: maplibregl }) => {
       allRaces.forEach((race) => {
         const element = document.createElement("button");
         element.type = "button";
         element.className = "race-marker";
         element.setAttribute("aria-label", `${race.name}, ${race.dateLabel} 2026`);
-        element.style.setProperty("--marker-color", race.color);
-        element.style.setProperty("--marker-ink", wdtInk(race.color));
+        element.dataset.status = race.status;
         element.innerHTML = `<i aria-hidden></i><span><strong>${race.shortName}</strong><small>${race.dateLabel}</small></span>`;
         element.addEventListener("click", (event) => {
           event.stopPropagation();

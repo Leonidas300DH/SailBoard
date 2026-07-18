@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { wdtInk, type SeasonRace } from "@/lib/season-data";
+import type { SeasonRace } from "@/lib/season-data";
 
 type RaceTiming = "past" | "today" | "future";
 
@@ -119,7 +119,7 @@ export function SeasonTimeline({
               else nodeRefs.current.delete(race.id);
             }}
             className={`timeline-node ${timing}${isSelected ? " selected" : ""}`}
-            style={{ "--pos": `${position(raceTime)}%`, "--node-color": race.color, "--node-ink": wdtInk(race.color) } as React.CSSProperties}
+            style={{ "--pos": `${position(raceTime)}%` } as React.CSSProperties}
             aria-label={`${race.name}, ${race.dateLabel} 2026, ${race.locationName}`}
             aria-pressed={isSelected}
             tabIndex={isSelected || (!selectedId && index === 0) ? 0 : -1}

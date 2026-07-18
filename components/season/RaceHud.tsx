@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Anchor, ChevronRight, CloudOff, Gauge, Pause, Play, Thermometer, Waves, Wind, X } from "lucide-react";
-import { wdtInk, type SeasonRace } from "@/lib/season-data";
+import type { SeasonRace } from "@/lib/season-data";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
 
 const RELIABILITY_LABELS: Record<RaceWeatherSnapshot["reliability"], string> = {
@@ -39,11 +39,7 @@ export function RaceHud({
       ? `Vainqueur · ${race.winner}`
       : race.status === "upcoming" ? "Engagements ouverts" : race.result ?? "Résultats validés";
 
-  return <section
-    className="race-hud"
-    aria-live="polite"
-    style={{ "--stage-color": race.color, "--stage-ink": wdtInk(race.color) } as React.CSSProperties}
-  >
+  return <section className="race-hud" aria-live="polite">
     <header className="race-hud-head">
       <i className="race-hud-hex">{index + 1}</i>
       <div className="race-hud-id">

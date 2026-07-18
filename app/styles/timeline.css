@@ -25,7 +25,3 @@
   .timeline-canvas { min-width: 720px; margin: 0 18px; }
 }
 
-/* Timeline nodes wear their stage's prism colour, matching the map dots. */
-.timeline-node-marker { background: var(--node-color, #cfdde2); color: var(--node-ink, var(--bg-deep)); box-shadow: 0 0 0 1px rgba(242, 247, 249, .35); }
-.timeline-node.future .timeline-node-marker { background: color-mix(in srgb, var(--node-color, #cfdde2) 38%, var(--bg-deep)); color: #cfdce1; }
-.timeline-node:hover .timeline-node-marker, .timeline-node.selected .timeline-node-marker { background: var(--node-color, var(--race)); color: var(--node-ink, var(--bg-deep)); box-shadow: 0 0 0 2px rgba(242, 247, 249, .8), 0 0 12px color-mix(in srgb, var(--node-color, var(--race)) 60%, transparent); transform: scale(1.08); }
