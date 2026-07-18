@@ -27,12 +27,34 @@ export function AppShell({
         <span className="brand"><span>SailBoard</span><span>Race</span></span>
       </Link>
       <nav className="nav-stack">
-        {publicNav().map(({ id, href, label, icon: Icon }) => (
-          <div key={id} className="nav-slot">
-            <Link href={href} aria-label={label} className={`nav-link ${active === id ? "active" : ""}`}>
-              <Icon aria-hidden />
-              <span>{label}</span>
-            </Link>
+        {publicNav().map(({ id, href, label, icon: Icon, children: subItems }) => (
+          <div key={label} className="nav-slot">
+            {subItems ? (
+              <>
+                <span className={`nav-group-title${subItems.some((child) => child.id === active) ? " active" : ""}`}>
+                  <Icon aria-hidden />
+                  <span>{label}</span>
+                </span>
+                <div className="nav-sublinks">
+                  {subItems.map(({ id: childId, href: childHref, label: childLabel, icon: ChildIcon }) => (
+                    <Link
+                      key={childLabel}
+                      href={childHref}
+                      aria-label={childLabel}
+                      className={`nav-sublink${active === childId ? " active" : ""}`}
+                    >
+                      <ChildIcon aria-hidden />
+                      <span>{childLabel}</span>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <Link href={href} aria-label={label} className={`nav-link ${active === id ? "active" : ""}`}>
+                <Icon aria-hidden />
+                <span>{label}</span>
+              </Link>
+            )}
             {navExtras?.[id] ?? null}
           </div>
         ))}

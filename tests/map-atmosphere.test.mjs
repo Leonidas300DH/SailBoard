@@ -5,11 +5,12 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 
 test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () => {
-  const [cloudLayer, seasonMap, courseMap, cameraDirector] = await Promise.all([
+  const [cloudLayer, seasonMap, courseMap, cameraDirector, mapBootstrap] = await Promise.all([
     readFile(new URL("components/map/CloudLayer.tsx", root), "utf8"),
     readFile(new URL("components/season/SeasonMap.tsx", root), "utf8"),
     readFile(new URL("components/race/CourseMap.tsx", root), "utf8"),
     readFile(new URL("components/map/useCameraDirector.ts", root), "utf8"),
+    readFile(new URL("components/map/useMapLibre.ts", root), "utf8"),
   ]);
 
   assert.match(cloudLayer, /buildSheets/);
@@ -24,6 +25,8 @@ test("lie les nuages procéduraux à la caméra inclinée MapLibre", async () =>
   assert.match(seasonMap, /pitch: isCompact \? 26 : 34/);
   assert.match(seasonMap, /pitch: 52/);
   assert.match(courseMap, /pitch: 48/);
+  assert.match(courseMap, /pitch: 42/);
   assert.match(courseMap, /mapRef=\{mapRef\}/);
   assert.match(cameraDirector, /orientation: CameraOrientation/);
+  assert.match(mapBootstrap, /pitch: initial\.pitch \?\? 0/);
 });

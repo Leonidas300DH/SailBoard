@@ -4,6 +4,9 @@
   .brand { font-size: 20px; }
   .nav-link { justify-content: center; padding: 0; }
   .nav-link span, .nav-season { display: none; }
+  .nav-group-title span, .nav-sublink span { display: none; }
+  .nav-group-title { justify-content: center; padding: 8px 0 2px; }
+  .nav-sublink { justify-content: center; padding: 0; }
   .race-main { grid-template-columns: minmax(0,1fr) 280px; }
   .race-main.rail-expanded { grid-template-columns: minmax(0,1fr) min(520px, 58vw); }
   .map-chip-meta { display: none; }
@@ -22,9 +25,13 @@
   .public-shell { display: block; padding-bottom: 68px; }
   .side-nav { position: fixed; inset: auto 0 0; width: auto; height: 68px; z-index: 50; flex-direction: row; border: 0; border-top: 1px solid var(--line); }
   .side-brand, .nav-season { display: none; }
-  .nav-stack { width: 100%; grid-template-columns: repeat(4,1fr); padding: 0; }
-  .nav-link { min-height: 68px; border: 0; border-top: 2px solid transparent; }
-  .nav-link.active { border-left: 0; border-top-color: var(--acid); }
+  .nav-stack { width: 100%; display: flex; padding: 0; }
+  .nav-slot { display: contents; }
+  .nav-group-title { display: none; }
+  .nav-sublinks { display: contents; }
+  .nav-link, .nav-sublink { flex: 1; min-height: 68px; justify-content: center; padding: 0; border: 0; border-top: 2px solid transparent; }
+  .nav-sublink svg { width: 20px; height: 20px; }
+  .nav-link.active, .nav-sublink.active { border-left: 0; background: transparent; border-top-color: var(--acid); }
   .race-stage { min-height: calc(100vh - 68px); grid-template-rows: auto auto; }
   .button { padding-inline: 13px; font-size: 12px; }
   .race-main { display: flex; flex-direction: column; }

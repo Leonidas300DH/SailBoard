@@ -88,8 +88,8 @@ function buildCloudTile(seed: number): HTMLCanvasElement {
       let noise = 0;
       for (const { cells, amp, grid } of octaves) noise += sample(grid, cells, wu, wv) * amp;
 
-      const density = smoothstep(0.5, 0.79, noise);
-      const core = density ** 1.18;
+      const density = smoothstep(0.43, 0.75, noise);
+      const core = density ** 1.3;
       const offset = (y * TILE + x) * 4;
       image.data[offset] = Math.round(207 + core * 41);
       image.data[offset + 1] = Math.round(224 + core * 27);
@@ -104,14 +104,14 @@ function buildCloudTile(seed: number): HTMLCanvasElement {
 function buildSheets(compact: boolean): CloudSheet[] {
   if (compact) {
     return [
-      { scale: 2.5, speed: 0.52, alpha: 0.56, headingOffset: -5, altitude: 0.35, parallax: 0.74, x: 0, y: 0 },
-      { scale: 1.7, speed: 0.92, alpha: 0.72, headingOffset: 7, altitude: 0.7, parallax: 0.58, x: 310, y: 140 },
+      { scale: 2.5, speed: 0.52, alpha: 0.66, headingOffset: -5, altitude: 0.35, parallax: 0.74, x: 0, y: 0 },
+      { scale: 1.7, speed: 0.92, alpha: 0.84, headingOffset: 7, altitude: 0.7, parallax: 0.58, x: 310, y: 140 },
     ];
   }
   return [
-    { scale: 3.2, speed: 0.38, alpha: 0.42, headingOffset: -9, altitude: 0.18, parallax: 0.86, x: 0, y: 0 },
-    { scale: 2.25, speed: 0.68, alpha: 0.58, headingOffset: 2, altitude: 0.5, parallax: 0.7, x: 330, y: 170 },
-    { scale: 1.55, speed: 1, alpha: 0.7, headingOffset: 11, altitude: 0.86, parallax: 0.52, x: 580, y: 410 },
+    { scale: 3.2, speed: 0.38, alpha: 0.56, headingOffset: -9, altitude: 0.18, parallax: 0.86, x: 0, y: 0 },
+    { scale: 2.25, speed: 0.68, alpha: 0.72, headingOffset: 2, altitude: 0.5, parallax: 0.7, x: 330, y: 170 },
+    { scale: 1.55, speed: 1, alpha: 0.86, headingOffset: 11, altitude: 0.86, parallax: 0.52, x: 580, y: 410 },
   ];
 }
 
@@ -202,7 +202,9 @@ export function CloudLayer({
 
     const render = () => {
       const { knots } = windRef.current;
-      const baseAlpha = 0.07 + Math.min(knots, 30) / 30 * 0.065;
+      // Present enough to read as weather, restrained enough to keep labels
+      // and satellite detail legible even where several decks overlap.
+      const baseAlpha = 0.14 + Math.min(knots, 30) / 30 * 0.1;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
       context.globalCompositeOperation = "screen";

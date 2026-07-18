@@ -8,6 +8,8 @@ export type MapLibreOptions = {
   preset: IgnStylePreset;
   center: [number, number];
   zoom: number;
+  pitch?: number;
+  bearing?: number;
   minZoom?: number;
   maxPitch?: number;
   interactive?: boolean;
@@ -64,6 +66,8 @@ export function useMapLibre(containerRef: RefObject<HTMLDivElement | null>, opti
         container: containerRef.current,
         center: initial.center,
         zoom: initial.zoom,
+        pitch: initial.pitch ?? 0,
+        bearing: initial.bearing ?? 0,
         minZoom: initial.minZoom,
         maxPitch: initial.maxPitch ?? 60,
         attributionControl: false,

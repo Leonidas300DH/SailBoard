@@ -166,6 +166,8 @@ export function CourseMap({
     preset: "course",
     center,
     zoom: 11.7,
+    pitch: 42,
+    bearing: -10,
     maxPitch: 65,
     onLoad: handleLoad,
   });

@@ -122,6 +122,8 @@ export function SeasonMap({
     preset: "season",
     center: compact ? [-3.05, 47.82] : [-3.05, 48.05],
     zoom: compact ? 6.45 : 6.85,
+    pitch: compact ? 26 : 34,
+    bearing: -8,
     minZoom: 6.2,
     maxPitch: 65,
     onLoad: handleLoad,
