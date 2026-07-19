@@ -5,7 +5,7 @@ import type { Map as MaplibreMap, Marker } from "maplibre-gl";
 import type { SeasonRace } from "@/lib/season-data";
 import { attachGraticule } from "@/lib/map/graticule";
 import { buildCurvedChronology, chronologyFeatures } from "@/lib/map/season-chronology";
-import { applySeasonMapMode, type SeasonMapMode } from "@/lib/map/style";
+import { applySeasonMapMode } from "@/lib/map/style";
 import { useMapLibre } from "../map/useMapLibre";
 import { useCameraDirector } from "../map/useCameraDirector";
 import { useSeasonChronologyAnimation } from "../map/useSeasonChronologyAnimation";
@@ -50,8 +50,7 @@ export function SeasonMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const displaySettings = useMapDisplaySettings(mapSettings);
   const [desktopEffectsAllowed, setDesktopEffectsAllowed] = useState(false);
-  const [mapModeOverride, setMapModeOverride] = useState<SeasonMapMode | null>(null);
-  const mapMode = mapModeOverride ?? displaySettings.defaultMode;
+  const effectiveMapMode = displaySettings.defaultMode;
   const onSelectRef = useRef(onSelect);
   const racesRef = useRef(races);
   useEffect(() => {
@@ -150,7 +149,6 @@ export function SeasonMap({
     onLoad: handleLoad,
   });
   const { flyToTarget, flyToBounds } = useCameraDirector(mapRef, isReady);
-  const effectiveMapMode: SeasonMapMode = mapMode;
   const tacticalEnabled = desktopEffectsAllowed && effectiveMapMode === "tactical";
 
   useEffect(() => {
@@ -246,28 +244,10 @@ export function SeasonMap({
       targetLabel={selectedRace?.shortName}
       onRecenter={recenter}
     />
-    {desktopEffectsAllowed ? (
-      <div className="map-mode-control" role="group" aria-label="Map appearance">
-        <div className="map-mode-switch">
-          <button
-            type="button"
-            aria-pressed={mapMode === "natural"}
-            className={mapMode === "natural" ? "active" : undefined}
-            onClick={() => setMapModeOverride("natural")}
-          >Natural</button>
-          <button
-            type="button"
-            aria-pressed={mapMode === "tactical"}
-            className={mapMode === "tactical" ? "active" : undefined}
-            onClick={() => setMapModeOverride("tactical")}
-          >Tactical</button>
-        </div>
-        {tacticalEnabled && (displaySettings.showAircraft || displaySettings.showVessels) ? (
-          <div className="map-mode-status mono" aria-live="polite">
-            {displaySettings.showAircraft ? <span data-state={trafficStatus.aircraft}>ADS-B {trafficStatus.aircraft === "live" ? "LIVE" : "MODEL"}</span> : null}
-            {displaySettings.showVessels ? <span data-state={trafficStatus.vessels}>AIS {trafficStatus.vessels === "live" ? "LIVE" : "MODEL"}</span> : null}
-          </div>
-        ) : null}
+    {tacticalEnabled && (displaySettings.showAircraft || displaySettings.showVessels) ? (
+      <div className="map-feed-status mono" aria-live="polite">
+        {displaySettings.showAircraft ? <span data-state={trafficStatus.aircraft}>ADS-B {trafficStatus.aircraft === "live" ? "LIVE" : "MODEL"}</span> : null}
+        {displaySettings.showVessels ? <span data-state={trafficStatus.vessels}>AIS {trafficStatus.vessels === "live" ? "LIVE" : "MODEL"}</span> : null}
       </div>
     ) : null}
   </div>;

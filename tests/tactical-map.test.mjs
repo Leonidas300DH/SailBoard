@@ -4,7 +4,7 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("le mode tactique reste un switch de peinture et préserve la chronologie", async () => {
+test("le mode de carte vient uniquement des Settings et préserve la chronologie", async () => {
   const [seasonMap, style, tacticalLayers, chronologyAnimation] = await Promise.all([
     readFile(new URL("components/season/SeasonMap.tsx", root), "utf8"),
     readFile(new URL("lib/map/style.ts", root), "utf8"),
@@ -12,8 +12,9 @@ test("le mode tactique reste un switch de peinture et préserve la chronologie",
     readFile(new URL("components/map/useSeasonChronologyAnimation.ts", root), "utf8"),
   ]);
 
-  assert.match(seasonMap, /Natural/);
-  assert.match(seasonMap, /Tactical/);
+  assert.doesNotMatch(seasonMap, /map-mode-switch/);
+  assert.doesNotMatch(seasonMap, /setMapModeOverride/);
+  assert.match(seasonMap, /displaySettings\.defaultMode/);
   assert.match(seasonMap, /min-width: 761px/);
   assert.match(seasonMap, /effectiveMapMode/);
   assert.match(seasonMap, /useSeasonChronologyAnimation\(\{ mapRef, isReady, legs: chronologyLegs \}\)/);
@@ -38,7 +39,7 @@ test("les réglages admin activent par défaut la carte tactique et toutes ses c
     assert.match(seasonMap, new RegExp(option));
   }
   assert.match(admin, /\/api\/admin\/settings/);
-  assert.match(seasonMap, /mapModeOverride \?\? displaySettings\.defaultMode/);
+  assert.match(seasonMap, /effectiveMapMode = displaySettings\.defaultMode/);
 });
 
 test("la navigation publique remplace Admin par des Settings locaux", async () => {
@@ -105,7 +106,8 @@ test("les couches de vie tactiques sont desktop, animées et branchées sur des 
   assert.match(vesselRoute, /message\.Cog/);
   assert.match(vesselRoute, /\[\[45\.7, -7\.1\], \[49\.4, 0\.8\]\]/);
   assert.match(env, /AISSTREAM_API_KEY=/);
-  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.map-mode-control \{ display: none; \}/);
+  assert.doesNotMatch(styles, /\.map-mode-switch/);
+  assert.match(styles, /\.map-feed-status/);
   assert.match(styles, /\.tactical-traffic-marker--aircraft::before/);
   assert.match(styles, /\.tactical-aircraft-shadow/);
   assert.match(styles, /var\(--aircraft-lift\)/);

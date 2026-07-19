@@ -16,19 +16,13 @@
 .hud-recenter:hover { color: var(--bg-deep); background: var(--hud); border-color: var(--hud); }
 .hud-recenter svg { width: 14px; height: 14px; }
 
-/* One-click basemap switch. It sits above atmosphere and tactical telemetry,
-   while the existing stage HUD and chronology remain independent. */
-.map-mode-control { position: absolute; z-index: 7; top: 62px; right: 16px; display: grid; justify-items: end; gap: 6px; color: var(--text); }
-.map-mode-switch { display: grid; grid-template-columns: 1fr 1fr; min-width: 214px; padding: 3px; background: rgba(1, 10, 16, .78); border: 1px solid rgba(180, 215, 228, .28); box-shadow: inset 0 1px 0 rgba(235, 248, 252, .06), 0 12px 30px rgba(0, 0, 0, .28); -webkit-backdrop-filter: blur(18px) saturate(118%); backdrop-filter: blur(18px) saturate(118%); }
-.map-mode-switch button { min-height: 34px; padding: 0 16px; color: #91a8b2; background: transparent; border: 0; font: 700 10px var(--font-race), sans-serif; text-transform: uppercase; letter-spacing: .08em; transition: color .18s ease, background .18s ease, box-shadow .18s ease; }
-.map-mode-switch button:hover { color: var(--text); }
-.map-mode-switch button.active { color: #e9fbff; background: rgba(0, 156, 222, .2); box-shadow: inset 0 0 0 1px rgba(91, 210, 245, .42), 0 0 16px rgba(0, 156, 222, .12); }
-.map-mode-status { display: flex; align-items: center; gap: 9px; padding: 4px 7px; color: #79949f; background: rgba(1, 10, 16, .62); border: 1px solid rgba(139, 193, 211, .14); font-size: 8px; letter-spacing: .08em; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-.map-mode-status span { display: inline-flex; align-items: center; gap: 5px; }
-.map-mode-status span::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: #607681; box-shadow: 0 0 6px transparent; }
-.map-mode-status span[data-state="live"] { color: #bfefff; }
-.map-mode-status span[data-state="live"]::before { background: #52d6ff; box-shadow: 0 0 7px rgba(82, 214, 255, .66); }
-.map-mode-status span[data-state="loading"]::before { animation: tacticalFeedPulse 1.4s ease-in-out infinite; }
+/* Small telemetry indicator; the map appearance itself is configured in Settings. */
+.map-feed-status { position: absolute; z-index: 7; top: 62px; right: 16px; display: flex; align-items: center; gap: 9px; padding: 4px 7px; color: #79949f; background: rgba(1, 10, 16, .62); border: 1px solid rgba(139, 193, 211, .14); font-size: 8px; letter-spacing: .08em; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.map-feed-status span { display: inline-flex; align-items: center; gap: 5px; }
+.map-feed-status span::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: #607681; box-shadow: 0 0 6px transparent; }
+.map-feed-status span[data-state="live"] { color: #bfefff; }
+.map-feed-status span[data-state="live"]::before { background: #52d6ff; box-shadow: 0 0 7px rgba(82, 214, 255, .66); }
+.map-feed-status span[data-state="loading"]::before { animation: tacticalFeedPulse 1.4s ease-in-out infinite; }
 @keyframes tacticalFeedPulse { 50% { opacity: .25; } }
 
 /* Live traffic markers use sourced Lucide silhouettes. Aircraft are lifted
@@ -47,7 +41,6 @@
 .tactical-traffic-marker:focus-visible { outline: 1px solid rgba(166,237,255,.8); outline-offset: 1px; }
 
 @media (max-width: 760px) {
-  .map-mode-control { display: none; }
   .hud-edge-label, .hud-readout, .hud-reticle-tag { display: none; }
   .hud-recenter { right: 10px; bottom: 28px; min-width: 44px; min-height: 44px; justify-content: center; padding: 0; }
   .hud-recenter span { display: none; }
