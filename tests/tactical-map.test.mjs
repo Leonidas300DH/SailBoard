@@ -25,19 +25,21 @@ test("le mode tactique reste un switch de peinture et préserve la chronologie",
 });
 
 test("les couches de vie tactiques sont desktop, animées et branchées sur des sources réelles", async () => {
-  const [layers, aircraftRoute, vesselRoute, styles, env] = await Promise.all([
+  const [layers, aircraftRoute, vesselRoute, styles, env, shipIcon] = await Promise.all([
     readFile(new URL("components/map/useTacticalMapLayers.ts", root), "utf8"),
     readFile(new URL("app/api/map-traffic/aircraft/route.ts", root), "utf8"),
     readFile(new URL("app/api/map-traffic/vessels/route.ts", root), "utf8"),
     readFile(new URL("app/styles/map-hud.css", root), "utf8"),
     readFile(new URL(".env.example", root), "utf8"),
+    readFile(new URL("public/icons/tactical-ship.svg", root), "utf8"),
   ]);
 
   assert.match(layers, /tiles\.openfreemap\.org\/planet/);
   assert.match(layers, /emodnet:contours/);
   assert.match(layers, /maplibre-contour/);
   assert.match(layers, /requestAnimationFrame\(animate\)/);
-  assert.match(layers, /ROAD_MOTION_PATHS/);
+  assert.doesNotMatch(layers, /ROAD_MOTION_PATHS/);
+  assert.doesNotMatch(layers, /tactical-road-traffic/);
   assert.match(layers, /SHIPPING_LANES/);
   assert.match(layers, /FALLBACK_AIR_ROUTES/);
   assert.match(layers, /tactical-traffic-marker--\$\{kind\}/);
@@ -46,6 +48,10 @@ test("les couches de vie tactiques sont desktop, animées et branchées sur des 
   assert.match(layers, /data\.tooltip|dataset\.tooltip/);
   assert.match(layers, /aircraftVisualAltitude/);
   assert.match(layers, /tactical-aircraft-shadow/);
+  assert.match(layers, /if \(kind === "vessel"\) return point\.coordinates/);
+  assert.match(layers, /record\.element\.dataset\.coordinate/);
+  assert.match(layers, /offset: \[0, 0\]/);
+  assert.doesNotMatch(layers, /kind === "vessel" \? \[16, -18\]/);
   assert.match(layers, /kind === "road" \? 10 : 2/);
   assert.match(layers, /kind === "road" \? 32 : 1/);
   assert.match(aircraftRoute, /api\.airplanes\.live/);
@@ -65,6 +71,8 @@ test("les couches de vie tactiques sont desktop, animées et branchées sur des 
   assert.match(styles, /\.tactical-traffic-marker--aircraft::before/);
   assert.match(styles, /\.tactical-aircraft-shadow/);
   assert.match(styles, /var\(--aircraft-lift\)/);
+  assert.match(shipIcon, /Lucide Navigation2 icon/);
+  assert.match(shipIcon, /<polygon points="12 2 19 21 12 17 5 21 12 2"/);
 });
 
 test("les nuages tactiques ont des passes de volume séparées", async () => {

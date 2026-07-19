@@ -7,7 +7,6 @@ import {
   FALLBACK_AIR_ROUTES,
   haversineKm,
   pointAlongPath,
-  ROAD_MOTION_PATHS,
   SHIPPING_LANES,
   TACTICAL_CITIES,
   type LiveTrafficPoint,
@@ -25,8 +24,6 @@ const TACTICAL_LAYERS = [
   "tactical-road-network",
   "tactical-city-glow",
   "tactical-city-core",
-  "tactical-road-traffic-glow",
-  "tactical-road-traffic-core",
   "tactical-vessels-glow",
   "tactical-vessels-core",
   "tactical-aircraft-glow",
@@ -136,19 +133,23 @@ function movingPathFeatures(paths: MotionPath[], now: number, kind: string): Geo
   });
 }
 
-function livePointPosition(point: LiveTrafficPoint, now: number): MapCoordinate {
+function livePointPosition(point: LiveTrafficPoint, now: number, kind: TrafficKind): MapCoordinate {
+  // AIS positions are map anchors, not an animation layer. Keeping the exact
+  // reported coordinate prevents a vessel from drifting or snapping while
+  // the user zooms; it only changes when a new AIS sample arrives.
+  if (kind === "vessel") return point.coordinates;
   const elapsedHours = Math.max(0, Math.min(0.12, (now - point.updatedAt) / 3_600_000));
   return destinationPoint(point.coordinates, point.heading, point.speedKph * elapsedHours);
 }
 
-function liveFeatures(points: LiveTrafficPoint[], now: number, kind: string): GeoJSON.Feature[] {
+function liveFeatures(points: LiveTrafficPoint[], now: number, kind: TrafficKind): GeoJSON.Feature[] {
   return points.map((point) => {
     return {
       type: "Feature" as const,
       properties: { id: point.id, label: point.label ?? "", heading: point.heading, kind },
       geometry: {
         type: "Point" as const,
-        coordinates: livePointPosition(point, now),
+        coordinates: livePointPosition(point, now, kind),
       },
     };
   });
@@ -201,14 +202,15 @@ function syncTrafficMarkers({
 }) {
   const visibleIds = new Set<string>();
   const occupiedCells = new Set<string>();
-  const cellSize = kind === "aircraft" ? 74 : 28;
   for (const point of points) {
-    const coordinates = livePointPosition(point, now);
+    const coordinates = livePointPosition(point, now, kind);
     if (!isInPaddedViewport(map, coordinates)) continue;
-    const screenPoint = map.project(coordinates);
-    const cell = `${Math.floor(screenPoint.x / cellSize)}:${Math.floor(screenPoint.y / cellSize)}`;
-    if (occupiedCells.has(cell)) continue;
-    occupiedCells.add(cell);
+    if (kind === "aircraft") {
+      const screenPoint = map.project(coordinates);
+      const cell = `${Math.floor(screenPoint.x / 74)}:${Math.floor(screenPoint.y / 74)}`;
+      if (occupiedCells.has(cell)) continue;
+      occupiedCells.add(cell);
+    }
     visibleIds.add(point.id);
     let record = markers.get(point.id);
     if (!record) {
@@ -216,7 +218,11 @@ function syncTrafficMarkers({
       markers.set(point.id, record);
     }
     const tooltip = trafficTooltip(kind, point);
-    record.marker.setLngLat(coordinates);
+    const coordinateKey = `${coordinates[0].toFixed(6)}:${coordinates[1].toFixed(6)}`;
+    if (kind === "aircraft" || record.element.dataset.coordinate !== coordinateKey) {
+      record.marker.setLngLat(coordinates);
+      record.element.dataset.coordinate = coordinateKey;
+    }
     record.element.style.setProperty("--traffic-heading", `${point.heading + (kind === "aircraft" ? -45 : 0)}deg`);
     if (kind === "aircraft") {
       const altitude = aircraftVisualAltitude(point.altitudeFt);
@@ -330,7 +336,7 @@ async function installTacticalLayers(map: MaplibreMap) {
     }, beforeId);
   }
 
-  for (const id of ["tactical-city-lights", "tactical-road-traffic", "tactical-vessels", "tactical-aircraft"]) {
+  for (const id of ["tactical-city-lights", "tactical-vessels", "tactical-aircraft"]) {
     addGeoJsonSource(map, id);
   }
 
@@ -360,8 +366,6 @@ async function installTacticalLayers(map: MaplibreMap) {
 
   pointLayer("tactical-city-glow", "tactical-city-lights", "#ffd978", ["interpolate", ["linear"], ["zoom"], 6, 5.5, 10, 12], ["*", ["get", "intensity"], 0.52], 0.84);
   pointLayer("tactical-city-core", "tactical-city-lights", "#fff8d6", ["interpolate", ["linear"], ["zoom"], 6, 1.15, 10, 2.1], ["*", ["get", "intensity"], 0.96], 0.08);
-  pointLayer("tactical-road-traffic-glow", "tactical-road-traffic", "#ffe39a", 4.8, 0.42, 0.78);
-  pointLayer("tactical-road-traffic-core", "tactical-road-traffic", "#fffdf2", 1.3, 0.94, 0.04);
   pointLayer("tactical-vessels-glow", "tactical-vessels", "#42d4ff", 7.2, 0.38, 0.78);
   pointLayer("tactical-vessels-core", "tactical-vessels", "#dff8ff", 1.55, 0.94, 0.04);
   pointLayer("tactical-aircraft-glow", "tactical-aircraft", "#bcecff", 6.2, 0.34, 0.8);
@@ -433,7 +437,6 @@ export function useTacticalMapLayers({
       if (now - lastRender < 100) return;
       lastRender = now;
       source(map, "tactical-city-lights")?.setData(collection(cityFeatures(now)));
-      source(map, "tactical-road-traffic")?.setData(collection(movingPathFeatures(ROAD_MOTION_PATHS, Date.now(), "road")));
       const vesselFeatures = liveVesselsRef.current.length > 0
         ? liveFeatures(liveVesselsRef.current, Date.now(), "vessel")
         : movingPathFeatures(SHIPPING_LANES, Date.now(), "vessel");
@@ -474,10 +477,7 @@ export function useTacticalMapLayers({
         const marker = new maplibregl.Marker({
           element,
           anchor: "center",
-          // Port traffic often shares the exact screen coordinate of a race
-          // stage. A small display offset keeps both controls legible while
-          // the cyan glow remains anchored to the true AIS position.
-          offset: kind === "vessel" ? [16, -18] : [0, 0],
+          offset: [0, 0],
         })
           .setLngLat(point.coordinates)
           .addTo(map);
