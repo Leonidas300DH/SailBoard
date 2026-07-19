@@ -31,14 +31,14 @@ test("ouvre les détails mobiles dans des HUD compacts au-dessus de la timeline"
   assert.doesNotMatch(race, /scrollIntoView/);
 });
 
-test("garde une navigation mobile nommée et six onglets admin", async () => {
+test("garde une navigation mobile nommée et sept onglets admin", async () => {
   const [responsive, admin] = await Promise.all([
     readFile(new URL("app/styles/responsive.css", root), "utf8"),
     readFile(new URL("app/styles/admin.css", root), "utf8"),
   ]);
 
   assert.match(responsive, /\.nav-link span, \.nav-sublink span \{ display: block;/);
-  assert.match(admin, /\.admin-tabs \{ width: 100%; grid-template-columns: repeat\(6,1fr\); \}/);
+  assert.match(admin, /\.admin-tabs \{ width: 100%; grid-template-columns: repeat\(7,1fr\); \}/);
   assert.match(admin, /\.access-gate \{ min-height: 100dvh; padding: 12px; \}/);
 });
 

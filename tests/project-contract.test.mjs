@@ -17,7 +17,7 @@ test("couvre le modèle relationnel V1 et les instantanés de points", async () 
   const migrations = (await readdir(new URL("drizzle-postgres/", root))).filter((file) => file.endsWith(".sql"));
   assert.ok(migrations.length > 0);
   const sql = (await Promise.all(migrations.map((migration) => readFile(new URL(`drizzle-postgres/${migration}`, root), "utf8")))).join("\n");
-  for (const table of ["admins", "admin_access_requests", "audit_logs", "seasons", "events", "races", "course_versions", "course_marks", "boats", "participants", "race_entries", "crew_assignments", "scoring_rule_versions", "results", "individual_awards", "stage_team_results", "stage_crew_assignments", "stage_individual_scores", "data_imports"]) {
+  for (const table of ["admins", "admin_access_requests", "audit_logs", "app_settings", "seasons", "events", "races", "course_versions", "course_marks", "boats", "participants", "race_entries", "crew_assignments", "scoring_rule_versions", "results", "individual_awards", "stage_team_results", "stage_crew_assignments", "stage_individual_scores", "data_imports"]) {
     assert.ok(sql.includes(`CREATE TABLE \"${table}\"`), `migration contains ${table}`);
   }
   assert.match(sql, /scoring_snapshot_json/);
@@ -75,7 +75,7 @@ test("utilise Google OAuth et une base PostgreSQL standard", async () => {
 });
 
 test("protège toutes les mutations d’administration côté serveur", async () => {
-  for (const route of ["manage", "course", "results"]) {
+  for (const route of ["manage", "course", "results", "settings"]) {
     const source = await readFile(new URL(`app/api/admin/${route}/route.ts`, root), "utf8");
     assert.match(source, /requireAdmin\(/);
     assert.match(source, /writeAudit\(/);

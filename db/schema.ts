@@ -34,6 +34,13 @@ export const auditLogs = pgTable("audit_logs", {
   createdAt: text("created_at").notNull(),
 }, (table) => [index("audit_entity_idx").on(table.entityType, table.entityId)]);
 
+export const appSettings = pgTable("app_settings", {
+  key: text("key").primaryKey(),
+  valueJson: text("value_json").notNull(),
+  updatedBy: text("updated_by"),
+  ...timestamps,
+});
+
 export const seasons = pgTable("seasons", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),

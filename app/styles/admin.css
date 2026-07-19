@@ -32,6 +32,7 @@
 .admin-panel.full { grid-column: 1 / -1; }
 .admin-panel-head { min-height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 0 18px; border-bottom: 1px solid var(--line); }
 .admin-panel-head h2 { margin: 0; font: 700 18px var(--font-race), sans-serif; text-transform: uppercase; }
+.admin-panel-head small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 400; }
 .admin-panel-body { padding: 18px; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px; }
 .form-grid .full { grid-column: 1 / -1; }
@@ -59,6 +60,25 @@
 .manual-awards label { display: grid; gap: 4px; color: var(--muted); font: 700 9px var(--font-race), sans-serif; text-transform: uppercase; }
 .manual-awards input { min-height: 36px; padding: 7px; color: var(--text); background: #041b2a; border: 1px solid var(--line); }
 
+.map-mode-settings { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 0; padding: 0; border: 0; }
+.map-mode-settings label { position: relative; min-height: 118px; display: flex; align-items: flex-start; padding: 19px; cursor: pointer; background: #041b2a; border: 1px solid var(--line-strong); }
+.map-mode-settings label:hover { border-color: rgba(232,255,41,.5); }
+.map-mode-settings label.active { border-color: var(--acid); background: linear-gradient(135deg,rgba(232,255,41,.1),rgba(4,27,42,.96) 52%); box-shadow: inset 3px 0 0 var(--acid); }
+.map-mode-settings input { position: absolute; opacity: 0; pointer-events: none; }
+.map-mode-settings strong { display: block; color: var(--text); font: 700 19px var(--font-race),sans-serif; text-transform: uppercase; }
+.map-mode-settings small { display: block; max-width: 540px; margin-top: 9px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.settings-list { display: grid; gap: 0; }
+.settings-toggle { position: relative; min-height: 72px; display: grid; grid-template-columns: minmax(0,1fr) 44px; gap: 18px; align-items: center; cursor: pointer; border-bottom: 1px solid var(--line); }
+.settings-toggle span strong { display: block; font-size: 14px; }
+.settings-toggle span small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+.settings-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.settings-toggle i { position: relative; width: 42px; height: 23px; background: #01101a; border: 1px solid var(--line-strong); border-radius: 20px; transition: background .18s,border-color .18s; }
+.settings-toggle i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; background: var(--muted); border-radius: 50%; transition: transform .18s,background .18s; }
+.settings-toggle input:checked + i { background: rgba(232,255,41,.13); border-color: var(--acid); }
+.settings-toggle input:checked + i::after { background: var(--acid); transform: translateX(19px); }
+.settings-toggle input:focus-visible + i { box-shadow: 0 0 0 3px rgba(232,255,41,.28); }
+.settings-list .action-row { justify-content: flex-end; padding-top: 8px; }
+
 @media (max-width: 1050px) {
   .admin-shell { grid-template-columns: 76px minmax(0,1fr); }
   .admin-sidebar { padding-inline: 9px; }
@@ -80,7 +100,7 @@
   .admin-shell { display: block; padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom)); }
   .admin-sidebar { position: fixed; inset: auto 0 0; z-index: 60; width: auto; height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom)); padding: 0 0 env(safe-area-inset-bottom); flex-direction: row; border-right: 0; border-top: 1px solid var(--line); }
   .admin-sidebar .brand, .admin-account { display: none; }
-  .admin-tabs { width: 100%; grid-template-columns: repeat(6,1fr); }
+  .admin-tabs { width: 100%; grid-template-columns: repeat(7,1fr); }
   .admin-tab { min-height: var(--mobile-nav-height); }
   .admin-main { padding: 14px 10px 34px; }
   .admin-header { align-items: flex-start; flex-direction: column; gap: 10px; padding-bottom: 14px; }
@@ -91,6 +111,8 @@
   .result-edit-row { grid-template-columns: 1fr 66px; }
   .result-edit-row select, .result-edit-row .mono { grid-column: span 1; }
   .manual-awards { grid-template-columns: 1fr; padding-left: 0; }
+  .map-mode-settings { grid-template-columns: 1fr; }
+  .map-mode-settings label { min-height: 96px; padding: 15px; }
 }
 
 .course-editor { display: grid; grid-template-columns: minmax(0,1fr) 390px; min-height: 690px; background: var(--panel); border: 1px solid var(--line); }

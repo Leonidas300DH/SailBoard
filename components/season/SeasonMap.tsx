@@ -12,6 +12,7 @@ import { useSeasonChronologyAnimation } from "../map/useSeasonChronologyAnimatio
 import { useTacticalMapLayers } from "../map/useTacticalMapLayers";
 import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
+import type { MapDisplaySettings } from "@/lib/map-settings";
 
 const INK = "#010a10";
 const LABEL_POSITIONS: Partial<Record<string, "top" | "right" | "left">> = {
@@ -35,17 +36,20 @@ export function SeasonMap({
   selectedRace,
   windDirection = 250,
   windKnots = 12,
+  mapSettings,
   onSelect,
 }: {
   races: SeasonRace[];
   selectedRace: SeasonRace | null;
   windDirection?: number;
   windKnots?: number;
+  mapSettings: MapDisplaySettings;
   onSelect: (raceId: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [desktopEffectsAllowed, setDesktopEffectsAllowed] = useState(false);
-  const [mapMode, setMapMode] = useState<SeasonMapMode>("tactical");
+  const [mapModeOverride, setMapModeOverride] = useState<SeasonMapMode | null>(null);
+  const mapMode = mapModeOverride ?? mapSettings.defaultMode;
   const onSelectRef = useRef(onSelect);
   const racesRef = useRef(races);
   useEffect(() => {
@@ -144,8 +148,8 @@ export function SeasonMap({
     onLoad: handleLoad,
   });
   const { flyToTarget, flyToBounds } = useCameraDirector(mapRef, isReady);
-  const effectiveMapMode: SeasonMapMode = desktopEffectsAllowed ? mapMode : "natural";
-  const tacticalEnabled = effectiveMapMode === "tactical";
+  const effectiveMapMode: SeasonMapMode = mapMode;
+  const tacticalEnabled = desktopEffectsAllowed && effectiveMapMode === "tactical";
 
   useEffect(() => {
     const query = window.matchMedia("(min-width: 761px) and (min-height: 560px)");
@@ -161,7 +165,14 @@ export function SeasonMap({
     applySeasonMapMode(map, effectiveMapMode);
   }, [effectiveMapMode, isReady, mapRef]);
 
-  const trafficStatus = useTacticalMapLayers({ mapRef, isReady, enabled: tacticalEnabled });
+  const trafficStatus = useTacticalMapLayers({
+    mapRef,
+    isReady,
+    enabled: tacticalEnabled,
+    showAircraft: mapSettings.showAircraft,
+    showVessels: mapSettings.showVessels,
+    showCityLights: mapSettings.showCityLights,
+  });
 
   useSeasonChronologyAnimation({ mapRef, isReady, legs: chronologyLegs });
 
@@ -219,13 +230,13 @@ export function SeasonMap({
 
   return <div className="season-map-frame">
     <div ref={containerRef} className="race-map season-ocean-map" aria-label="Carte des étapes de la saison" />
-    <CloudLayer
+    {mapSettings.showClouds ? <CloudLayer
       windDirection={windDirection}
       windKnots={windKnots}
       mapRef={mapRef}
       isReady={isReady}
-      tactical={tacticalEnabled}
-    />
+      tactical={effectiveMapMode === "tactical"}
+    /> : null}
     <MapHud
       mapRef={mapRef}
       isReady={isReady}
@@ -240,19 +251,19 @@ export function SeasonMap({
             type="button"
             aria-pressed={mapMode === "natural"}
             className={mapMode === "natural" ? "active" : undefined}
-            onClick={() => setMapMode("natural")}
+            onClick={() => setMapModeOverride("natural")}
           >Natural</button>
           <button
             type="button"
             aria-pressed={mapMode === "tactical"}
             className={mapMode === "tactical" ? "active" : undefined}
-            onClick={() => setMapMode("tactical")}
+            onClick={() => setMapModeOverride("tactical")}
           >Tactical</button>
         </div>
-        {tacticalEnabled ? (
+        {tacticalEnabled && (mapSettings.showAircraft || mapSettings.showVessels) ? (
           <div className="map-mode-status mono" aria-live="polite">
-            <span data-state={trafficStatus.aircraft}>ADS-B {trafficStatus.aircraft === "live" ? "LIVE" : "MODEL"}</span>
-            <span data-state={trafficStatus.vessels}>AIS {trafficStatus.vessels === "live" ? "LIVE" : "MODEL"}</span>
+            {mapSettings.showAircraft ? <span data-state={trafficStatus.aircraft}>ADS-B {trafficStatus.aircraft === "live" ? "LIVE" : "MODEL"}</span> : null}
+            {mapSettings.showVessels ? <span data-state={trafficStatus.vessels}>AIS {trafficStatus.vessels === "live" ? "LIVE" : "MODEL"}</span> : null}
           </div>
         ) : null}
       </div>

@@ -18,17 +18,14 @@ const OPEN_MAP_TILES = "https://tiles.openfreemap.org/planet";
 const EMODNET_CONTOURS = "https://ows.emodnet-bathymetry.eu/wms?service=WMS&request=GetMap&version=1.1.1&layers=emodnet:contours&styles=&format=image/png&transparent=true&width=512&height=512&srs=EPSG:3857&bbox={bbox-epsg-3857}";
 const TERRARIUM_DEM = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 
-const TACTICAL_LAYERS = [
+const TACTICAL_BASE_LAYERS = [
   "tactical-bathymetry-contours",
   "tactical-land-contours",
   "tactical-road-network",
-  "tactical-city-glow",
-  "tactical-city-core",
-  "tactical-vessels-glow",
-  "tactical-vessels-core",
-  "tactical-aircraft-glow",
-  "tactical-aircraft-core",
 ] as const;
+const TACTICAL_CITY_LAYERS = ["tactical-city-glow", "tactical-city-core"] as const;
+const TACTICAL_VESSEL_LAYERS = ["tactical-vessels-glow", "tactical-vessels-core"] as const;
+const TACTICAL_AIRCRAFT_LAYERS = ["tactical-aircraft-glow", "tactical-aircraft-core"] as const;
 
 type FeedMode = "idle" | "loading" | "live" | "simulated";
 
@@ -250,9 +247,17 @@ function source(map: MaplibreMap, id: string): GeoJSONSource | undefined {
   return map.getSource(id) as GeoJSONSource | undefined;
 }
 
-function setLayersVisibility(map: MaplibreMap, visible: boolean) {
-  for (const id of TACTICAL_LAYERS) {
-    if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
+function setLayersVisibility(map: MaplibreMap, visible: boolean, options?: { showAircraft: boolean; showVessels: boolean; showCityLights: boolean }) {
+  const groups = [
+    [TACTICAL_BASE_LAYERS, visible],
+    [TACTICAL_CITY_LAYERS, visible && (options?.showCityLights ?? true)],
+    [TACTICAL_VESSEL_LAYERS, visible && (options?.showVessels ?? true)],
+    [TACTICAL_AIRCRAFT_LAYERS, visible && (options?.showAircraft ?? true)],
+  ] as const;
+  for (const [layers, groupVisible] of groups) {
+    for (const id of layers) {
+      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", groupVisible ? "visible" : "none");
+    }
   }
 }
 
@@ -391,10 +396,16 @@ export function useTacticalMapLayers({
   mapRef,
   isReady,
   enabled,
+  showAircraft,
+  showVessels,
+  showCityLights,
 }: {
   mapRef: RefObject<MaplibreMap | null>;
   isReady: boolean;
   enabled: boolean;
+  showAircraft: boolean;
+  showVessels: boolean;
+  showCityLights: boolean;
 }) {
   const [status, setStatus] = useState<TacticalFeedStatus>({ aircraft: "idle", vessels: "idle" });
   const liveAircraftRef = useRef<LiveTrafficPoint[]>([]);
@@ -419,12 +430,12 @@ export function useTacticalMapLayers({
 
     const refreshTraffic = async () => {
       setStatus((current) => ({
-        aircraft: current.aircraft === "live" ? "live" : "loading",
-        vessels: current.vessels === "live" ? "live" : "loading",
+        aircraft: showAircraft ? (current.aircraft === "live" ? "live" : "loading") : "idle",
+        vessels: showVessels ? (current.vessels === "live" ? "live" : "loading") : "idle",
       }));
       const [aircraft, vessels] = await Promise.all([
-        readTraffic("/api/map-traffic/aircraft"),
-        readTraffic("/api/map-traffic/vessels"),
+        showAircraft ? readTraffic("/api/map-traffic/aircraft") : Promise.resolve({ mode: "idle" as const, points: [] }),
+        showVessels ? readTraffic("/api/map-traffic/vessels") : Promise.resolve({ mode: "idle" as const, points: [] }),
       ]);
       if (cancelled) return;
       liveAircraftRef.current = aircraft.points;
@@ -436,19 +447,19 @@ export function useTacticalMapLayers({
       frame = requestAnimationFrame(animate);
       if (now - lastRender < 100) return;
       lastRender = now;
-      source(map, "tactical-city-lights")?.setData(collection(cityFeatures(now)));
-      const vesselFeatures = liveVesselsRef.current.length > 0
+      source(map, "tactical-city-lights")?.setData(collection(showCityLights ? cityFeatures(now) : []));
+      const vesselFeatures = !showVessels ? [] : liveVesselsRef.current.length > 0
         ? liveFeatures(liveVesselsRef.current, Date.now(), "vessel")
         : movingPathFeatures(SHIPPING_LANES, Date.now(), "vessel");
-      const aircraftFeatures = liveAircraftRef.current.length > 0
+      const aircraftFeatures = !showAircraft ? [] : liveAircraftRef.current.length > 0
         ? liveFeatures(liveAircraftRef.current, Date.now(), "aircraft")
         : movingPathFeatures(FALLBACK_AIR_ROUTES, Date.now(), "aircraft");
       source(map, "tactical-vessels")?.setData(collection(vesselFeatures));
       source(map, "tactical-aircraft")?.setData(collection(aircraftFeatures));
       if (createMarker && now - lastMarkerRender >= 250) {
         lastMarkerRender = now;
-        syncTrafficMarkers({ map, points: liveAircraftRef.current, markers: aircraftMarkers, kind: "aircraft", now: Date.now(), createMarker });
-        syncTrafficMarkers({ map, points: liveVesselsRef.current, markers: vesselMarkers, kind: "vessel", now: Date.now(), createMarker });
+        syncTrafficMarkers({ map, points: showAircraft ? liveAircraftRef.current : [], markers: aircraftMarkers, kind: "aircraft", now: Date.now(), createMarker });
+        syncTrafficMarkers({ map, points: showVessels ? liveVesselsRef.current : [], markers: vesselMarkers, kind: "vessel", now: Date.now(), createMarker });
       }
     };
 
@@ -483,7 +494,7 @@ export function useTacticalMapLayers({
           .addTo(map);
         return { marker, element, icon };
       };
-      setLayersVisibility(map, true);
+      setLayersVisibility(map, true, { showAircraft, showVessels, showCityLights });
       frame = requestAnimationFrame(animate);
       void refreshTraffic();
       trafficTimer = window.setInterval(refreshTraffic, 5 * 60_000);
@@ -496,7 +507,7 @@ export function useTacticalMapLayers({
       removeTrafficMarkers(aircraftMarkers);
       removeTrafficMarkers(vesselMarkers);
     };
-  }, [enabled, isReady, mapRef]);
+  }, [enabled, isReady, mapRef, showAircraft, showCityLights, showVessels]);
 
   return status;
 }

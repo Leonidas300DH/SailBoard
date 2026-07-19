@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Anchor, ClipboardCheck, Gauge, KeyRound, LayoutDashboard, ListChecks, Plus, Sailboat, Save, Settings2, ShieldCheck, Users } from "lucide-react";
+import { Anchor, ClipboardCheck, Gauge, KeyRound, LayoutDashboard, ListChecks, Plus, Sailboat, Save, Settings2, ShieldCheck, SlidersHorizontal, Users } from "lucide-react";
 import type { AdminIdentity } from "@/lib/auth";
 import type { RaceView, ResultStatus, ScoringConfig } from "@/lib/domain";
+import type { MapDisplaySettings } from "@/lib/map-settings";
 import { scoreBoat } from "@/lib/scoring.mjs";
 
 type Snapshot = {
@@ -18,9 +19,10 @@ type Snapshot = {
   rules: Record<string, unknown>[];
   accessRequests: Record<string, unknown>[];
   admins: Record<string, unknown>[];
+  mapSettings: MapDisplaySettings;
 };
 
-type Tab = "dashboard" | "organisation" | "fleet" | "results" | "rules" | "access";
+type Tab = "dashboard" | "organisation" | "fleet" | "results" | "rules" | "settings" | "access";
 
 const tabs: Array<{ id: Tab; label: string; icon: typeof LayoutDashboard }> = [
   { id: "dashboard", label: "Vue d’ensemble", icon: LayoutDashboard },
@@ -28,6 +30,7 @@ const tabs: Array<{ id: Tab; label: string; icon: typeof LayoutDashboard }> = [
   { id: "fleet", label: "Équipages & navigateurs", icon: Sailboat },
   { id: "results", label: "Résultats", icon: ClipboardCheck },
   { id: "rules", label: "Barèmes", icon: Settings2 },
+  { id: "settings", label: "Réglages", icon: SlidersHorizontal },
   { id: "access", label: "Accès", icon: KeyRound },
 ];
 
@@ -66,9 +69,54 @@ export function AdminConsole({ admin, snapshot }: { admin: AdminIdentity; snapsh
       {tab === "fleet" ? <Fleet snapshot={snapshot} send={send} busy={busy} /> : null}
       {tab === "results" ? <ResultsEditor race={snapshot.race} config={scoringConfig} send={send} busy={busy} /> : null}
       {tab === "rules" ? <RulesEditor rule={publishedRule} admin={admin} send={send} busy={busy} /> : null}
+      {tab === "settings" ? <SettingsPanel settings={snapshot.mapSettings} send={send} busy={busy} /> : null}
       {tab === "access" ? <AccessPanel snapshot={snapshot} admin={admin} send={send} busy={busy} /> : null}
     </div></section>
   </main>;
+}
+
+function SettingsPanel({ settings, send, busy }: { settings: MapDisplaySettings; send: (url: string, payload: unknown, method?: string) => Promise<boolean>; busy: boolean }) {
+  const [values, setValues] = useState(settings);
+  const setFlag = (key: keyof Omit<MapDisplaySettings, "defaultMode">, checked: boolean) => {
+    setValues((current) => ({ ...current, [key]: checked }));
+  };
+  const layers: Array<{ key: keyof Omit<MapDisplaySettings, "defaultMode">; title: string; description: string }> = [
+    { key: "showAircraft", title: "Avions", description: "Trafic aérien ADS-B et altitude visuelle" },
+    { key: "showVessels", title: "Navires", description: "Positions AIS ancrées sur la carte" },
+    { key: "showCityLights", title: "Lumières urbaines", description: "Scintillement tactique des villes" },
+    { key: "showClouds", title: "Nuages volumétriques", description: "Couche atmosphérique animée" },
+  ];
+
+  return <div className="admin-grid settings-grid">
+    <article className="admin-panel full">
+      <div className="admin-panel-head"><div><h2>Carte par défaut</h2><small>Le visiteur peut toujours changer de mode en un clic sur la carte.</small></div><span className="status-tag">Global</span></div>
+      <div className="admin-panel-body">
+        <fieldset className="map-mode-settings">
+          <legend className="sr-only">Apparence par défaut de la carte</legend>
+          <label className={values.defaultMode === "tactical" ? "active" : undefined}>
+            <input type="radio" name="default-map-mode" value="tactical" checked={values.defaultMode === "tactical"} onChange={() => setValues((current) => ({ ...current, defaultMode: "tactical" }))} />
+            <span><strong>Carte tactique</strong><small>Terre monochrome, mer bleu nuit, courbes de niveau et surcouches opérationnelles.</small></span>
+          </label>
+          <label className={values.defaultMode === "natural" ? "active" : undefined}>
+            <input type="radio" name="default-map-mode" value="natural" checked={values.defaultMode === "natural"} onChange={() => setValues((current) => ({ ...current, defaultMode: "natural" }))} />
+            <span><strong>Carte naturelle</strong><small>Relief, littoral et couleurs cartographiques classiques.</small></span>
+          </label>
+        </fieldset>
+      </div>
+    </article>
+
+    <article className="admin-panel full">
+      <div className="admin-panel-head"><div><h2>Éléments affichés</h2><small>Ces options s’appliquent à tous les visiteurs.</small></div></div>
+      <div className="admin-panel-body settings-list">
+        {layers.map((layer) => <label className="settings-toggle" key={layer.key}>
+          <span><strong>{layer.title}</strong><small>{layer.description}</small></span>
+          <input type="checkbox" checked={values[layer.key]} onChange={(event) => setFlag(layer.key, event.target.checked)} />
+          <i aria-hidden="true" />
+        </label>)}
+        <div className="action-row"><button className="button primary" disabled={busy} onClick={() => void send("/api/admin/settings", values, "PATCH")}><Save />Enregistrer les réglages</button></div>
+      </div>
+    </article>
+  </div>;
 }
 
 function Dashboard({ snapshot, setTab }: { snapshot: Snapshot; setTab: (tab: Tab) => void }) {

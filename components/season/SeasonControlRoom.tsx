@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { SEASON_RACES } from "@/lib/season-data";
 import type { RaceWeatherSnapshot } from "@/lib/weather";
 import type { StagePodiumEntry } from "@/lib/wdt-profiles";
+import type { MapDisplaySettings } from "@/lib/map-settings";
 import { AppShell } from "../shell/AppShell";
 import { WindParticles } from "../map/WindParticles";
 import { SeasonMap } from "./SeasonMap";
@@ -21,10 +22,12 @@ export function SeasonControlRoom({
   seasonWeather,
   stagePodiums,
   nowIso,
+  mapSettings,
 }: {
   seasonWeather: Record<string, RaceWeatherSnapshot | null>;
   stagePodiums: Record<string, StagePodiumEntry[]>;
   nowIso: string;
+  mapSettings: MapDisplaySettings;
 }) {
   const [selectedRaceId, setSelectedRaceId] = useState<string | null>(null);
 
@@ -58,6 +61,7 @@ export function SeasonControlRoom({
           selectedRace={selectedRace}
           windDirection={ambientWeather?.windDirection ?? 250}
           windKnots={ambientWeather?.windKnots ?? 12}
+          mapSettings={mapSettings}
           onSelect={setSelectedRaceId}
         />
         <div className="season-ocean-shade" aria-hidden />

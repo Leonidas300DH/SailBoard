@@ -1,4 +1,5 @@
 import type { RaceView } from "./domain";
+import { DEFAULT_MAP_DISPLAY_SETTINGS } from "./map-settings";
 
 const demoScoring = {
   direction: "high",
@@ -73,5 +74,6 @@ export function demoAdminSnapshot() {
     rules: [{ id: "rule-2026-v1", name: "Barème championnat 2026", version: 1, status: "published", config_json: JSON.stringify(demoScoring) }],
     accessRequests: [],
     admins: [{ id: "local-owner", email: "owner@sailboard.local", display_name: "Admin de démonstration", role: "owner", status: "active" }],
+    mapSettings: DEFAULT_MAP_DISPLAY_SETTINGS,
   };
 }

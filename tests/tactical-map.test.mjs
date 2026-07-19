@@ -24,6 +24,23 @@ test("le mode tactique reste un switch de peinture et préserve la chronologie",
   assert.match(chronologyAnimation, /startedAt \?\?= now/);
 });
 
+test("les réglages admin activent par défaut la carte tactique et toutes ses couches", async () => {
+  const [settings, admin, seasonMap] = await Promise.all([
+    readFile(new URL("lib/map-settings.ts", root), "utf8"),
+    readFile(new URL("components/AdminConsole.tsx", root), "utf8"),
+    readFile(new URL("components/season/SeasonMap.tsx", root), "utf8"),
+  ]);
+
+  assert.match(settings, /defaultMode: "tactical"/);
+  for (const option of ["showAircraft", "showVessels", "showCityLights", "showClouds"]) {
+    assert.match(settings, new RegExp(`${option}: true`));
+    assert.match(admin, new RegExp(option));
+    assert.match(seasonMap, new RegExp(option));
+  }
+  assert.match(admin, /\/api\/admin\/settings/);
+  assert.match(seasonMap, /mapModeOverride \?\? mapSettings\.defaultMode/);
+});
+
 test("les couches de vie tactiques sont desktop, animées et branchées sur des sources réelles", async () => {
   const [layers, aircraftRoute, vesselRoute, styles, env, shipIcon] = await Promise.all([
     readFile(new URL("components/map/useTacticalMapLayers.ts", root), "utf8"),

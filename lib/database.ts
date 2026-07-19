@@ -1,5 +1,6 @@
 import { getDatabase, isDatabaseConfigured, type DatabaseClient, type PreparedStatement } from "@/db";
 import type { CourseMark, RaceView, ScoringConfig } from "./domain";
+import { DEFAULT_MAP_DISPLAY_SETTINGS, parseMapDisplaySettings } from "./map-settings";
 
 const NOW = "2026-07-17T12:00:00.000Z";
 let initialization: Promise<void> | null = null;
@@ -47,6 +48,7 @@ const schemaStatements = [
   `CREATE TABLE IF NOT EXISTS admins (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, display_name TEXT NOT NULL, role TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS admin_access_requests (id TEXT PRIMARY KEY, email TEXT NOT NULL, display_name TEXT NOT NULL, status TEXT NOT NULL, reviewed_by TEXT, reviewed_at TEXT, created_at TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS audit_logs (id TEXT PRIMARY KEY, actor_email TEXT NOT NULL, action TEXT NOT NULL, entity_type TEXT NOT NULL, entity_id TEXT NOT NULL, changes_json TEXT NOT NULL, created_at TEXT NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value_json TEXT NOT NULL, updated_by TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS seasons (id TEXT PRIMARY KEY, name TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, year INTEGER NOT NULL, status TEXT NOT NULL, starts_on TEXT NOT NULL, ends_on TEXT NOT NULL, archived_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY, season_id TEXT NOT NULL REFERENCES seasons(id), name TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, location_name TEXT NOT NULL, center_lat REAL NOT NULL, center_lng REAL NOT NULL, starts_on TEXT NOT NULL, ends_on TEXT NOT NULL, archived_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS scoring_rule_versions (id TEXT PRIMARY KEY, name TEXT NOT NULL, version INTEGER NOT NULL, status TEXT NOT NULL, config_json TEXT NOT NULL, published_at TEXT, archived_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
@@ -96,6 +98,10 @@ export async function ensureDatabase(): Promise<void> {
 async function initialize(): Promise<void> {
   const db = getDatabase();
   await db.batch(schemaStatements.map((statement) => db.prepare(statement)));
+  await db.prepare(`INSERT INTO app_settings (key, value_json, updated_by, created_at, updated_at)
+    VALUES ('map-display', ?, NULL, ?, ?)
+    ON CONFLICT(key) DO NOTHING`)
+    .bind(JSON.stringify(DEFAULT_MAP_DISPLAY_SETTINGS), NOW, NOW).run();
   const count = await db.prepare("SELECT COUNT(*) AS count FROM seasons").first<{ count: number | string }>();
   if (Number(count?.count ?? 0) === 0) await seedDatabase(db);
   await ensureInitialOwner(db);
@@ -268,13 +274,14 @@ export async function getAdminSnapshot() {
   if (!isDatabaseConfigured()) return (await import("./demo-data")).demoAdminSnapshot();
   const overview = await getPublicOverview();
   const db = getDatabase();
-  const [seasonsResult, eventsResult, racesResult, rulesResult, requestsResult, adminsResult] = await Promise.all([
+  const [seasonsResult, eventsResult, racesResult, rulesResult, requestsResult, adminsResult, mapSettings] = await Promise.all([
     db.prepare("SELECT * FROM seasons WHERE archived_at IS NULL ORDER BY year DESC").all(),
     db.prepare("SELECT * FROM events WHERE archived_at IS NULL ORDER BY starts_on DESC").all(),
     db.prepare("SELECT * FROM races WHERE archived_at IS NULL ORDER BY scheduled_at DESC").all(),
     db.prepare("SELECT * FROM scoring_rule_versions WHERE archived_at IS NULL ORDER BY name, version DESC").all(),
     db.prepare("SELECT * FROM admin_access_requests ORDER BY created_at DESC LIMIT 30").all(),
     db.prepare("SELECT * FROM admins ORDER BY role DESC, display_name").all(),
+    getMapDisplaySettings(),
   ]);
   return {
     ...overview,
@@ -284,7 +291,16 @@ export async function getAdminSnapshot() {
     rules: rulesResult.results,
     accessRequests: requestsResult.results,
     admins: adminsResult.results,
+    mapSettings,
   };
+}
+
+export async function getMapDisplaySettings() {
+  if (!isDatabaseConfigured()) return DEFAULT_MAP_DISPLAY_SETTINGS;
+  await ensureDatabase();
+  const row = await getDatabase().prepare("SELECT value_json FROM app_settings WHERE key = 'map-display'")
+    .first<{ value_json: string }>();
+  return parseMapDisplaySettings(row?.value_json);
 }
 
 export async function writeAudit(actorEmail: string, action: string, entityType: string, entityId: string, changes: unknown) {
