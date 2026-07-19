@@ -7,13 +7,13 @@
   .nav-group-title span, .nav-sublink span { display: none; }
   .nav-group-title { justify-content: center; padding: 8px 0 2px; }
   .nav-sublink { justify-content: center; padding: 0; }
-  .nav-context, .nav-disclosure, .nav-group-chevron, .nav-admin-chevron { display: none; }
+  .nav-context, .nav-disclosure, .nav-group-chevron, .nav-settings-chevron { display: none; }
   .nav-profile-hud { display: none; }
   .nav-rich-row > .nav-link, .nav-rich-row > .nav-sublink, .nav-rich-row--sub > .nav-sublink { padding: 0; }
   .nav-rich-row--sub > .nav-sublink { min-height: 44px; }
   .nav-ranking-tree > .nav-group-title { min-height: 44px; padding: 8px 0 2px; }
-  .nav-admin-slot { margin-top: auto; border-top: 0; }
-  .nav-admin-slot .nav-link { min-height: 56px; }
+  .nav-settings-slot { margin-top: auto; border-top: 0; }
+  .nav-settings-slot .nav-link { min-height: 56px; }
   .race-main { grid-template-columns: minmax(0,1fr) 280px; }
   .race-main.rail-expanded { grid-template-columns: minmax(0,1fr) min(520px, 58vw); }
   .map-chip-meta { display: none; }
@@ -42,7 +42,7 @@
   .nav-stack { width: 100%; display: flex; flex-direction: row; padding: 0; }
   .nav-slot { display: contents; }
   .nav-rich-section { display: contents; }
-  .nav-admin-slot { margin-top: 0; }
+  .nav-settings-slot { margin-top: 0; }
   .nav-rich-row { display: contents; }
   .nav-group-title { display: none; }
   .nav-sublinks { display: contents; }

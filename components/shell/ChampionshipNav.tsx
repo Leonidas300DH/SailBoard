@@ -126,10 +126,10 @@ export function ChampionshipNav({
       </div>
     </div>
 
-    <div className="nav-slot nav-admin-slot">
-      <Link href="/admin" aria-label="Admin" className={`nav-link ${active === "admin" ? "active" : ""}`}>
-        <Settings aria-hidden /><span>Admin</span>
-        <ChevronRight className="nav-admin-chevron" aria-hidden />
+    <div className="nav-slot nav-settings-slot">
+      <Link href="/settings" aria-label="Settings" className={`nav-link ${active === "settings" ? "active" : ""}`}>
+        <Settings aria-hidden /><span>Settings</span>
+        <ChevronRight className="nav-settings-chevron" aria-hidden />
       </Link>
     </div>
   </nav>;

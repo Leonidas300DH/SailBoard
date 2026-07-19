@@ -1,0 +1,40 @@
+.settings-room { min-height: 100vh; min-height: 100dvh; padding: clamp(22px,4vw,52px); overflow: auto; background: radial-gradient(circle at 72% 8%,rgba(15,65,88,.62),transparent 35%),linear-gradient(145deg,#031724,#00101a 72%); }
+.settings-room-header { min-height: 118px; display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.settings-room-header > div:first-child > span { color: var(--acid); font: 700 10px var(--font-race),sans-serif; text-transform: uppercase; letter-spacing: .12em; }
+.settings-room-header h1 { margin: 8px 0 0; font: 700 clamp(42px,6vw,72px)/.82 var(--font-race),sans-serif; text-transform: uppercase; }
+.settings-room-header p { margin: 14px 0 0; color: var(--muted); font-size: 13px; }
+.settings-state { min-height: 42px; display: flex; align-items: center; gap: 9px; padding: 0 13px; color: var(--muted); border: 1px solid var(--line-strong); font: 700 10px var(--font-race),sans-serif; text-transform: uppercase; }
+.settings-state i { width: 8px; height: 8px; background: var(--acid); border-radius: 50%; box-shadow: 0 0 12px rgba(232,255,41,.56); }
+.settings-room-grid { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(340px,.85fr); gap: 18px; padding-top: 24px; }
+.settings-surface { min-width: 0; background: rgba(1,17,27,.9); border: 1px solid var(--line); }
+.settings-surface-head { min-height: 68px; display: flex; align-items: center; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.settings-surface-head > div { display: flex; align-items: center; gap: 11px; }
+.settings-surface-head svg { width: 20px; color: var(--acid); }
+.settings-surface-head strong,.settings-surface-head small { display: block; }
+.settings-surface-head strong { font: 700 17px var(--font-race),sans-serif; text-transform: uppercase; }
+.settings-surface-head small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.settings-surface--mode .map-mode-settings { padding: 18px; }
+.settings-public-list { padding: 0 18px; }
+.settings-public-list .settings-toggle { grid-template-columns: 24px minmax(0,1fr) 44px; }
+.settings-public-list .settings-toggle > svg { width: 18px; color: var(--past-race); stroke-width: 1.7; }
+.settings-room-footer { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 18px; padding: 14px 0 0; border-top: 1px solid var(--line); }
+.settings-room-footer > span { color: var(--muted); font: 700 9px var(--font-geist-mono),monospace; letter-spacing: .08em; }
+
+@media (max-width: 1120px) {
+  .settings-room-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .settings-room { min-height: calc(100dvh - var(--mobile-nav-height)); padding: 18px 10px 26px; }
+  .settings-room-header { min-height: 104px; display: block; padding: 4px 0 18px; }
+  .settings-room-header h1 { font-size: 42px; }
+  .settings-room-header p { max-width: 300px; margin-top: 10px; line-height: 1.4; }
+  .settings-state { display: none; }
+  .settings-room-grid { padding-top: 14px; gap: 12px; }
+  .settings-surface-head { min-height: 60px; padding-inline: 14px; }
+  .settings-surface--mode .map-mode-settings { padding: 12px; }
+  .settings-public-list { padding-inline: 14px; }
+  .settings-public-list .settings-toggle { min-height: 68px; gap: 10px; }
+  .settings-room-footer { align-items: stretch; flex-direction: column-reverse; }
+  .settings-room-footer .button { width: 100%; }
+}

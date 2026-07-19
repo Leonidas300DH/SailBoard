@@ -38,7 +38,25 @@ test("les réglages admin activent par défaut la carte tactique et toutes ses c
     assert.match(seasonMap, new RegExp(option));
   }
   assert.match(admin, /\/api\/admin\/settings/);
-  assert.match(seasonMap, /mapModeOverride \?\? mapSettings\.defaultMode/);
+  assert.match(seasonMap, /mapModeOverride \?\? displaySettings\.defaultMode/);
+});
+
+test("la navigation publique remplace Admin par des Settings locaux", async () => {
+  const [navigation, championshipNav, settingsRoom, settingsClient] = await Promise.all([
+    readFile(new URL("lib/navigation.ts", root), "utf8"),
+    readFile(new URL("components/shell/ChampionshipNav.tsx", root), "utf8"),
+    readFile(new URL("components/settings/SettingsRoom.tsx", root), "utf8"),
+    readFile(new URL("lib/map-settings-client.ts", root), "utf8"),
+  ]);
+
+  assert.match(navigation, /"settings"/);
+  assert.doesNotMatch(navigation, /href: "\/admin"/);
+  assert.match(championshipNav, /href="\/settings"/);
+  assert.doesNotMatch(championshipNav, /href="\/admin"/);
+  assert.match(settingsRoom, /Affichage de cet appareil/);
+  assert.match(settingsRoom, /saveMapDisplaySettings/);
+  assert.match(settingsClient, /localStorage/);
+  assert.match(settingsClient, /sailboard:map-display:v1/);
 });
 
 test("les couches de vie tactiques sont desktop, animées et branchées sur des sources réelles", async () => {
@@ -55,6 +73,9 @@ test("les couches de vie tactiques sont desktop, animées et branchées sur des 
   assert.match(layers, /emodnet:contours/);
   assert.match(layers, /maplibre-contour/);
   assert.match(layers, /requestAnimationFrame\(animate\)/);
+  assert.match(layers, /stableAircraftSample/);
+  assert.match(layers, /% 2 === 0/);
+  assert.match(layers, /liveAircraftRef\.current = stableAircraftSample\(aircraft\.points\)/);
   assert.doesNotMatch(layers, /ROAD_MOTION_PATHS/);
   assert.doesNotMatch(layers, /tactical-road-traffic/);
   assert.match(layers, /SHIPPING_LANES/);

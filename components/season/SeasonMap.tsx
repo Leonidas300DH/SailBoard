@@ -13,6 +13,7 @@ import { useTacticalMapLayers } from "../map/useTacticalMapLayers";
 import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
 import type { MapDisplaySettings } from "@/lib/map-settings";
+import { useMapDisplaySettings } from "@/lib/map-settings-client";
 
 const INK = "#010a10";
 const LABEL_POSITIONS: Partial<Record<string, "top" | "right" | "left">> = {
@@ -47,9 +48,10 @@ export function SeasonMap({
   onSelect: (raceId: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const displaySettings = useMapDisplaySettings(mapSettings);
   const [desktopEffectsAllowed, setDesktopEffectsAllowed] = useState(false);
   const [mapModeOverride, setMapModeOverride] = useState<SeasonMapMode | null>(null);
-  const mapMode = mapModeOverride ?? mapSettings.defaultMode;
+  const mapMode = mapModeOverride ?? displaySettings.defaultMode;
   const onSelectRef = useRef(onSelect);
   const racesRef = useRef(races);
   useEffect(() => {
@@ -169,9 +171,9 @@ export function SeasonMap({
     mapRef,
     isReady,
     enabled: tacticalEnabled,
-    showAircraft: mapSettings.showAircraft,
-    showVessels: mapSettings.showVessels,
-    showCityLights: mapSettings.showCityLights,
+    showAircraft: displaySettings.showAircraft,
+    showVessels: displaySettings.showVessels,
+    showCityLights: displaySettings.showCityLights,
   });
 
   useSeasonChronologyAnimation({ mapRef, isReady, legs: chronologyLegs });
@@ -230,7 +232,7 @@ export function SeasonMap({
 
   return <div className="season-map-frame">
     <div ref={containerRef} className="race-map season-ocean-map" aria-label="Carte des étapes de la saison" />
-    {mapSettings.showClouds ? <CloudLayer
+    {displaySettings.showClouds ? <CloudLayer
       windDirection={windDirection}
       windKnots={windKnots}
       mapRef={mapRef}
@@ -260,10 +262,10 @@ export function SeasonMap({
             onClick={() => setMapModeOverride("tactical")}
           >Tactical</button>
         </div>
-        {tacticalEnabled && (mapSettings.showAircraft || mapSettings.showVessels) ? (
+        {tacticalEnabled && (displaySettings.showAircraft || displaySettings.showVessels) ? (
           <div className="map-mode-status mono" aria-live="polite">
-            {mapSettings.showAircraft ? <span data-state={trafficStatus.aircraft}>ADS-B {trafficStatus.aircraft === "live" ? "LIVE" : "MODEL"}</span> : null}
-            {mapSettings.showVessels ? <span data-state={trafficStatus.vessels}>AIS {trafficStatus.vessels === "live" ? "LIVE" : "MODEL"}</span> : null}
+            {displaySettings.showAircraft ? <span data-state={trafficStatus.aircraft}>ADS-B {trafficStatus.aircraft === "live" ? "LIVE" : "MODEL"}</span> : null}
+            {displaySettings.showVessels ? <span data-state={trafficStatus.vessels}>AIS {trafficStatus.vessels === "live" ? "LIVE" : "MODEL"}</span> : null}
           </div>
         ) : null}
       </div>

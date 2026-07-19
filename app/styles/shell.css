@@ -81,9 +81,9 @@
 .nav-context-all svg { width: 13px; height: 13px; transition: transform .18s ease; }
 .nav-context-all:hover svg { transform: translateX(2px); }
 
-.nav-admin-slot { margin-top: auto; border-top: 1px solid var(--line); }
-.nav-admin-slot .nav-link { min-height: 58px; }
-.nav-admin-chevron { width: 14px !important; height: 14px !important; margin-left: auto; color: var(--muted); }
+.nav-settings-slot { margin-top: auto; border-top: 1px solid var(--line); }
+.nav-settings-slot .nav-link { min-height: 58px; }
+.nav-settings-chevron { width: 14px !important; height: 14px !important; margin-left: auto; color: var(--muted); }
 
 /* A podium row opens a small, non-modal dossier over the current surface.
    Only the Équipages / Navigateurs labels navigate to the full standings. */
@@ -158,7 +158,7 @@
   .nav-podium-row { min-height: 25px; }
   .nav-context-all { min-height: 24px; padding-top: 0; }
 
-  .nav-admin-slot .nav-link { min-height: 48px; }
+  .nav-settings-slot .nav-link { min-height: 48px; }
 }
 
 .nav-stage.next:not(.selected) .nav-stage-hex { animation: nextGlow 1.9s ease-in-out infinite; }

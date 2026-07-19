@@ -1,6 +1,6 @@
 import { Map, Sailboat, Settings, Trophy, Users, type LucideIcon } from "lucide-react";
 
-export type PublicSection = "season" | "course" | "rankings" | "sailors" | "admin";
+export type PublicSection = "season" | "course" | "rankings" | "sailors" | "settings";
 
 export type NavChild = {
   id: PublicSection;
@@ -33,6 +33,6 @@ export function publicNav(): NavItem[] {
         { id: "sailors", href: "/classements?vue=individuel", label: "Navigateurs", icon: Users },
       ],
     },
-    { id: "admin", href: "/admin", label: "Admin", icon: Settings },
+    { id: "settings", href: "/settings", label: "Settings", icon: Settings },
   ];
 }

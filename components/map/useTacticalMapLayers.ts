@@ -69,6 +69,19 @@ function collection(features: GeoJSON.Feature[]): GeoJSON.FeatureCollection {
   return { type: "FeatureCollection", features };
 }
 
+function stableAircraftSample(points: LiveTrafficPoint[]) {
+  if (points.length < 2) return points;
+  const sampled = points.filter((point) => {
+    let hash = 2166136261;
+    for (let index = 0; index < point.id.length; index += 1) {
+      hash ^= point.id.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0) % 2 === 0;
+  });
+  return sampled.length > 0 ? sampled : points.slice(0, 1);
+}
+
 const CITY_LIGHT_OFFSETS = [
   [0, 0, 1, 0],
   [0.012, 0.008, 0.86, 1.7],
@@ -438,7 +451,7 @@ export function useTacticalMapLayers({
         showVessels ? readTraffic("/api/map-traffic/vessels") : Promise.resolve({ mode: "idle" as const, points: [] }),
       ]);
       if (cancelled) return;
-      liveAircraftRef.current = aircraft.points;
+      liveAircraftRef.current = stableAircraftSample(aircraft.points);
       liveVesselsRef.current = vessels.points;
       setStatus({ aircraft: aircraft.mode, vessels: vessels.mode });
     };
