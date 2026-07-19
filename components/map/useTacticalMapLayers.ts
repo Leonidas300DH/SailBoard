@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
-import type { GeoJSONSource, Map as MaplibreMap } from "maplibre-gl";
+import type { GeoJSONSource, Map as MaplibreMap, Marker } from "maplibre-gl";
 import {
   destinationPoint,
   FALLBACK_AIR_ROUTES,
@@ -35,6 +35,14 @@ const TACTICAL_LAYERS = [
 
 type FeedMode = "idle" | "loading" | "live" | "simulated";
 
+type TrafficKind = "aircraft" | "vessel";
+
+type TrafficMarkerRecord = {
+  marker: Marker;
+  element: HTMLDivElement;
+  icon: HTMLImageElement;
+};
+
 export type TacticalFeedStatus = {
   aircraft: FeedMode;
   vessels: FeedMode;
@@ -67,15 +75,28 @@ function collection(features: GeoJSON.Feature[]): GeoJSON.FeatureCollection {
   return { type: "FeatureCollection", features };
 }
 
+const CITY_LIGHT_OFFSETS = [
+  [0, 0, 1, 0],
+  [0.012, 0.008, 0.86, 1.7],
+  [-0.014, 0.006, 0.74, 3.1],
+  [0.009, -0.013, 0.7, 4.6],
+  [-0.021, -0.008, 0.58, 5.8],
+  [0.025, 0.015, 0.48, 2.4],
+  [-0.032, 0.018, 0.42, 4.1],
+  [0.031, -0.019, 0.4, 0.9],
+  [-0.01, 0.029, 0.36, 5.2],
+] as const;
+
 function cityFeatures(now: number): GeoJSON.Feature[] {
   return TACTICAL_CITIES.flatMap((city, cityIndex) => {
-    const pulse = 0.48 + Math.sin(now / 1_900 + cityIndex * 1.73) * 0.22;
-    const offsets: MapCoordinate[] = [[0, 0], [0.035, 0.018], [-0.025, 0.013], [0.017, -0.021]];
-    return offsets.map(([lngOffset, latOffset], offsetIndex) => ({
+    return CITY_LIGHT_OFFSETS.map(([lngOffset, latOffset, weight, phase], offsetIndex) => ({
       type: "Feature" as const,
       properties: {
         id: `${city.id}-${offsetIndex}`,
-        intensity: Math.max(0.18, city.intensity * pulse * (offsetIndex === 0 ? 1 : 0.46)),
+        intensity: Math.max(
+          0.2,
+          city.intensity * weight * (0.68 + Math.sin(now / (930 + offsetIndex * 83) + cityIndex * 1.31 + phase) * 0.32),
+        ),
       },
       geometry: {
         type: "Point" as const,
@@ -98,10 +119,14 @@ function movingPathFeatures(paths: MotionPath[], now: number, kind: string): Geo
   return paths.flatMap((path, pathIndex) => {
     const total = pathDistances.get(path.id) ?? totalPathDistance(path);
     pathDistances.set(path.id, total);
-    const repeat = kind === "road" ? 3 : 2;
+    const repeat = kind === "road" ? 10 : 2;
+    // At circuit scale, literal motorway speeds amount to a fraction of a
+    // pixel per minute. Compress elapsed time while preserving the real route
+    // so the traffic remains calm but visibly alive.
+    const displaySpeed = path.speedKph * (kind === "road" ? 32 : 1);
     return Array.from({ length: repeat }, (_, repeatIndex) => {
       const phase = (path.offset + repeatIndex / repeat + pathIndex * 0.071) % 1;
-      const travelled = (now / 3_600_000 * path.speedKph + total * phase) % total;
+      const travelled = (now / 3_600_000 * displaySpeed + total * phase) % total;
       return {
         type: "Feature" as const,
         properties: { id: `${path.id}-${repeatIndex}`, kind },
@@ -111,18 +136,86 @@ function movingPathFeatures(paths: MotionPath[], now: number, kind: string): Geo
   });
 }
 
+function livePointPosition(point: LiveTrafficPoint, now: number): MapCoordinate {
+  const elapsedHours = Math.max(0, Math.min(0.12, (now - point.updatedAt) / 3_600_000));
+  return destinationPoint(point.coordinates, point.heading, point.speedKph * elapsedHours);
+}
+
 function liveFeatures(points: LiveTrafficPoint[], now: number, kind: string): GeoJSON.Feature[] {
   return points.map((point) => {
-    const elapsedHours = Math.max(0, Math.min(0.12, (now - point.updatedAt) / 3_600_000));
     return {
       type: "Feature" as const,
       properties: { id: point.id, label: point.label ?? "", heading: point.heading, kind },
       geometry: {
         type: "Point" as const,
-        coordinates: destinationPoint(point.coordinates, point.heading, point.speedKph * elapsedHours),
+        coordinates: livePointPosition(point, now),
       },
     };
   });
+}
+
+function trafficTooltip(kind: TrafficKind, point: LiveTrafficPoint) {
+  if (kind === "aircraft") return `Vol ${point.label || point.id.toUpperCase()}`;
+  return point.label ? `Navire ${point.label}` : `Navire · MMSI ${point.id}`;
+}
+
+function isInPaddedViewport(map: MaplibreMap, [longitude, latitude]: MapCoordinate) {
+  const point = map.project([longitude, latitude]);
+  const container = map.getContainer();
+  const padding = 54;
+  return point.x >= -padding
+    && point.x <= container.clientWidth + padding
+    && point.y >= -padding
+    && point.y <= container.clientHeight + padding;
+}
+
+function syncTrafficMarkers({
+  map,
+  points,
+  markers,
+  kind,
+  now,
+  createMarker,
+}: {
+  map: MaplibreMap;
+  points: LiveTrafficPoint[];
+  markers: Map<string, TrafficMarkerRecord>;
+  kind: TrafficKind;
+  now: number;
+  createMarker: (point: LiveTrafficPoint, kind: TrafficKind) => TrafficMarkerRecord;
+}) {
+  const visibleIds = new Set<string>();
+  const occupiedCells = new Set<string>();
+  const cellSize = kind === "aircraft" ? 74 : 28;
+  for (const point of points) {
+    const coordinates = livePointPosition(point, now);
+    if (!isInPaddedViewport(map, coordinates)) continue;
+    const screenPoint = map.project(coordinates);
+    const cell = `${Math.floor(screenPoint.x / cellSize)}:${Math.floor(screenPoint.y / cellSize)}`;
+    if (occupiedCells.has(cell)) continue;
+    occupiedCells.add(cell);
+    visibleIds.add(point.id);
+    let record = markers.get(point.id);
+    if (!record) {
+      record = createMarker(point, kind);
+      markers.set(point.id, record);
+    }
+    const tooltip = trafficTooltip(kind, point);
+    record.marker.setLngLat(coordinates);
+    record.icon.style.setProperty("--traffic-heading", `${point.heading + (kind === "aircraft" ? -45 : 0)}deg`);
+    record.element.dataset.tooltip = tooltip;
+    record.element.setAttribute("aria-label", tooltip);
+  }
+  for (const [id, record] of markers) {
+    if (visibleIds.has(id)) continue;
+    record.marker.remove();
+    markers.delete(id);
+  }
+}
+
+function removeTrafficMarkers(markers: Map<string, TrafficMarkerRecord>) {
+  for (const record of markers.values()) record.marker.remove();
+  markers.clear();
 }
 
 function source(map: MaplibreMap, id: string): GeoJSONSource | undefined {
@@ -243,14 +336,14 @@ async function installTacticalLayers(map: MaplibreMap) {
     }, beforeId);
   };
 
-  pointLayer("tactical-city-glow", "tactical-city-lights", "#fff4c6", ["interpolate", ["linear"], ["zoom"], 6, 4, 10, 10], ["*", ["get", "intensity"], 0.34], 0.9);
-  pointLayer("tactical-city-core", "tactical-city-lights", "#fffdf1", ["interpolate", ["linear"], ["zoom"], 6, 0.7, 10, 1.4], ["*", ["get", "intensity"], 0.8], 0.18);
-  pointLayer("tactical-road-traffic-glow", "tactical-road-traffic", "#fff4c6", 3.2, 0.23, 0.86);
-  pointLayer("tactical-road-traffic-core", "tactical-road-traffic", "#fffbea", 0.85, 0.74, 0.08);
-  pointLayer("tactical-vessels-glow", "tactical-vessels", "#5ad8ff", 4.2, 0.24, 0.82);
-  pointLayer("tactical-vessels-core", "tactical-vessels", "#dff8ff", 1.15, 0.82, 0.08);
-  pointLayer("tactical-aircraft-glow", "tactical-aircraft", "#f2f7f9", 3.5, 0.2, 0.88);
-  pointLayer("tactical-aircraft-core", "tactical-aircraft", "#ffffff", 0.9, 0.76, 0.06);
+  pointLayer("tactical-city-glow", "tactical-city-lights", "#ffd978", ["interpolate", ["linear"], ["zoom"], 6, 5.5, 10, 12], ["*", ["get", "intensity"], 0.52], 0.84);
+  pointLayer("tactical-city-core", "tactical-city-lights", "#fff8d6", ["interpolate", ["linear"], ["zoom"], 6, 1.15, 10, 2.1], ["*", ["get", "intensity"], 0.96], 0.08);
+  pointLayer("tactical-road-traffic-glow", "tactical-road-traffic", "#ffe39a", 4.8, 0.42, 0.78);
+  pointLayer("tactical-road-traffic-core", "tactical-road-traffic", "#fffdf2", 1.3, 0.94, 0.04);
+  pointLayer("tactical-vessels-glow", "tactical-vessels", "#42d4ff", 7.2, 0.38, 0.78);
+  pointLayer("tactical-vessels-core", "tactical-vessels", "#dff8ff", 1.55, 0.94, 0.04);
+  pointLayer("tactical-aircraft-glow", "tactical-aircraft", "#bcecff", 6.2, 0.34, 0.8);
+  pointLayer("tactical-aircraft-core", "tactical-aircraft", "#ffffff", 1.35, 0.92, 0.03);
 }
 
 async function readTraffic(url: string): Promise<{ mode: FeedMode; points: LiveTrafficPoint[] }> {
@@ -292,7 +385,11 @@ export function useTacticalMapLayers({
     let cancelled = false;
     let frame = 0;
     let lastRender = 0;
+    let lastMarkerRender = 0;
     let trafficTimer = 0;
+    let createMarker: ((point: LiveTrafficPoint, kind: TrafficKind) => TrafficMarkerRecord) | null = null;
+    const aircraftMarkers = new Map<string, TrafficMarkerRecord>();
+    const vesselMarkers = new Map<string, TrafficMarkerRecord>();
 
     const refreshTraffic = async () => {
       setStatus((current) => ({
@@ -323,10 +420,41 @@ export function useTacticalMapLayers({
         : movingPathFeatures(FALLBACK_AIR_ROUTES, Date.now(), "aircraft");
       source(map, "tactical-vessels")?.setData(collection(vesselFeatures));
       source(map, "tactical-aircraft")?.setData(collection(aircraftFeatures));
+      if (createMarker && now - lastMarkerRender >= 250) {
+        lastMarkerRender = now;
+        syncTrafficMarkers({ map, points: liveAircraftRef.current, markers: aircraftMarkers, kind: "aircraft", now: Date.now(), createMarker });
+        syncTrafficMarkers({ map, points: liveVesselsRef.current, markers: vesselMarkers, kind: "vessel", now: Date.now(), createMarker });
+      }
     };
 
-    void installTacticalLayers(map).then(() => {
+    void Promise.all([installTacticalLayers(map), import("maplibre-gl")]).then(([, { default: maplibregl }]) => {
       if (cancelled) return;
+      createMarker = (point, kind) => {
+        const element = document.createElement("div");
+        element.className = `tactical-traffic-marker tactical-traffic-marker--${kind}`;
+        element.dataset.trafficId = point.id;
+        element.dataset.tooltip = trafficTooltip(kind, point);
+        element.setAttribute("role", "img");
+        element.setAttribute("aria-label", trafficTooltip(kind, point));
+        element.tabIndex = 0;
+        const icon = document.createElement("img");
+        icon.src = kind === "aircraft" ? "/icons/tactical-plane.svg" : "/icons/tactical-ship.svg";
+        icon.alt = "";
+        icon.setAttribute("aria-hidden", "true");
+        icon.draggable = false;
+        element.append(icon);
+        const marker = new maplibregl.Marker({
+          element,
+          anchor: "center",
+          // Port traffic often shares the exact screen coordinate of a race
+          // stage. A small display offset keeps both controls legible while
+          // the cyan glow remains anchored to the true AIS position.
+          offset: kind === "vessel" ? [16, -18] : [0, 0],
+        })
+          .setLngLat(point.coordinates)
+          .addTo(map);
+        return { marker, element, icon };
+      };
       setLayersVisibility(map, true);
       frame = requestAnimationFrame(animate);
       void refreshTraffic();
@@ -337,6 +465,8 @@ export function useTacticalMapLayers({
       cancelled = true;
       cancelAnimationFrame(frame);
       window.clearInterval(trafficTimer);
+      removeTrafficMarkers(aircraftMarkers);
+      removeTrafficMarkers(vesselMarkers);
     };
   }, [enabled, isReady, mapRef]);
 

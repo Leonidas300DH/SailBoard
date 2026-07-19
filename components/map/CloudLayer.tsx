@@ -249,15 +249,22 @@ export function CloudLayer({
       // core above the softer vapor makes the deck read as volume rather than
       // a blurred texture pasted over the chart.
       context.globalCompositeOperation = "source-over";
-      context.globalAlpha = sheetAlpha * (tactical ? 0.58 : 0.42);
-      drawTiled(tile.shadow, 9 + sheet.altitude * 12, 13 + sheet.altitude * 17);
+      context.globalAlpha = sheetAlpha * (tactical ? 0.76 : 0.42);
+      drawTiled(tile.shadow, 12 + sheet.altitude * 15, 17 + sheet.altitude * 21);
       context.globalCompositeOperation = "screen";
       context.globalAlpha = sheetAlpha;
-      context.shadowColor = `rgba(185, 215, 230, ${0.09 + sheet.altitude * 0.07})`;
-      context.shadowBlur = 8 + sheet.altitude * 10;
+      context.shadowColor = `rgba(190, 225, 239, ${tactical ? 0.16 + sheet.altitude * 0.1 : 0.09 + sheet.altitude * 0.07})`;
+      context.shadowBlur = (tactical ? 5 : 8) + sheet.altitude * 10;
       drawTiled(tile.vapor, 0, 0);
-      context.globalAlpha = sheetAlpha * 0.52;
-      context.shadowBlur = 3 + sheet.altitude * 5;
+      if (tactical) {
+        context.globalCompositeOperation = "lighter";
+        context.globalAlpha = sheetAlpha * 0.34;
+        context.shadowBlur = 11 + sheet.altitude * 8;
+        drawTiled(tile.core, -6 - sheet.altitude * 5, -8 - sheet.altitude * 7);
+      }
+      context.globalCompositeOperation = "screen";
+      context.globalAlpha = sheetAlpha * (tactical ? 0.72 : 0.52);
+      context.shadowBlur = (tactical ? 1.5 : 3) + sheet.altitude * 5;
       drawTiled(tile.core, -2 - sheet.altitude * 3, -3 - sheet.altitude * 5);
       context.restore();
     };
@@ -266,7 +273,9 @@ export function CloudLayer({
       const { knots } = windRef.current;
       // Present enough to read as weather, restrained enough to keep labels
       // and satellite detail legible even where several decks overlap.
-      const baseAlpha = 0.09 + Math.min(knots, 30) / 30 * 0.06;
+      const baseAlpha = tactical
+        ? 0.21 + Math.min(knots, 30) / 30 * 0.09
+        : 0.09 + Math.min(knots, 30) / 30 * 0.06;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
       context.globalCompositeOperation = "source-over";
@@ -277,7 +286,9 @@ export function CloudLayer({
 
     const advanceWind = (delta: number) => {
       const { direction, knots } = windRef.current;
-      const speed = 0.55 + Math.min(knots, 30) * 0.085;
+      const speed = tactical
+        ? 0.85 + Math.min(knots, 30) * 0.11
+        : 0.55 + Math.min(knots, 30) * 0.085;
       for (const sheet of sheets) {
         const heading = ((direction + 180 + sheet.headingOffset) * Math.PI) / 180;
         sheet.x += Math.sin(heading) * speed * sheet.speed * delta;

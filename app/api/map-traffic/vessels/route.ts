@@ -18,6 +18,20 @@ function numeric(value: unknown, fallback = 0): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function aisHeading(message: Record<string, unknown>): number {
+  const course = numeric(message.Cog, numeric(message.CourseOverGround, Number.NaN));
+  if (course >= 0 && course < 360) return course;
+  const heading = numeric(message.TrueHeading, 0);
+  return heading >= 0 && heading < 360 ? heading : 0;
+}
+
+function aisSpeedKph(message: Record<string, unknown>): number {
+  // AISStream follows the AIS field names `Sog` and `Cog`. Values of 102.3
+  // knots and above mean "not available" rather than a very fast vessel.
+  const knots = numeric(message.Sog, numeric(message.SpeedOverGround, 0));
+  return knots >= 0 && knots < 102.3 ? knots * 1.852 : 0;
+}
+
 function loadVessels(apiKey: string): Promise<LiveTrafficPoint[]> {
   if (cached && Date.now() - cached.at < CACHE_MS) return Promise.resolve(cached.points);
   pending ??= new Promise<LiveTrafficPoint[]>((resolve) => {
@@ -33,12 +47,15 @@ function loadVessels(apiKey: string): Promise<LiveTrafficPoint[]> {
       if (result.length > 0) cached = { at: Date.now(), points: result };
       resolve(result);
     };
-    const timer = setTimeout(finish, 3_200);
+    const timer = setTimeout(finish, 5_200);
 
     socket.addEventListener("open", () => {
       socket.send(JSON.stringify({
         APIKey: apiKey,
-        BoundingBoxes: [[[44.8, -8.4], [51.2, 2.2]]],
+        // Focus the stream on the visible Atlantic circuit instead of letting
+        // high-volume English Channel ports consume the short collection
+        // window with vessels that are outside the map.
+        BoundingBoxes: [[[45.7, -7.1], [49.4, 0.8]]],
         FilterMessageTypes: ["PositionReport", "StandardClassBPositionReport", "ExtendedClassBPositionReport"],
       }));
     });
@@ -59,8 +76,8 @@ function loadVessels(apiKey: string): Promise<LiveTrafficPoint[]> {
         points.set(mmsi, {
           id: mmsi,
           coordinates: [longitude, latitude],
-          heading: numeric(message.CourseOverGround, numeric(message.TrueHeading, 0)),
-          speedKph: Math.max(0, numeric(message.SpeedOverGround, 0)) * 1.852,
+          heading: aisHeading(message),
+          speedKph: aisSpeedKph(message),
           updatedAt: Date.now(),
           label: metadata.ShipName?.trim() || undefined,
         });
