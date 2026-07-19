@@ -25,21 +25,24 @@ test("le mode de carte vient uniquement des Settings et préserve la chronologie
   assert.match(chronologyAnimation, /startedAt \?\?= now/);
 });
 
-test("les réglages admin activent par défaut la carte tactique et toutes ses couches", async () => {
-  const [settings, admin, seasonMap] = await Promise.all([
+test("les réglages activent uniquement la carte tactique par défaut", async () => {
+  const [settings, admin, seasonMap, database] = await Promise.all([
     readFile(new URL("lib/map-settings.ts", root), "utf8"),
     readFile(new URL("components/AdminConsole.tsx", root), "utf8"),
     readFile(new URL("components/season/SeasonMap.tsx", root), "utf8"),
+    readFile(new URL("lib/database.ts", root), "utf8"),
   ]);
 
   assert.match(settings, /defaultMode: "tactical"/);
   for (const option of ["showAircraft", "showVessels", "showCityLights", "showClouds"]) {
-    assert.match(settings, new RegExp(`${option}: true`));
+    assert.match(settings, new RegExp(`${option}: false`));
     assert.match(admin, new RegExp(option));
     assert.match(seasonMap, new RegExp(option));
   }
   assert.match(admin, /\/api\/admin\/settings/);
   assert.match(seasonMap, /effectiveMapMode = displaySettings\.defaultMode/);
+  assert.match(database, /map-display-defaults-v2/);
+  assert.match(database, /EXISTS \(SELECT 1 FROM migration\)/);
 });
 
 test("la navigation publique remplace Admin par des Settings locaux", async () => {
@@ -55,9 +58,11 @@ test("la navigation publique remplace Admin par des Settings locaux", async () =
   assert.match(championshipNav, /href="\/settings"/);
   assert.doesNotMatch(championshipNav, /href="\/admin"/);
   assert.match(settingsRoom, /Affichage de cet appareil/);
+  assert.match(settingsRoom, /Nuages volumétriques/);
+  assert.match(settingsRoom, /showClouds/);
   assert.match(settingsRoom, /saveMapDisplaySettings/);
   assert.match(settingsClient, /localStorage/);
-  assert.match(settingsClient, /sailboard:map-display:v1/);
+  assert.match(settingsClient, /sailboard:map-display:v2/);
 });
 
 test("les couches de vie tactiques sont desktop, animées et branchées sur des sources réelles", async () => {

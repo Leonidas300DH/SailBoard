@@ -3,7 +3,7 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { normalizeMapDisplaySettings, parseMapDisplaySettings, type MapDisplaySettings } from "./map-settings";
 
-const STORAGE_KEY = "sailboard:map-display:v1";
+const STORAGE_KEY = "sailboard:map-display:v2";
 const CHANGE_EVENT = "sailboard:map-display-change";
 
 function subscribe(onStoreChange: () => void) {

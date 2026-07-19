@@ -102,6 +102,16 @@ async function initialize(): Promise<void> {
     VALUES ('map-display', ?, NULL, ?, ?)
     ON CONFLICT(key) DO NOTHING`)
     .bind(JSON.stringify(DEFAULT_MAP_DISPLAY_SETTINGS), NOW, NOW).run();
+  await db.prepare(`WITH migration AS (
+      INSERT INTO app_settings (key, value_json, updated_by, created_at, updated_at)
+      VALUES ('map-display-defaults-v2', '{"version":2}', NULL, ?, ?)
+      ON CONFLICT(key) DO NOTHING
+      RETURNING key
+    )
+    UPDATE app_settings
+    SET value_json = ?, updated_at = ?
+    WHERE key = 'map-display' AND EXISTS (SELECT 1 FROM migration)`)
+    .bind(NOW, NOW, JSON.stringify(DEFAULT_MAP_DISPLAY_SETTINGS), NOW).run();
   const count = await db.prepare("SELECT COUNT(*) AS count FROM seasons").first<{ count: number | string }>();
   if (Number(count?.count ?? 0) === 0) await seedDatabase(db);
   await ensureInitialOwner(db);
