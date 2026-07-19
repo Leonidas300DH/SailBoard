@@ -155,8 +155,23 @@ function liveFeatures(points: LiveTrafficPoint[], now: number, kind: string): Ge
 }
 
 function trafficTooltip(kind: TrafficKind, point: LiveTrafficPoint) {
-  if (kind === "aircraft") return `Vol ${point.label || point.id.toUpperCase()}`;
+  if (kind === "aircraft") {
+    const flightLevel = point.altitudeFt && point.altitudeFt > 0
+      ? ` · FL${String(Math.round(point.altitudeFt / 100)).padStart(3, "0")}`
+      : "";
+    return `Vol ${point.label || point.id.toUpperCase()}${flightLevel}`;
+  }
   return point.label ? `Navire ${point.label}` : `Navire · MMSI ${point.id}`;
+}
+
+function aircraftVisualAltitude(altitudeFt = 0) {
+  const normalized = Math.max(0, Math.min(1, altitudeFt / 42_000));
+  return {
+    lift: 5 + normalized * 9,
+    scale: 0.94 + normalized * 0.18,
+    shadowBlur: 0.6 + normalized * 1.5,
+    shadowOpacity: 0.5 - normalized * 0.18,
+  };
 }
 
 function isInPaddedViewport(map: MaplibreMap, [longitude, latitude]: MapCoordinate) {
@@ -202,7 +217,14 @@ function syncTrafficMarkers({
     }
     const tooltip = trafficTooltip(kind, point);
     record.marker.setLngLat(coordinates);
-    record.icon.style.setProperty("--traffic-heading", `${point.heading + (kind === "aircraft" ? -45 : 0)}deg`);
+    record.element.style.setProperty("--traffic-heading", `${point.heading + (kind === "aircraft" ? -45 : 0)}deg`);
+    if (kind === "aircraft") {
+      const altitude = aircraftVisualAltitude(point.altitudeFt);
+      record.element.style.setProperty("--aircraft-lift", `${altitude.lift.toFixed(1)}px`);
+      record.element.style.setProperty("--aircraft-scale", altitude.scale.toFixed(3));
+      record.element.style.setProperty("--aircraft-shadow-blur", `${altitude.shadowBlur.toFixed(1)}px`);
+      record.element.style.setProperty("--aircraft-shadow-opacity", altitude.shadowOpacity.toFixed(3));
+    }
     record.element.dataset.tooltip = tooltip;
     record.element.setAttribute("aria-label", tooltip);
   }
@@ -438,10 +460,16 @@ export function useTacticalMapLayers({
         element.setAttribute("aria-label", trafficTooltip(kind, point));
         element.tabIndex = 0;
         const icon = document.createElement("img");
+        icon.className = "tactical-traffic-marker__icon";
         icon.src = kind === "aircraft" ? "/icons/tactical-plane.svg" : "/icons/tactical-ship.svg";
         icon.alt = "";
         icon.setAttribute("aria-hidden", "true");
         icon.draggable = false;
+        if (kind === "aircraft") {
+          const shadow = icon.cloneNode() as HTMLImageElement;
+          shadow.className = "tactical-aircraft-shadow";
+          element.append(shadow);
+        }
         element.append(icon);
         const marker = new maplibregl.Marker({
           element,

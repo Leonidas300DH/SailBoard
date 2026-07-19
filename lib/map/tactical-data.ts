@@ -12,6 +12,7 @@ export type LiveTrafficPoint = {
   coordinates: MapCoordinate;
   heading: number;
   speedKph: number;
+  altitudeFt?: number;
   updatedAt: number;
   label?: string;
 };

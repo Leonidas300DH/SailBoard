@@ -44,9 +44,14 @@ test("les couches de vie tactiques sont desktop, animées et branchées sur des 
   assert.match(layers, /\/icons\/tactical-plane\.svg/);
   assert.match(layers, /\/icons\/tactical-ship\.svg/);
   assert.match(layers, /data\.tooltip|dataset\.tooltip/);
+  assert.match(layers, /aircraftVisualAltitude/);
+  assert.match(layers, /tactical-aircraft-shadow/);
   assert.match(layers, /kind === "road" \? 10 : 2/);
   assert.match(layers, /kind === "road" \? 32 : 1/);
   assert.match(aircraftRoute, /api\.airplanes\.live/);
+  assert.match(aircraftRoute, /aircraft\.alt_baro/);
+  assert.match(aircraftRoute, /aircraft\.alt_geom/);
+  assert.match(aircraftRoute, /altitudeFt: aircraftAltitudeFt/);
   assert.match(aircraftRoute, /s-maxage=300/);
   assert.match(vesselRoute, /AISSTREAM_API_KEY/);
   assert.match(vesselRoute, /wss:\/\/stream\.aisstream\.io/);
@@ -57,6 +62,9 @@ test("les couches de vie tactiques sont desktop, animées et branchées sur des 
   assert.match(vesselRoute, /\[\[45\.7, -7\.1\], \[49\.4, 0\.8\]\]/);
   assert.match(env, /AISSTREAM_API_KEY=/);
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.map-mode-control \{ display: none; \}/);
+  assert.match(styles, /\.tactical-traffic-marker--aircraft::before/);
+  assert.match(styles, /\.tactical-aircraft-shadow/);
+  assert.match(styles, /var\(--aircraft-lift\)/);
 });
 
 test("les nuages tactiques ont des passes de volume séparées", async () => {

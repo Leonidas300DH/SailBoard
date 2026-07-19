@@ -13,11 +13,19 @@ type AirplanesLiveAircraft = {
   flight?: string;
   lat?: number;
   lon?: number;
+  alt_baro?: number | "ground";
+  alt_geom?: number;
   track?: number;
   gs?: number;
   seen_pos?: number;
   dbFlags?: number;
 };
+
+function aircraftAltitudeFt(aircraft: AirplanesLiveAircraft) {
+  if (typeof aircraft.alt_geom === "number") return Math.max(0, aircraft.alt_geom);
+  if (typeof aircraft.alt_baro === "number") return Math.max(0, aircraft.alt_baro);
+  return 0;
+}
 
 async function loadAircraft(): Promise<LiveTrafficPoint[]> {
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.points;
@@ -46,6 +54,7 @@ async function loadAircraft(): Promise<LiveTrafficPoint[]> {
         coordinates: [aircraft.lon, aircraft.lat],
         heading: aircraft.track ?? 0,
         speedKph: Math.max(0, aircraft.gs ?? 0) * 1.852,
+        altitudeFt: aircraftAltitudeFt(aircraft),
         updatedAt: now - Math.max(0, aircraft.seen_pos ?? 0) * 1_000,
         label: aircraft.flight?.trim() || undefined,
       }];

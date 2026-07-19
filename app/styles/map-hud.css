@@ -31,15 +31,19 @@
 .map-mode-status span[data-state="loading"]::before { animation: tacticalFeedPulse 1.4s ease-in-out infinite; }
 @keyframes tacticalFeedPulse { 50% { opacity: .25; } }
 
-/* Live traffic markers use sourced Lucide silhouettes. The icon rotates while
-   its parent stays level so the hover/focus tooltip remains readable. */
+/* Live traffic markers use sourced Lucide silhouettes. Aircraft are lifted
+   away from a ground-anchored shadow; vessels stay flat on the chart. */
 .tactical-traffic-marker { position: relative; z-index: 3; width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: transparent; cursor: help; pointer-events: auto; }
-.tactical-traffic-marker img { width: 16px; height: 16px; transform: rotate(var(--traffic-heading, 0deg)); filter: drop-shadow(0 0 2px rgba(1,10,16,.98)) drop-shadow(0 0 5px rgba(115,220,255,.82)); transition: filter .16s ease; }
+.tactical-traffic-marker__icon { grid-area: 1 / 1; width: 16px; height: 16px; transform: rotate(var(--traffic-heading, 0deg)); filter: drop-shadow(0 0 2px rgba(1,10,16,.98)) drop-shadow(0 0 5px rgba(115,220,255,.82)); transition: filter .16s ease, transform .2s linear; }
+.tactical-traffic-marker--aircraft { --aircraft-lift: 8px; --aircraft-scale: 1; --aircraft-shadow-blur: 1px; --aircraft-shadow-opacity: .34; z-index: 7; width: 38px; height: 38px; overflow: visible; }
+.tactical-traffic-marker--aircraft::before { content: ""; position: absolute; z-index: 0; left: 50%; top: 50%; width: 1px; height: calc(var(--aircraft-lift) * 1.12); background: linear-gradient(to top, rgba(188,236,255,.08), rgba(188,236,255,.42)); opacity: .52; transform-origin: bottom center; transform: translate(-50%, -100%) rotate(-28deg); pointer-events: none; }
+.tactical-traffic-marker--aircraft .tactical-traffic-marker__icon { z-index: 2; width: 18px; height: 18px; transform: translate3d(calc(var(--aircraft-lift) * -.53), calc(var(--aircraft-lift) * -1), 0) rotate(var(--traffic-heading, 0deg)) scale(var(--aircraft-scale)); filter: drop-shadow(0 2px 1px rgba(1,10,16,.9)) drop-shadow(0 0 6px rgba(160,232,255,.92)); transform-origin: center; will-change: transform; }
+.tactical-aircraft-shadow { grid-area: 1 / 1; z-index: 0; width: 16px; height: 16px; opacity: var(--aircraft-shadow-opacity); filter: grayscale(1) brightness(.48) blur(var(--aircraft-shadow-blur)) drop-shadow(0 1px 1px rgba(1,10,16,.9)); transform: rotate(var(--traffic-heading, 0deg)) scaleY(.62); transform-origin: center; pointer-events: none; }
 .tactical-traffic-marker--vessel { z-index: 6; width: 28px; height: 28px; }
-.tactical-traffic-marker--vessel img { width: 21px; height: 21px; filter: drop-shadow(0 0 2px rgba(1,10,16,.98)) drop-shadow(0 0 8px rgba(66,212,255,1)); }
+.tactical-traffic-marker--vessel .tactical-traffic-marker__icon { width: 21px; height: 21px; filter: drop-shadow(0 0 2px rgba(1,10,16,.98)) drop-shadow(0 0 8px rgba(66,212,255,1)); }
 .tactical-traffic-marker::after { content: attr(data-tooltip); position: absolute; left: 50%; bottom: calc(100% + 7px); z-index: 8; padding: 5px 7px; color: #e8f9ff; background: rgba(1,10,16,.92); border: 1px solid rgba(114,213,244,.42); box-shadow: 0 8px 20px rgba(0,0,0,.42); font: 700 9px/1.2 var(--font-geist-mono), monospace; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; opacity: 0; transform: translate(-50%, 3px); transition: opacity .14s ease, transform .14s ease; pointer-events: none; }
 .tactical-traffic-marker:hover::after, .tactical-traffic-marker:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
-.tactical-traffic-marker:hover img, .tactical-traffic-marker:focus-visible img { filter: drop-shadow(0 0 2px rgba(1,10,16,1)) drop-shadow(0 0 8px rgba(166,237,255,1)); }
+.tactical-traffic-marker:hover .tactical-traffic-marker__icon, .tactical-traffic-marker:focus-visible .tactical-traffic-marker__icon { filter: drop-shadow(0 0 2px rgba(1,10,16,1)) drop-shadow(0 0 8px rgba(166,237,255,1)); }
 .tactical-traffic-marker:focus-visible { outline: 1px solid rgba(166,237,255,.8); outline-offset: 1px; }
 
 @media (max-width: 760px) {
