@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MaplibreMap, Marker } from "maplibre-gl";
 import type { SeasonRace } from "@/lib/season-data";
 import { attachGraticule } from "@/lib/map/graticule";
 import { buildCurvedChronology, chronologyFeatures } from "@/lib/map/season-chronology";
+import { applySeasonMapMode, type SeasonMapMode } from "@/lib/map/style";
 import { useMapLibre } from "../map/useMapLibre";
 import { useCameraDirector } from "../map/useCameraDirector";
 import { useSeasonChronologyAnimation } from "../map/useSeasonChronologyAnimation";
+import { useTacticalMapLayers } from "../map/useTacticalMapLayers";
 import { MapHud } from "../map/MapHud";
 import { CloudLayer } from "../map/CloudLayer";
 
@@ -42,6 +44,8 @@ export function SeasonMap({
   onSelect: (raceId: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [desktopEffectsAllowed, setDesktopEffectsAllowed] = useState(false);
+  const [mapMode, setMapMode] = useState<SeasonMapMode>("tactical");
   const onSelectRef = useRef(onSelect);
   const racesRef = useRef(races);
   useEffect(() => {
@@ -140,6 +144,24 @@ export function SeasonMap({
     onLoad: handleLoad,
   });
   const { flyToTarget, flyToBounds } = useCameraDirector(mapRef, isReady);
+  const effectiveMapMode: SeasonMapMode = desktopEffectsAllowed ? mapMode : "natural";
+  const tacticalEnabled = effectiveMapMode === "tactical";
+
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 761px) and (min-height: 560px)");
+    const sync = () => setDesktopEffectsAllowed(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!isReady || !map) return;
+    applySeasonMapMode(map, effectiveMapMode);
+  }, [effectiveMapMode, isReady, mapRef]);
+
+  const trafficStatus = useTacticalMapLayers({ mapRef, isReady, enabled: tacticalEnabled });
 
   useSeasonChronologyAnimation({ mapRef, isReady, legs: chronologyLegs });
 
@@ -202,6 +224,7 @@ export function SeasonMap({
       windKnots={windKnots}
       mapRef={mapRef}
       isReady={isReady}
+      tactical={tacticalEnabled}
     />
     <MapHud
       mapRef={mapRef}
@@ -210,6 +233,30 @@ export function SeasonMap({
       targetLabel={selectedRace?.shortName}
       onRecenter={recenter}
     />
+    {desktopEffectsAllowed ? (
+      <div className="map-mode-control" role="group" aria-label="Map appearance">
+        <div className="map-mode-switch">
+          <button
+            type="button"
+            aria-pressed={mapMode === "natural"}
+            className={mapMode === "natural" ? "active" : undefined}
+            onClick={() => setMapMode("natural")}
+          >Natural</button>
+          <button
+            type="button"
+            aria-pressed={mapMode === "tactical"}
+            className={mapMode === "tactical" ? "active" : undefined}
+            onClick={() => setMapMode("tactical")}
+          >Tactical</button>
+        </div>
+        {tacticalEnabled ? (
+          <div className="map-mode-status mono" aria-live="polite">
+            <span data-state={trafficStatus.aircraft}>ADS-B {trafficStatus.aircraft === "live" ? "LIVE" : "MODEL"}</span>
+            <span data-state={trafficStatus.vessels}>AIS {trafficStatus.vessels === "live" ? "LIVE" : "MODEL"}</span>
+          </div>
+        ) : null}
+      </div>
+    ) : null}
   </div>;
 }
 

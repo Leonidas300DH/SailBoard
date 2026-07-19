@@ -18,6 +18,12 @@ type CloudSheet = {
   y: number;
 };
 
+type CloudTextureSet = {
+  vapor: HTMLCanvasElement;
+  shadow: HTMLCanvasElement;
+  core: HTMLCanvasElement;
+};
+
 function smoothstep(edge0: number, edge1: number, value: number) {
   const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
   return t * t * (3 - 2 * t);
@@ -48,13 +54,23 @@ function seededRandom(seed: number) {
  * than a repeated blurred-noise texture. Determinism prevents the sky from
  * changing whenever React remounts the map.
  */
-function buildCloudTile(seed: number): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = TILE;
-  canvas.height = TILE;
-  const context = canvas.getContext("2d");
-  if (!context) return canvas;
-  const image = context.createImageData(TILE, TILE);
+function buildCloudTile(seed: number): CloudTextureSet {
+  const makeCanvas = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = TILE;
+    canvas.height = TILE;
+    return canvas;
+  };
+  const vapor = makeCanvas();
+  const shadow = makeCanvas();
+  const core = makeCanvas();
+  const vaporContext = vapor.getContext("2d");
+  const shadowContext = shadow.getContext("2d");
+  const coreContext = core.getContext("2d");
+  if (!vaporContext || !shadowContext || !coreContext) return { vapor, shadow, core };
+  const vaporImage = vaporContext.createImageData(TILE, TILE);
+  const shadowImage = shadowContext.createImageData(TILE, TILE);
+  const coreImage = coreContext.createImageData(TILE, TILE);
   const random = seededRandom(seed);
 
   const makeGrid = (cells: number) => {
@@ -102,28 +118,43 @@ function buildCloudTile(seed: number): HTMLCanvasElement {
       const density = smoothstep(0.43, 0.75, noise);
       const core = density ** 1.3;
       const offset = (y * TILE + x) * 4;
-      image.data[offset] = Math.round(207 + core * 41);
-      image.data[offset + 1] = Math.round(224 + core * 27);
-      image.data[offset + 2] = Math.round(235 + core * 18);
-      image.data[offset + 3] = Math.round(core * 255);
+      const brightCore = smoothstep(0.62, 0.9, noise) ** 1.45;
+      vaporImage.data[offset] = Math.round(202 + core * 46);
+      vaporImage.data[offset + 1] = Math.round(220 + core * 31);
+      vaporImage.data[offset + 2] = Math.round(233 + core * 21);
+      vaporImage.data[offset + 3] = Math.round(core * 238);
+      shadowImage.data[offset] = 1;
+      shadowImage.data[offset + 1] = 10;
+      shadowImage.data[offset + 2] = 17;
+      shadowImage.data[offset + 3] = Math.round(core * 178);
+      coreImage.data[offset] = 239;
+      coreImage.data[offset + 1] = 248;
+      coreImage.data[offset + 2] = 252;
+      coreImage.data[offset + 3] = Math.round(brightCore * 190);
     }
   }
-  context.putImageData(image, 0, 0);
-  return canvas;
+  vaporContext.putImageData(vaporImage, 0, 0);
+  shadowContext.putImageData(shadowImage, 0, 0);
+  coreContext.putImageData(coreImage, 0, 0);
+  return { vapor, shadow, core };
 }
 
-function buildSheets(compact: boolean): CloudSheet[] {
+function buildSheets(compact: boolean, tactical: boolean): CloudSheet[] {
   if (compact) {
     return [
       { scale: 2.5, speed: 0.52, alpha: 0.66, headingOffset: -5, altitude: 0.35, parallax: 0.74, x: 0, y: 0 },
       { scale: 1.7, speed: 0.92, alpha: 0.84, headingOffset: 7, altitude: 0.7, parallax: 0.58, x: 310, y: 140 },
     ];
   }
-  return [
+  const sheets: CloudSheet[] = [
     { scale: 3.2, speed: 0.38, alpha: 0.56, headingOffset: -9, altitude: 0.18, parallax: 0.86, x: 0, y: 0 },
     { scale: 2.25, speed: 0.68, alpha: 0.72, headingOffset: 2, altitude: 0.5, parallax: 0.7, x: 330, y: 170 },
     { scale: 1.55, speed: 1, alpha: 0.86, headingOffset: 11, altitude: 0.86, parallax: 0.52, x: 580, y: 410 },
   ];
+  if (tactical) sheets.push(
+    { scale: 4.4, speed: 0.24, alpha: 0.34, headingOffset: -15, altitude: 0.08, parallax: 0.94, x: 760, y: 260 },
+  );
+  return sheets;
 }
 
 /**
@@ -137,11 +168,13 @@ export function CloudLayer({
   windKnots,
   mapRef,
   isReady = true,
+  tactical = false,
 }: {
   windDirection: number;
   windKnots: number;
   mapRef?: RefObject<MaplibreMap | null>;
   isReady?: boolean;
+  tactical?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const windRef = useRef({ direction: windDirection, knots: windKnots });
@@ -159,7 +192,7 @@ export function CloudLayer({
     const tile = buildCloudTile(2026);
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const compact = (map?.getContainer().clientWidth ?? canvas.parentElement?.clientWidth ?? window.innerWidth) < 760;
-    const sheets = buildSheets(compact);
+    const sheets = buildSheets(compact, tactical);
     const reduceMotion = prefersReducedMotion();
     let width = 0;
     let height = 0;
@@ -198,18 +231,34 @@ export function CloudLayer({
       context.rotate(-bearingRadians);
       context.scale(1, horizonCompression);
       context.translate(-width / 2, -height / 2);
-      context.globalAlpha = baseAlpha * zoomVisibility * sheet.alpha * (1 + Math.sin(pitchRadians) * 0.2);
-      context.shadowColor = `rgba(185, 215, 230, ${0.1 + sheet.altitude * 0.08})`;
-      context.shadowBlur = 10 + sheet.altitude * 12;
-      context.shadowOffsetY = 8 + sheet.altitude * 12;
+      const sheetAlpha = baseAlpha * zoomVisibility * sheet.alpha * (1 + Math.sin(pitchRadians) * 0.2);
 
       const startX = -overscan - ((originX % size) + size) % size;
       const startY = -overscan - ((originY % size) + size) % size;
       const endX = width + overscan;
       const endY = height + overscan;
-      for (let x = startX; x < endX; x += size) {
-        for (let y = startY; y < endY; y += size) context.drawImage(tile, x, y, size, size);
-      }
+      const drawTiled = (texture: HTMLCanvasElement, xOffset: number, yOffset: number) => {
+        for (let x = startX; x < endX; x += size) {
+          for (let y = startY; y < endY; y += size) {
+            context.drawImage(texture, x + xOffset, y + yOffset, size, size);
+          }
+        }
+      };
+
+      // A displaced dark footprint gives each bank height; a sharper white
+      // core above the softer vapor makes the deck read as volume rather than
+      // a blurred texture pasted over the chart.
+      context.globalCompositeOperation = "source-over";
+      context.globalAlpha = sheetAlpha * (tactical ? 0.58 : 0.42);
+      drawTiled(tile.shadow, 9 + sheet.altitude * 12, 13 + sheet.altitude * 17);
+      context.globalCompositeOperation = "screen";
+      context.globalAlpha = sheetAlpha;
+      context.shadowColor = `rgba(185, 215, 230, ${0.09 + sheet.altitude * 0.07})`;
+      context.shadowBlur = 8 + sheet.altitude * 10;
+      drawTiled(tile.vapor, 0, 0);
+      context.globalAlpha = sheetAlpha * 0.52;
+      context.shadowBlur = 3 + sheet.altitude * 5;
+      drawTiled(tile.core, -2 - sheet.altitude * 3, -3 - sheet.altitude * 5);
       context.restore();
     };
 
@@ -220,7 +269,7 @@ export function CloudLayer({
       const baseAlpha = 0.09 + Math.min(knots, 30) / 30 * 0.06;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
-      context.globalCompositeOperation = "screen";
+      context.globalCompositeOperation = "source-over";
       for (const sheet of sheets) drawSheet(sheet, baseAlpha);
       context.globalCompositeOperation = "source-over";
       context.globalAlpha = 1;
@@ -267,7 +316,7 @@ export function CloudLayer({
       map?.off("move", render);
       map?.off("resize", render);
     };
-  }, [isReady, mapRef]);
+  }, [isReady, mapRef, tactical]);
 
-  return <canvas ref={canvasRef} className="cloud-layer" aria-hidden />;
+  return <canvas ref={canvasRef} className={`cloud-layer${tactical ? " cloud-layer--tactical" : ""}`} aria-hidden />;
 }

@@ -1,3 +1,61 @@
+# Design QA — carte tactique SAR desktop
+
+## Périmètre
+
+- Vérité visuelle source : `/tmp/sailboard-map-ideation/sar-reconnaissance.png` — option 2 Seedream 5.0 Pro explicitement sélectionnée.
+- Implémentation finale : `docs/qa/tactical-map-desktop-16x9.png` — viewport 1440 × 810, mode `Tactical`, vue initiale du circuit.
+- Comparaison plein écran normalisée : `docs/qa/tactical-map-option2-comparison.png` — source à gauche, implémentation à droite, deux surfaces 1440 × 810.
+- Vérification responsive : `docs/qa/tactical-map-mobile-natural.png` — viewport 390 × 844, mode naturel forcé, aucune couche tactique chargée.
+- Route : `http://localhost:3000/`.
+- État : aucune étape sélectionnée ; HUD cartographique, nuages, chronologie et timeline visibles ; ADS-B live et AIS simulé faute de clé serveur.
+
+## Comparaison finale
+
+| Surface | Source | Implémentation finale | Verdict |
+|---|---|---|---|
+| Typographie | Typographie SailBoard compacte, contrôle `Natural / Tactical` | Familles, graisses et densité produit existantes conservées ; switch accessible en capitales visuelles | Conforme |
+| Espacement et rythme | Carte héro plein écran, switch compact en haut à droite | Même hiérarchie ; le rail produit actuel plus riche reste intact et la carte conserve toute la surface utile restante | Conforme, contrainte produit assumée |
+| Couleurs et tokens | Terre argentée noir et blanc, mer bleu nuit, cyan et jaune pour la télémétrie | Raster IGN désaturé à contraste renforcé, fond `#001827`, courbes blanches, tokens `--hud`, `--race`, `--past-race` inchangés | Conforme |
+| Image et cartographie | Satellite SAR stylisé, relief et isobathes | Orthophoto IGN réelle, relief calculé depuis DEM Terrarium, isobathes EMODnet, routes OpenStreetMap/OpenFreeMap | Amélioré en fidélité géographique |
+| HUD et copie | Grille, coordonnées, contrôle de mode | HUD DOM existant conservé au-dessus des nuages ; états honnêtes `ADS-B LIVE` et `AIS MODEL` | Conforme à la demande |
+| Mouvement | Mouvement seulement suggéré par le mock | Chronologie existante intacte ; villes scintillantes, trafic routier, navires et avions interpolés ; nuages à trois passes volumétriques | Conforme à la demande étendue |
+| Mobile | Non spécifié dans le mock | Switch absent, sources tactiques absentes de l’attribution, fond naturel seul à 390 × 844 | Validé |
+
+## Comparaison focalisée
+
+La comparaison plein écran normalisée suffit pour le style de carte car la cible et l’implémentation sont toutes deux des surfaces cartographiques plein cadre. Les zones critiques — switch, HUD de coordonnées, littoral, courbes, marqueurs et timeline — restent lisibles dans `docs/qa/tactical-map-option2-comparison.png`. La capture mobile séparée sert de preuve ciblée pour la coupure des couches lourdes.
+
+## Historique QA
+
+### Passage 1 — bloqué
+
+- [P2] La terre de l’implémentation était sensiblement plus sombre et moins argentée que la cible Seedream, ce qui réduisait la lecture SAR du relief.
+- [P2] Le comportement mobile n’était pas encore prouvé visuellement, alors que l’absence totale des couches lourdes est une exigence explicite.
+
+### Corrections
+
+- Contraste raster tactique porté à `0.62`, plafond de luminosité à `0.92`, opacité à `0.82` et fond marin renforcé en bleu nuit `#001827`.
+- Capture dédiée à 390 × 844 : aucun contrôle `Map appearance`, aucune attribution EMODnet/OpenFreeMap et aucune télémétrie live, ce qui prouve que le chemin tactique n’est pas monté sur mobile.
+
+### Passage final — validé
+
+- Le bouton `Natural` active `aria-pressed=true` en un clic et masque la télémétrie ; `Tactical` la réactive sans appel à `map.setStyle`.
+- La chronologie reste rendue après les deux bascules et `useSeasonChronologyAnimation.ts` n’a pas été modifié.
+- Le HUD de coordonnées et le bouton de recentrage restent au-dessus des nuages et des couches cartographiques.
+- Le navigateur affiche `ADS-B LIVE`; l’absence de `AISSTREAM_API_KEY` est rendue honnêtement par `AIS MODEL` et les voies commerciales simulées.
+- Aucune erreur ni aucun avertissement de console sur desktop et mobile.
+
+## Contrôles techniques
+
+- `npm test` : 27 tests réussis.
+- `npm run lint` : réussi.
+- `npm run build` : réussi.
+- Interactions navigateur : `Natural`, `Tactical`, statut de source et responsive mobile vérifiés.
+
+final result: passed
+
+---
+
 # Design QA — HUD contextuel depuis le rail
 
 ## Périmètre
