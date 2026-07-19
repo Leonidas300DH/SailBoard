@@ -71,6 +71,8 @@ test("les couches de vie tactiques sont desktop, animées et branchées sur des 
   assert.match(styles, /\.tactical-traffic-marker--aircraft::before/);
   assert.match(styles, /\.tactical-aircraft-shadow/);
   assert.match(styles, /var\(--aircraft-lift\)/);
+  assert.match(styles, /\.tactical-traffic-marker \{ position: absolute;/);
+  assert.doesNotMatch(styles, /\.tactical-traffic-marker \{ position: relative;/);
   assert.match(shipIcon, /Lucide Navigation2 icon/);
   assert.match(shipIcon, /<polygon points="12 2 19 21 12 17 5 21 12 2"/);
 });

@@ -33,7 +33,7 @@
 
 /* Live traffic markers use sourced Lucide silhouettes. Aircraft are lifted
    away from a ground-anchored shadow; vessels stay flat on the chart. */
-.tactical-traffic-marker { position: relative; z-index: 3; width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: transparent; cursor: help; pointer-events: auto; }
+.tactical-traffic-marker { position: absolute; z-index: 3; width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: transparent; cursor: help; pointer-events: auto; }
 .tactical-traffic-marker__icon { grid-area: 1 / 1; width: 16px; height: 16px; transform: rotate(var(--traffic-heading, 0deg)); filter: drop-shadow(0 0 2px rgba(1,10,16,.98)) drop-shadow(0 0 5px rgba(115,220,255,.82)); transition: filter .16s ease, transform .2s linear; }
 .tactical-traffic-marker--aircraft { --aircraft-lift: 8px; --aircraft-scale: 1; --aircraft-shadow-blur: 1px; --aircraft-shadow-opacity: .34; z-index: 7; width: 38px; height: 38px; overflow: visible; }
 .tactical-traffic-marker--aircraft::before { content: ""; position: absolute; z-index: 0; left: 50%; top: 50%; width: 1px; height: calc(var(--aircraft-lift) * 1.12); background: linear-gradient(to top, rgba(188,236,255,.08), rgba(188,236,255,.42)); opacity: .52; transform-origin: bottom center; transform: translate(-50%, -100%) rotate(-28deg); pointer-events: none; }
