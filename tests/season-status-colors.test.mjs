@@ -37,11 +37,18 @@ test("garde les noms courts visibles sur la carte desktop sans afficher les date
 });
 
 test("sépare les étapes bretonnes proches pour conserver chaque zone de clic", async () => {
-  const seasonMap = await readFile(new URL("components/season/SeasonMap.tsx", root), "utf8");
+  const [seasonMap, mapHud] = await Promise.all([
+    readFile(new URL("components/season/SeasonMap.tsx", root), "utf8"),
+    readFile(new URL("components/map/MapHud.tsx", root), "utf8"),
+  ]);
 
   assert.match(seasonMap, /const MARKER_OFFSETS/);
   assert.match(seasonMap, /"spi-ouest-france": \[-32, 22\]/);
   assert.match(seasonMap, /"trophee-ycca": \[30, 30\]/);
   assert.match(seasonMap, /"challenge-an-avel-braz": \[32, -22\]/);
   assert.match(seasonMap, /offset: MARKER_OFFSETS\[race\.id\] \?\? \[0, 0\]/);
+  assert.match(seasonMap, /targetOffset=\{selectedRace \? MARKER_OFFSETS\[selectedRace\.id\] : undefined\}/);
+  assert.match(mapHud, /projected\.x \+ offsetX/);
+  assert.match(mapHud, /projected\.y \+ offsetY/);
+  assert.match(mapHud, /setReticle\(inView \? visualTarget : null\)/);
 });

@@ -241,6 +241,7 @@ export function SeasonMap({
       mapRef={mapRef}
       isReady={isReady}
       target={selectedRace?.coordinates}
+      targetOffset={selectedRace ? MARKER_OFFSETS[selectedRace.id] : undefined}
       targetLabel={selectedRace?.shortName}
       onRecenter={recenter}
     />

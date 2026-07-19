@@ -18,12 +18,14 @@ export function MapHud({
   mapRef,
   isReady,
   target,
+  targetOffset,
   targetLabel,
   onRecenter,
 }: {
   mapRef: RefObject<MaplibreMap | null>;
   isReady: boolean;
   target?: [number, number];
+  targetOffset?: readonly [number, number];
   targetLabel?: string;
   onRecenter?: () => void;
 }) {
@@ -32,9 +34,11 @@ export function MapHud({
   const [readout, setReadout] = useState<{ lat: string; lng: string } | null>(null);
   const [reticle, setReticle] = useState<{ x: number; y: number } | null>(null);
   const targetRef = useRef(target);
+  const targetOffsetRef = useRef(targetOffset);
   useEffect(() => {
     targetRef.current = target;
-  }, [target]);
+    targetOffsetRef.current = targetOffset;
+  }, [target, targetOffset]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -49,9 +53,11 @@ export function MapHud({
       const point = targetRef.current;
       if (point) {
         const projected = map.project(point);
+        const [offsetX, offsetY] = targetOffsetRef.current ?? [0, 0];
+        const visualTarget = { x: projected.x + offsetX, y: projected.y + offsetY };
         const { clientWidth, clientHeight } = map.getContainer();
-        const inView = projected.x >= 0 && projected.x <= clientWidth && projected.y >= 0 && projected.y <= clientHeight;
-        setReticle(inView ? { x: projected.x, y: projected.y } : null);
+        const inView = visualTarget.x >= 0 && visualTarget.x <= clientWidth && visualTarget.y >= 0 && visualTarget.y <= clientHeight;
+        setReticle(inView ? visualTarget : null);
       } else {
         setReticle(null);
       }
